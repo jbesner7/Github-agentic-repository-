@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Agentic Trading System — Creation Report</title>
+  <style>
+    :root {
+      --ink: #111;
+      --muted: #333;
+      --line: #222;
+      --bg: #fff;
+      --box: #f4f4f4;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      font-family: "IBM Plex Sans", "Segoe UI", Helvetica, Arial, sans-serif;
+      font-size: 10.4pt;
+      line-height: 1.38;
+    }
+    .toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      background: #111;
+      color: #fff;
+      padding: 10px 16px;
+      font-size: 13px;
+    }
+    .toolbar button {
+      background: #fff;
+      color: #111;
+      border: 0;
+      padding: 8px 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .page {
+      max-width: 8.5in;
+      margin: 0 auto;
+      padding: 0.5in 0.65in 0.65in;
+    }
+    .cover {
+      min-height: 9.2in;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      page-break-after: always;
+    }
+    .cover h1 {
+      font-size: 26pt;
+      letter-spacing: -0.02em;
+      margin: 0 0 0.12in;
+      line-height: 1.15;
+    }
+    .cover .kicker {
+      font-size: 10pt;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 0.2in;
+    }
+    .cover .rule {
+      width: 1.4in;
+      height: 3px;
+      background: #111;
+      margin: 0.15in 0 0.22in;
+    }
+    h1 { font-size: 18pt; margin: 0 0 0.08in; }
+    h2 {
+      font-size: 13pt;
+      margin: 0.3in 0 0.1in;
+      padding-bottom: 0.04in;
+      border-bottom: 1.5pt solid var(--line);
+      page-break-after: avoid;
+    }
+    h3 {
+      font-size: 11pt;
+      margin: 0.16in 0 0.06in;
+      page-break-after: avoid;
+    }
+    .meta, .note, .footer { font-size: 9.4pt; color: var(--muted); }
+    .meta strong, .cover strong { color: var(--ink); }
+    .badge-row { display: flex; flex-wrap: wrap; gap: 6px; margin: 0.12in 0 0.16in; }
+    .badge {
+      border: 1pt solid var(--line);
+      padding: 3px 8px;
+      font-size: 8.4pt;
+      background: var(--box);
+    }
+    .toc ol { margin: 0.08in 0 0; padding-left: 1.15in; }
+    .toc li { margin: 0.03in 0; }
+    .diagram {
+      font-family: "IBM Plex Mono", Consolas, "Courier New", monospace;
+      font-size: 7.3pt;
+      line-height: 1.22;
+      white-space: pre;
+      background: var(--box);
+      border: 1pt solid var(--line);
+      padding: 0.11in 0.13in;
+      overflow: hidden;
+      page-break-inside: avoid;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 9.3pt;
+      margin: 0 0 0.12in;
+    }
+    th, td {
+      border: 1pt solid var(--line);
+      padding: 0.055in 0.075in;
+      vertical-align: top;
+      text-align: left;
+    }
+    th { background: #e8e8e8; font-weight: 700; }
+    table.rules th { width: 1.45in; }
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.12in;
+    }
+    .card {
+      border: 1pt solid var(--line);
+      padding: 0.1in 0.12in;
+      background: var(--box);
+      page-break-inside: avoid;
+    }
+    .card h3 { margin-top: 0; }
+    .card ul, ul { margin: 0.04in 0 0.08in; padding-left: 0.2in; }
+    li { margin: 0.025in 0; }
+    .status-on { font-weight: 700; }
+    .footer {
+      margin-top: 0.2in;
+      padding-top: 0.08in;
+      border-top: 1pt solid #999;
+      font-size: 8.3pt;
+    }
+    .page-break { page-break-before: always; }
+    @media print {
+      .no-print { display: none !important; }
+      .page { max-width: none; padding: 0; }
+      .cover { min-height: auto; }
+      a { color: inherit; text-decoration: none; }
+      h2, h3, table, .card, .diagram, .two-col { break-inside: avoid; }
+    }
+    @page { size: Letter portrait; margin: 0.48in; }
+  </style>
+</head>
+<body>
+  <div class="toolbar no-print">
+    <button type="button" onclick="window.print()">Print / Save as PDF</button>
+    <span>Creation report — Letter portrait · turn on background graphics</span>
+  </div>
+
+  <div class="page">
+    <section class="cover">
+      <div class="kicker">Owner operating document · not a live trade ticket</div>
+      <h1>Agentic Trading System<br />Creation Report</h1>
+      <div class="rule"></div>
+      <p class="meta">
+        <strong>Owner:</strong> Jarrod Besner<br />
+        <strong>Broker:</strong> Robinhood · tradable account Agentic ••••2907 only<br />
+        <strong>Repo:</strong> Github-agentic-repository-<br />
+        <strong>As of:</strong> 2026-08-30 (Sunday) · US cash session closed<br />
+        <strong>Live orders placed by this build:</strong> none
+      </p>
+      <div class="badge-row">
+        <span class="badge">Options first</span>
+        <span class="badge">1 contract / 1 position</span>
+        <span class="badge">No crypto</span>
+        <span class="badge">Playbook RELEASED</span>
+        <span class="badge">Working pair −20% / +40%</span>
+        <span class="badge">RTH scan &amp; buy only</span>
+        <span class="badge">Chat confirm still required here</span>
+        <span class="badge">Agent H prompt written · not activated</span>
+      </div>
+      <p>This report covers every area built in this creation: purpose, locked rules, agents A–H, code layout, the Phase 2 read-only cycle, the Phase 3 dry review, playbook release, autonomous Automation prompt, and what is still gated. Numbers below are from repo files and Robinhood tool reads. Nothing here is a live order.</p>
+    </section>
+
+    <h2>Contents</h2>
+    <div class="toc">
+      <ol>
+        <li>Purpose and what was created</li>
+        <li>Account, capital, and hard gates</li>
+        <li>Locked trading rules (current)</li>
+        <li>System architecture</li>
+        <li>Agent map A–H</li>
+        <li>Build phases vs actual status</li>
+        <li>Repository and file map</li>
+        <li>Signal pipeline (how a cycle runs)</li>
+        <li>Playbooks and rule history</li>
+        <li>Phase 2 read-only cycle (facts)</li>
+        <li>Phase 3 dry review (facts)</li>
+        <li>Agent H / Cursor Automation</li>
+        <li>Honesty, PDT, and non-verification</li>
+        <li>How to operate</li>
+        <li>What is not built / not live</li>
+        <li>Appendix — tests and source files</li>
+      </ol>
+    </div>
+
+    <h2>1. Purpose and what was created</h2>
+    <p>A multi-agent Robinhood automation for <strong>one</strong> account (Agentic). The design priority is <strong>options first</strong>, equity fallback, human-supervised place from this Cursor chat, and an optional unsupervised Cursor Automation (Agent H) that the owner can toggle at cursor.com/automations.</p>
+    <div class="two-col">
+      <div class="card">
+        <h3>Built</h3>
+        <ul>
+          <li>Locked spec in <code>config/rules.json</code></li>
+          <li>Printable Phase 0 plan + this report</li>
+          <li>Python pipeline agents A–E, I, F (dry review)</li>
+          <li>Chart + options playbooks</li>
+          <li>One live <em>read-only</em> signal cycle</li>
+          <li>One broker <em>review</em> (no place)</li>
+          <li>Agent H paste-ready Automation prompt</li>
+          <li>13 unit tests passing</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Not built / not live</h3>
+        <ul>
+          <li>No <code>place_*</code> from this chat</li>
+          <li>No Cursor Automation created or activated</li>
+          <li>No always-on Phase 4 loop process</li>
+          <li>No OCO / bracket at the broker (MCP has none)</li>
+          <li>No crypto trading (excluded)</li>
+          <li>No live-ready option ticket under current spread rule</li>
+        </ul>
+      </div>
+    </div>
+
+    <h2>2. Account, capital, and hard gates</h2>
+    <table class="rules">
+      <tr><th>Tradable account</th><td>Agentic only. Last four <strong>2907</strong>. Resolve via <code>get_accounts</code> (<code>agentic_allowed=true</code>). Full number only in RH tool calls. Mask as ••••2907 in git and this report.</td></tr>
+      <tr><th>Do not trade</th><td>Cash individual ending <strong>5638</strong> (not agentic-allowed to this agent). Any other brokerage or crypto account.</td></tr>
+      <tr><th>Funding (last RH read)</th><td>Agentic buying power / cash <strong>$1,500.00</strong> on the Phase 3 dry-review run. Target funding in spec: $1,500.</td></tr>
+      <tr><th>Size</th><td>Max <strong>1 open position</strong>. Options: <strong>1 contract</strong>. Equity fallback: up to full buying power for that single position.</td></tr>
+      <tr><th>Chat place gate</th><td>Playbook RELEASED <em>and</em> explicit confirm of a <strong>specific</strong> order in this Cursor chat. Release is not a blanket authorize-all.</td></tr>
+      <tr><th>H place gate</th><td>Separate Cursor Automation must be pasted, saved, and <strong>activated</strong>. Disable = off. This chat did not create that Automation.</td></tr>
+    </table>
+
+    <h2>3. Locked trading rules (current)</h2>
+    <table class="rules">
+      <tr><th>Universe</th><td>All Robinhood watchlists (current + future), including Options Watchlist. <strong>No crypto</strong> (<code>currency_pair</code>, <code>tokenized_stock</code>). Deduplicate. Index underlyings/options allowed.</td></tr>
+      <tr><th>Priority</th><td>Options first. Equity only if no option candidate clears gates.</td></tr>
+      <tr><th>Patterns</th><td>H&amp;S, inverse H&amp;S, double/triple top &amp; bottom, ascending / descending / symmetrical triangles. Timeframes: 15m, 1h, daily. Bias needs a strict majority; neutral → no options structure.</td></tr>
+      <tr><th>Options structure</th><td>Long call or long put only. No shorts, no credit spreads, no multi-leg. DTE 0–7. ATM then one OTM. abs(delta) 0.40–0.50 from <strong>RH quotes only</strong>. Never invent Greeks.</td></tr>
+      <tr><th>Liquidity</th><td>Underlying ADV ≥ ~2,000,000. Option bid–ask prefer ≤ 5% of mid; <strong>reject &gt; 10%</strong>. No $0.10 absolute override. Reject one-sided quotes.</td></tr>
+      <tr><th>Options exits</th><td>Band SL 20–50% / TP 30–100%+ of premium, aim 1:2. <strong>Owner-locked working pair −20% / +40%</strong>. After fill: broker <strong>STOP only</strong> (no OCO in this MCP). Monitor TP on later RTH runs.</td></tr>
+      <tr><th>Equity exits</th><td>TP +25% / SL −20% of trade cost. Same stop-first rule.</td></tr>
+      <tr><th>Session (Automation)</th><td><strong>Scan and buy only in US RTH</strong>: Mon–Fri 09:30–16:00 America/New_York, cash session open. <code>market_hours=regular_hours</code> on entries. Outside RTH: no scan, no buy.</td></tr>
+      <tr><th>PDT</th><td>Do not throttle day-trade frequency. Owner accepts risk. Owner stated PDT “no longer exists” — <strong>not independently verified</strong> as law in this repo.</td></tr>
+      <tr><th>Confirms</th><td>This chat: every live order. Agent H: standing prompt is the confirm <em>for that Automation only</em>.</td></tr>
+    </table>
+
+    <div class="two-col">
+      <div class="card">
+        <h3>Options (priority)</h3>
+        <ul>
+          <li>1 contract</li>
+          <li>Working pair <strong>−20% / +40%</strong></li>
+          <li>Spread prefer ≤5%, reject &gt;10%</li>
+          <li>Stop first; TP monitored</li>
+          <li>RTH entries only</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Equity (fallback)</h3>
+        <ul>
+          <li>1 open position</li>
+          <li>Up to full buying power</li>
+          <li>TP +25% / SL −20%</li>
+          <li>Stop first; TP monitored</li>
+          <li>RTH entries only</li>
+        </ul>
+      </div>
+    </div>
+
+    <h2 class="page-break">4. System architecture</h2>
+    <div class="diagram">┌─────────────────────────────────────────────────────────────────────────┐
+│  CURSOR AUTOMATION (Agent H)     Activate = ON     Disable = OFF        │
+│  Fail-closed: if not US RTH → journal skipped: outside_rth → exit       │
+└───────────────────────────────────┬─────────────────────────────────────┘
+                                    │  (optional; not created from this chat)
+                                    ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│  G / cycle  ·  A Universe  ·  B Patterns  ·  C News                     │
+│  D Structure  ·  I Greeks (RH only)  ·  E Risk (−20% / +40%)            │
+│  signals/*  +  journal/*                                                │
+└───────────────────────────┬─────────────────────────┬───────────────────┘
+                            ▼                         ▼
+                 ┌──────────────────┐      ┌──────────────────────────┐
+                 │ F this chat      │      │ H Automation             │
+                 │ review → CONFIRM │      │ review_* then place_*    │
+                 │ → place          │      │ no chat reply            │
+                 └────────┬─────────┘      └────────────┬─────────────┘
+                          └──────────────┬──────────────┘
+                                         ▼
+                          Robinhood AGENTIC ••••2907 only
+                          $1,500 last buying-power read</div>
+
+    <h2>5. Agent map A–H</h2>
+    <table>
+      <thead>
+        <tr><th>Agent</th><th>Role</th><th>Implementation</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>A</strong> Scanner</td><td>All lists + Options WL; drop crypto; ADV gate</td><td><code>pipeline/universe.py</code> → <code>signals/universe.json</code></td><td>Live read-only cycle run</td></tr>
+        <tr><td><strong>B</strong> Patterns</td><td>15m / 1h / daily heuristics</td><td><code>pipeline/patterns.py</code> → <code>signals/technicals.json</code></td><td>Live read-only cycle run</td></tr>
+        <tr><td><strong>C</strong> News</td><td>RH news / earnings packaging</td><td><code>pipeline/news.py</code> → <code>signals/news.json</code></td><td>Live read-only cycle run</td></tr>
+        <tr><td><strong>D</strong> Structure</td><td>Long call/put ≤7 DTE; equity fallback</td><td><code>pipeline/options_structure.py</code></td><td>Live read-only cycle run</td></tr>
+        <tr><td><strong>I</strong> Greeks</td><td>RH quote Greeks; delta 0.40–0.50</td><td><code>pipeline/greeks.py</code></td><td>Live read-only cycle run</td></tr>
+        <tr><td><strong>E</strong> Risk</td><td>Exit math; stop-first plan</td><td><code>pipeline/risk.py</code></td><td>Defaults −20% / +40%</td></tr>
+        <tr><td><strong>F</strong> Supervised</td><td>review → chat confirm → place</td><td><code>pipeline/execution.py</code></td><td>Dry review done; no place</td></tr>
+        <tr><td><strong>G</strong> Loop</td><td>One-cycle orchestrator</td><td><code>pipeline/orchestrator.py</code></td><td>Script, not always-on</td></tr>
+        <tr><td><strong>H</strong> Unsupervised</td><td>Automation auto-place under prompt</td><td><code>playbooks/agent_h_autonomous.PROMPT.md</code></td><td>Written; <strong>not activated</strong></td></tr>
+      </tbody>
+    </table>
+
+    <h2>6. Build phases vs actual status</h2>
+    <table>
+      <thead>
+        <tr><th>Phase</th><th>Intent</th><th>Actual (2026-08-30)</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>0</strong></td><td>Spec lock + printable plan</td><td>Done. <code>docs/phase0-trading-plan-printable.html</code> + this report.</td></tr>
+        <tr><td><strong>1</strong></td><td>Playbooks + Greeks spec</td><td>Chart playbook active. Options playbook <strong>RELEASED</strong> 2026-08-30.</td></tr>
+        <tr><td><strong>2</strong></td><td>Read-only A–E + I</td><td>One cycle 2026-08-30T08:26:05Z. 72 liquid names. 1 option candidate (later fails new spread). 0 places.</td></tr>
+        <tr><td><strong>3</strong></td><td>Supervised F live</td><td>Dry <code>review_option_order</code> only. Place still needs a specific chat confirm and a ticket that passes current gates.</td></tr>
+        <tr><td><strong>4</strong></td><td>Always-on G loop</td><td><strong>Not built</strong> as a daemon. Automation fires are discrete runs.</td></tr>
+        <tr><td><strong>5</strong></td><td>Unsupervised H</td><td>Prompt + JSON permissions written. Owner must paste and activate. Not done from this chat.</td></tr>
+      </tbody>
+    </table>
+
+    <h2>7. Repository and file map</h2>
+    <table>
+      <thead>
+        <tr><th>Path</th><th>What it is</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>config/rules.json</code></td><td>Machine spec: account, universe, options, liquidity, risk, RTH, PDT, playbook RELEASED</td></tr>
+        <tr><td><code>config/autonomous_permissions.json</code></td><td>Agent H standing-permission object (activate via Automation, not this chat)</td></tr>
+        <tr><td><code>pipeline/*.py</code></td><td>A–E, I, F, G cycle</td></tr>
+        <tr><td><code>scripts/run_phase2_cycle.py</code></td><td>Read-only cycle from <code>data/raw/latest_raw.json</code></td></tr>
+        <tr><td><code>playbooks/options_day_trading.md</code></td><td>Released options rules</td></tr>
+        <tr><td><code>playbooks/chart_patterns.md</code></td><td>Pattern list + heuristic notes</td></tr>
+        <tr><td><code>playbooks/agent_h_autonomous.PROMPT.md</code></td><td>Canonical Automation prompt (RTH fail-closed first)</td></tr>
+        <tr><td><code>signals/*</code></td><td>Last cycle outputs (historical snapshot; not rewritten after later locks)</td></tr>
+        <tr><td><code>journal/2026-08-30.md</code></td><td>Locks, cycle, dry review, prompt review</td></tr>
+        <tr><td><code>docs/phase0-trading-plan-printable.html</code></td><td>Shorter Phase 0 card</td></tr>
+        <tr><td><code>docs/system-creation-report-printable.html</code></td><td>This report</td></tr>
+      </tbody>
+    </table>
+
+    <h2 class="page-break">8. Signal pipeline (how a cycle runs)</h2>
+    <div class="diagram">Watchlists (all + Options WL)
+        │  skip crypto
+        ▼
+   A  ADV ≥ 2M
+        ├─► B  daily first; 15m/1h on daily hits (H prompt)
+        ├─► C  news / earnings
+        ▼
+   D  long call/put, DTE 0–7, ATM → 1 OTM
+        ▼
+   I  RH abs(delta) 0.40–0.50
+        ▼
+   spread ≤ 10% of mid (prefer ≤ 5%)
+        ▼
+   E  −20% / +40%  ·  stop-first
+        ▼
+   F chat confirm    or    H Automation (if activated)
+        │
+        └── no candidate / not RTH / blocking review → journal and stop</div>
+    <p>Robinhood MCP has <strong>no OCO</strong>. Two live exits can double-fill. Locked policy: place <strong>stop only</strong> after fill; take-profit is watched on later RTH runs.</p>
+
+    <h2>9. Playbooks and rule history</h2>
+    <p>Later locks supersede earlier ones. Journal keeps the old lines as history.</p>
+    <table>
+      <thead>
+        <tr><th>When</th><th>Rule</th><th>Status now</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Early Phase 0</td><td>Options TP +20% / SL −7% of premium; spread ≤10% or ≤ $0.10</td><td>Superseded</td></tr>
+        <tr><td>Q2 lock</td><td>Keep −7% even if spread is 5–10%</td><td>Superseded</td></tr>
+        <tr><td>Owner change</td><td>SL 20–50%, TP 30–100%+, aim 1:2; spread 5–10% of price; no $0.10 override</td><td>Band still locked</td></tr>
+        <tr><td>Interim default</td><td>Working pair −25% / +50%</td><td>Superseded</td></tr>
+        <tr><td>Owner confirm</td><td>Working pair <strong>−20% / +40%</strong></td><td><strong>Current</strong></td></tr>
+        <tr><td>Owner confirm</td><td>Options playbook RELEASED</td><td><strong>Current</strong> (chat still needs per-order confirm)</td></tr>
+        <tr><td>Owner confirm</td><td>Scan and buy <strong>RTH only</strong></td><td><strong>Current</strong> for Automation</td></tr>
+      </tbody>
+    </table>
+
+    <h2>10. Phase 2 read-only cycle (facts)</h2>
+    <p>As of <strong>2026-08-30T08:26:05Z</strong>. Mode: read-only. Places: <strong>none</strong>.</p>
+    <table>
+      <tr><th>Watchlists used</th><td>My First List, ARKVX, Playbook Monday ORB, Options Watchlist (no option underlyings that cycle)</td></tr>
+      <tr><th>Crypto skipped</th><td>BTC, ETH, XRP</td></tr>
+      <tr><th>Liquid equities</th><td>72 names with ADV ≥ 2M (list in <code>signals/phase2_summary.json</code>)</td></tr>
+      <tr><th>Dominant bias</th><td><strong>NU bullish</strong> (daily inverse H&amp;S). <strong>SOFI bearish</strong> (daily double top, neckline 17.94). Others no strict majority.</td></tr>
+      <tr><th>NU option</th><td>Rejected: RH abs(delta) <strong>0.396</strong> outside 0.40–0.50</td></tr>
+      <tr><th>SOFI option (then)</th><td>Long put 2026-09-04 $18, option_id <code>a29d992b-6bf2-44da-9f9a-c636bc8c4cd1</code>, ATM, mark $0.40, RH delta ≈ −0.466</td></tr>
+      <tr><th>SOFI vs current spread</th><td>Bid $0.37 / ask $0.43 = <strong>15% of mid</strong> → <strong>fails</strong> the &gt;10% reject. Not a live ticket under current rules.</td></tr>
+      <tr><th>Quote age</th><td>Broker review quote as of <strong>2026-08-28T19:59:59Z</strong> (Friday). Sunday cycle = stale.</td></tr>
+    </table>
+    <p>On a $0.40 mark, locked −20% / +40% is SL $0.32 / TP $0.56 premium ($32 / $56 cash on 1 contract). That math is unused until a quote clears the spread gate in RTH.</p>
+
+    <h2>11. Phase 3 dry review (facts)</h2>
+    <table>
+      <tr><th>When</th><td>2026-08-30T08:41:36Z</td></tr>
+      <tr><th>Account</th><td>Agentic ••••2907 · buying power $1,500.00</td></tr>
+      <tr><th>Ticket reviewed</th><td>Buy to open 1 SOFI Sep 4 $18 put, limit $0.43, GFD, regular hours</td></tr>
+      <tr><th>Broker review</th><td><code>order_checks</code> empty. Fee $0.04. Bid 0.37 / ask 0.43 / mark 0.40. Delta −0.466144</td></tr>
+      <tr><th>Place</th><td><strong>Not sent.</strong> At that moment playbook was still DRAFT. Playbook is now RELEASED, but this chat still needs a specific confirm, and the same quote now fails the 10% spread gate and is stale.</td></tr>
+    </table>
+
+    <h2 class="page-break">12. Agent H / Cursor Automation</h2>
+    <p>A Cursor Automation is <strong>not</strong> this cloud-agent chat. It is a scheduled Cloud Agent the owner creates at <strong>cursor.com/automations</strong>. This creation wrote the prompt; it did <strong>not</strong> create or activate the Automation (0 Automation-sourced runs were listed on this repo when checked).</p>
+    <table class="rules">
+      <tr><th>ON / OFF</th><td>Activate the Automation = ON. Disable = OFF (kills autonomous placing).</td></tr>
+      <tr><th>Prompt</th><td><code>playbooks/agent_h_autonomous.PROMPT.md</code> — fail-closed ET clock <em>before</em> any RH call.</td></tr>
+      <tr><th>RTH</th><td>Mon–Fri 09:30–16:00 America/New_York. Outside: <code>skipped: outside_rth</code>, no scan, no buy.</td></tr>
+      <tr><th>May call</th><td><code>review_option_order</code> → <code>place_option_order</code>; <code>review_equity_order</code> → <code>place_equity_order</code> on ••••2907 only.</td></tr>
+      <tr><th>Must not call</th><td><code>place_crypto_order</code>, <code>preview_crypto_order</code>, <code>exercise_option</code>, <code>cancel_option_exercise</code>. No shorts / multi-leg / crypto.</td></tr>
+      <tr><th>MCP warning</th><td>Connecting Robinhood MCP exposes <em>every</em> tool. The prompt forbids the dangerous ones; the kill switch is Disable.</td></tr>
+      <tr><th>Do not</th><td>Make one Automation per letter A–H. Those are pipeline stages. One H Automation (or a scan-only G later).</td></tr>
+    </table>
+    <h3>Prompt defects that were fixed</h3>
+    <ul>
+      <li>Extended/overnight scan language contradicted RTH-only — RTH now wins and is first.</li>
+      <li>“Regular hours unless extended” on buys removed.</li>
+      <li>Open working orders now fetched, not only positions.</li>
+      <li>Exit path specified (stop-first; no live TP that can double-fill).</li>
+      <li>Pattern work: daily first, 15m/1h only on hits, stop at one bias (fits a discrete 15-minute fire).</li>
+    </ul>
+
+    <h2>13. Honesty, PDT, and non-verification</h2>
+    <ul>
+      <li>Greeks: only values returned by <code>get_option_quotes</code>. No Black–Scholes fallback unless the owner later asks.</li>
+      <li>PDT: operational instruction is “do not throttle.” Owner claim that PDT no longer exists is <strong>not verified as securities law</strong> here.</li>
+      <li>Holiday calendar: Automation must not invent one. After the ET clock says RTH, if RH shows regular session closed, treat as outside RTH.</li>
+      <li>Historical <code>signals/*</code> files are snapshots. They still show old −7% / +20% and DRAFT playbook from the time they were written.</li>
+    </ul>
+
+    <h2>14. How to operate</h2>
+    <table>
+      <thead>
+        <tr><th>Goal</th><th>What to do</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Read-only scan (this repo)</td><td>Assemble RH dumps → <code>data/raw/latest_raw.json</code> → <code>python3 scripts/run_phase2_cycle.py</code> → read <code>signals/</code></td></tr>
+        <tr><td>Supervised live ticket</td><td>Wait for RTH. New cycle. Candidate must pass spread + delta + 1-position. This chat posts the ticket. You confirm that ticket. Then <code>place_*</code>.</td></tr>
+        <tr><td>Autonomous ON</td><td>Paste canonical H prompt at cursor.com/automations, attach this repo, connect RH MCP, activate. Sunday fires should no-op.</td></tr>
+        <tr><td>Autonomous OFF</td><td>Disable the Automation. Or delete <code>config/autonomous_permissions.json</code> (prompt says place nothing).</td></tr>
+        <tr><td>Print this report</td><td>Open this HTML → Print / Save as PDF → Letter, backgrounds on.</td></tr>
+      </tbody>
+    </table>
+
+    <h2>15. What is not built / not live</h2>
+    <ul>
+      <li>No live order has been placed on Agentic by this creation.</li>
+      <li>No Cursor Automation exists from this work; H is paper until you activate it.</li>
+      <li>Phase 4 is not an always-on process inside the repo — only a one-shot orchestrator script.</li>
+      <li>Broker OCO/brackets are unavailable in the connected MCP tool set.</li>
+      <li>There is no current option candidate that passes the 10% spread gate on a live RTH quote.</li>
+    </ul>
+
+    <h2>16. Appendix — tests and source files</h2>
+    <p>Last recorded unit run: <code>python3 -m pytest pipeline/tests -q</code> → <strong>13 passed</strong>. Coverage includes crypto exclusion, ADV gate, 5–10% spread (no dollar override), Greeks no-invention, −20% / +40% risk math, band rejects, ATM/DTE pick, and F place-gate (draft / missing confirm / both required).</p>
+    <p class="note">Print: Letter portrait, background graphics on. Companion one-pager: <code>docs/phase0-trading-plan-printable.html</code>. Canonical H prompt: <code>playbooks/agent_h_autonomous.PROMPT.md</code>.</p>
+
+    <div class="footer">
+      File: docs/system-creation-report-printable.html · As of 2026-08-30 · Agentic ••••2907 · 0 live places from this build
+    </div>
+  </div>
+</body>
+</html>
