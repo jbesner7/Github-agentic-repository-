@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Task Board</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="app__header">
+        <h1>Task Board</h1>
+        <p class="app__subtitle">A minimal full-stack demo running in your Cloud Agent environment.</p>
+      </header>
+
+      <form id="new-task-form" class="task-form" autocomplete="off">
+        <input
+          id="new-task-input"
+          class="task-form__input"
+          type="text"
+          name="title"
+          placeholder="Add a new task…"
+          aria-label="Task title"
+          required
+        />
+        <button class="task-form__button" type="submit">Add</button>
+      </form>
+
+      <p id="status" class="status" role="status"></p>
+
+      <ul id="task-list" class="task-list" aria-live="polite"></ul>
+    </main>
+
+    <script src="/app.js"></script>
+  </body>
+</html>
