@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Agentic trading workflow — printable diagram</title>
+  <style>
+    :root {
+      --ink: #111111;
+      --muted: #333333;
+      --accent: #0b3d8c;
+      --stop: #7a1020;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; background: #ffffff; color: var(--ink); }
+    body { font-family: "IBM Plex Sans", "Segoe UI", Helvetica, Arial, sans-serif; }
+    .toolbar {
+      position: sticky; top: 0; z-index: 20;
+      display: flex; gap: 10px; align-items: center;
+      background: #ffffff; border-bottom: 1px solid #111;
+      padding: 8px 14px; font-size: 13px;
+    }
+    .toolbar button, .toolbar a {
+      background: #0b3d8c; color: #fff; border: 0;
+      padding: 8px 12px; font-weight: 700; text-decoration: none; cursor: pointer;
+    }
+    .sheet {
+      width: 10.4in;
+      height: 7.5in;
+      overflow: hidden;
+      margin: 16px auto 28px;
+      padding: 0.08in 0.16in 0.06in;
+      background: #ffffff;
+      page-break-after: always;
+      break-after: page;
+    }
+    .sheet:last-of-type { page-break-after: auto; break-after: auto; }
+    .kicker {
+      font-size: 8.5pt;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 700;
+      margin: 0 0 1px;
+    }
+    h1 { font-size: 16pt; margin: 0; letter-spacing: -0.02em; line-height: 1.15; }
+    .sub { font-size: 9pt; color: var(--muted); margin: 2px 0 6px; }
+    .spine { display: flex; flex-direction: column; gap: 0; }
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 16px 2.15in;
+      gap: 6px;
+      align-items: stretch;
+    }
+    .step, .reject {
+      border: 1.4pt solid #111;
+      background: #ffffff;
+      padding: 4px 8px;
+    }
+    .step b { display: block; font-size: 10.5pt; line-height: 1.2; }
+    .step span { display: block; font-size: 9pt; margin-top: 1px; line-height: 1.25; }
+    .letter { font-weight: 800; color: var(--accent); }
+    .arrow-right {
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14pt; line-height: 1;
+    }
+    .arrow-down {
+      height: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      padding-left: 28%;
+      font-size: 11pt;
+      line-height: 1;
+    }
+    .reject {
+      border-color: var(--stop);
+      color: var(--stop);
+      font-size: 8.5pt;
+      line-height: 1.22;
+    }
+    .reject strong { display: block; font-size: 9.5pt; }
+    .split { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+    .card {
+      border: 1.4pt solid #111;
+      padding: 7px 9px;
+      background: #ffffff;
+    }
+    .card h3 { margin: 0 0 4px; font-size: 11pt; }
+    .card ul { margin: 0; padding-left: 1.05em; }
+    .card li { font-size: 9.5pt; margin: 2px 0; line-height: 1.28; }
+    .foot { margin: 5px 0 0; font-size: 8.5pt; color: var(--muted); }
+    .big-stop {
+      border: 2pt solid var(--stop);
+      padding: 7px 10px;
+      font-size: 10pt;
+      line-height: 1.3;
+      margin-top: 8px;
+    }
+    @page { size: Letter landscape; margin: 0.28in; }
+    @media print {
+      .toolbar { display: none !important; }
+      html, body { background: #ffffff; }
+      .sheet {
+        margin: 0;
+        width: 10.44in;
+        height: 7.94in;
+        max-height: 7.94in;
+        overflow: hidden;
+        page-break-after: always;
+        page-break-inside: avoid;
+        break-after: page;
+        break-inside: avoid;
+      }
+      .sheet:last-of-type { page-break-after: auto; break-after: auto; }
+    }
+  </style>
+</head>
+<body>
+  <div class="toolbar">
+    <button type="button" onclick="window.print()">Print / Save as PDF</button>
+    <a href="workflow-diagram.pdf">Open PDF</a>
+    <a href="engineering-presentation.pdf">Slide deck PDF</a>
+  </div>
+
+  <section class="sheet">
+    <div class="kicker">Page 1 of 2 · How a cycle runs</div>
+    <h1>Agentic trading workflow</h1>
+    <p class="sub">One account (Agentic ••••2907) · one contract · options first · fail closed · white printable diagram · 2026-08-30</p>
+
+    <div class="spine">
+      <div class="row">
+        <div class="step"><b>1. Clock first</b><span>America/New_York. RTH is Mon–Fri 09:30 inclusive to 16:00 exclusive, cash session open.</span></div>
+        <div class="arrow-right">→</div>
+        <div class="reject"><strong>Not RTH</strong>Write <code>skipped: outside_rth</code>. No Robinhood calls. No scan. No buy.</div>
+      </div>
+      <div class="arrow-down">↓</div>
+      <div class="row">
+        <div class="step"><b>2. <span class="letter">A</span> Universe</b><span>All Robinhood watchlists. Drop crypto (BTC, ETH, XRP). Dedupe. Keep ADV ≥ 2,000,000.</span></div>
+        <div class="arrow-right">→</div>
+        <div class="reject"><strong>Fail ADV</strong>Illiquid names never reach patterns or options.</div>
+      </div>
+      <div class="arrow-down">↓</div>
+      <div class="row">
+        <div class="step"><b>3. <span class="letter">B</span> Bias</b><span>Daily patterns first. 10-minute + hourly only on daily hits. Need a strict majority bullish or bearish.</span></div>
+        <div class="arrow-right">→</div>
+        <div class="reject"><strong>No majority</strong>Skip the name. Tie or mixed hits are not a trade.</div>
+      </div>
+      <div class="arrow-down">↓</div>
+      <div class="row">
+        <div class="step"><b>4. <span class="letter">D</span> Structure</b><span>Bullish → 1 long call. Bearish → 1 long put. DTE 0–7. ATM, else one strike OTM. Page the chain until ATM is in set.</span></div>
+        <div class="arrow-right">→</div>
+        <div class="reject"><strong>No contract</strong>No in-window expiry, or only far OTM after paging → skip.</div>
+      </div>
+      <div class="arrow-down">↓</div>
+      <div class="row">
+        <div class="step"><b>5. <span class="letter">I</span> Quote honesty</b><span>Greeks only from Robinhood. |delta| 0.40–0.50. Spread prefer ≤5%, reject &gt;10% of mid. No $0.10 override.</span></div>
+        <div class="arrow-right">→</div>
+        <div class="reject"><strong>Fail quote</strong>Missing Greek, wide book, or one-sided bid/ask → skip.</div>
+      </div>
+      <div class="arrow-down">↓</div>
+      <div class="row">
+        <div class="step"><b>6. <span class="letter">E</span> Risk</b><span>Size = 1 contract. Cash = mid × 100. Must fit buying power. Working pair −20% stop / +40% target.</span></div>
+        <div class="arrow-right">→</div>
+        <div class="reject"><strong>Fail cash</strong>Premium cash above buying power (example: SNOW $1,975 vs $1,500).</div>
+      </div>
+      <div class="arrow-down">↓</div>
+      <div class="row">
+        <div class="step"><b>7. Place authority</b><span>Always <code>review_*</code> then <code>place_*</code> with the same params. <code>regular_hours</code> only. Max one new entry per run.</span></div>
+        <div class="arrow-right">→</div>
+        <div class="reject"><strong>Blocked review</strong>Buying power, halt, or checks → do not place.</div>
+      </div>
+    </div>
+    <p class="foot">Any reject: journal the reason and stop. Pipeline code never places. Live place is F (this chat) or H (Automation) only.</p>
+  </section>
+
+  <section class="sheet">
+    <div class="kicker">Page 2 of 2 · Who may place, then what happens</div>
+    <h1>Two authorities, one account, stop first</h1>
+    <p class="sub">Do not run two place-capable Automations. Disable H to stop unsupervised buys.</p>
+
+    <div class="split" style="margin-bottom:8px;">
+      <div class="card">
+        <h3>F · This chat</h3>
+        <ul>
+          <li>May scan on request, including a Sunday test</li>
+          <li>Needs an explicit confirm of a <em>specific</em> order</li>
+          <li>Playbook RELEASED is not a blanket authorize-all</li>
+          <li>Off switch: do not confirm</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>H · Automation</h3>
+        <ul>
+          <li>Enabled as Agentic AI Bot</li>
+          <li>Clock check before any Robinhood call</li>
+          <li>No chat reply. Standing prompt is the permission</li>
+          <li>Off switch: Disable the Automation, or delete permissions file</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="grid3">
+      <div class="card">
+        <h3>After a fill</h3>
+        <ul>
+          <li>Place broker STOP only (−20% of fill premium)</li>
+          <li>Do not rest a live take-profit (no OCO in MCP)</li>
+          <li>Watch +40% on a later RTH run</li>
+          <li>If already in a position or working order: no new entry</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Never</h3>
+        <ul>
+          <li>Crypto, shorts, credit spreads, multi-leg</li>
+          <li>Invented Greeks or weekend quotes as live marks</li>
+          <li>Account ending 5638, or any non-Agentic account</li>
+          <li>More than one open position</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Write down</h3>
+        <ul>
+          <li><code>signals/*</code> — last cycle JSON</li>
+          <li><code>journal/YYYY-MM-DD.md</code> — skips and tickets</li>
+          <li>Mask accounts as ••••2907</li>
+          <li>H first Sunday fire: skipped, no RH calls</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="big-stop">
+      <strong>Read the arrows left to right, then down.</strong>
+      Clock → universe → bias → structure → honest quote → cash risk → one authority → review then place → stop first.
+      If any box on the right fires, the cycle ends with no order.
+    </div>
+    <p class="foot">File: docs/workflow-diagram-printable.html · PDF: docs/workflow-diagram.pdf · Agentic ••••2907 · 0 live places from this build</p>
+  </section>
+</body>
+</html>
