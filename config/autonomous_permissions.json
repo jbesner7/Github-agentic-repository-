@@ -46,7 +46,8 @@
     "delta_abs_max": 0.5,
     "delta_source": "robinhood_get_option_quotes_only",
     "max_contracts": 1,
-    "no_new_entries_overnight": true
+    "no_new_entries_overnight": true,
+    "entries_regular_hours_only": true
   },
   "liquidity": {
     "min_average_volume": 2000000,
@@ -60,10 +61,17 @@
     "equity": {"take_profit_pct": 0.25, "stop_loss_pct": 0.2},
     "broker_exit": "stop_first_until_oco"
   },
+  "session": {
+    "timezone": "America/New_York",
+    "scan_only_during_rth": true,
+    "buy_only_during_rth": true,
+    "rth": {"days": "monday_friday", "start": "09:30", "end": "16:00"},
+    "forbidden_sessions": ["pre_market", "after_hours", "overnight", "weekend", "us_market_holiday"],
+    "market_hours_on_entry": "regular_hours"
+  },
   "loop": {
     "rth_minutes": 15,
-    "extended_minutes": 30,
-    "overnight_minutes": 60
+    "run_outside_rth": false
   },
   "pdt": {
     "reduce_day_trades_for_pdt": false

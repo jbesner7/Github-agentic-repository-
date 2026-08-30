@@ -3,7 +3,7 @@
 Paste the block below into a new Cursor Automation at https://cursor.com/automations
 Attach repo: `jbesner7/Github-agentic-repository-`
 Connect Robinhood MCP.
-Schedule: every 15 minutes during RTH (or start at 30–60 minutes).
+Schedule: every 15 minutes is fine; the prompt **exits immediately** if it is not US RTH (09:30–16:00 America/New_York). Do not scan or buy outside that window.
 Activate = ON. Disable = OFF (kills autonomous placing).
 
 ---
@@ -39,9 +39,10 @@ Never short. Never credit spreads. Never multi-leg. Never crypto.
 
 1. **Positions.** `get_portfolio`, `get_option_positions` (nonzero), `get_equity_positions` on Agentic.
    - If **any** open position or working entry order already exists → **no new entry**. Manage exits only (see Exits).
-2. **Session.** US/Eastern.
-   - Overnight: **no new options entries**. You may monitor and journal. Equity fallback only if already in an equity trade (do not open a new overnight options ticket).
-   - RTH: full scan. Extended: scan; options entries allowed only if quotes are live and spread gate passes.
+2. **Session (RTH only).** Clock: America/New_York.
+   - **Scan only** during normal market hours: Mon–Fri **09:30–16:00** Eastern on US cash-session days.
+   - **Buy only** during that same RTH window. Options and equities: `market_hours=regular_hours` only.
+   - If now is pre-market, after-hours, overnight, weekend, or a US market holiday: journal `skipped: outside_rth` and **exit**. No watchlists, no quotes, no `review_*`, no `place_*`.
 3. **Universe.** `get_watchlists` + items for every list + `get_option_watchlist`. Include all lists. **Skip crypto** (`currency_pair`, `tokenized_stock`). Deduplicate symbols. Index underlyings/options are allowed.
 4. **Liquidity (underlying).** Prefer `average_volume` ≥ 2,000,000 from `get_equity_fundamentals`. Skip names that fail.
 5. **Patterns.** On 15m / 1h / daily (`get_equity_historicals`): head & shoulders, inverse H&S, double/triple top or bottom, ascending/descending/symmetrical triangle. Need a **bullish or bearish** bias. If no bias → skip that symbol.
@@ -51,7 +52,7 @@ Never short. Never credit spreads. Never multi-leg. Never crypto.
    - `get_option_quotes`: use **only RH-returned** delta/gamma/theta/vega/rho/IV. Never invent Greeks.
    - Require abs(delta) **0.40–0.50**. Else reject.
    - Spread = (ask − bid) / mid. Prefer ≤ 5%. **Reject > 10%**. Reject one-sided or missing bid/ask. No $0.10 override.
-   - Quantity **1** contract. Buy to open. Limit, GFD, regular_hours (unless a live extended session and the tool allows limit there).
+   - Quantity **1** contract. Buy to open. Limit, GFD, **`regular_hours` only**. Never extended / all-day / curb / overnight.
    - Limit price: at or inside the live ask; do not chase through a wide spread.
 7. **Equity fallback.** Only if **no** option candidate passed. One position. Size up to buying power from `get_portfolio`. `get_equity_tradability` first.
 8. **Risk math (locked working pair).**
