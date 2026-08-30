@@ -228,7 +228,7 @@
       <tr><th>Options structure</th><td>Buy call or buy put only (no shorts / no credit spreads). Expiry ≤ <strong>7 DTE</strong>. Strike: ATM first, else 1 OTM. Prefer delta ~0.40–0.50 via <strong>RH-returned Greeks only</strong> (no invented numbers). Playbook stays <strong>DRAFT</strong> until you approve release. <strong>No new options entries overnight</strong>.</td></tr>
       <tr><th>Greeks (Agent I)</th><td>Read delta, gamma, theta, vega, rho, IV from <code>get_option_quotes</code>. Use for strike filter and journal. Never invent Greeks.</td></tr>
       <tr><th>Liquidity</th><td>Underlying volume gate (v1 target ≥ ~2M ADV where applicable). Option spread ≤ 5–10% of mid <em>or</em> ≤ $0.10 absolute on cheap contracts. Reject missing / one-sided quotes.</td></tr>
-      <tr><th>Options exits</th><td>Take profit <strong>+20%</strong> of cash risked (premium). Stop loss <strong>−7%</strong> of cash risked. After fill: place broker <strong>STOP only</strong>. Monitor TP in loop until OCO exists.</td></tr>
+      <tr><th>Options exits</th><td>Take profit <strong>+20%</strong> of cash risked (premium). Stop loss <strong>−7%</strong> of cash risked — <strong>keep −7%</strong> even if bid–ask is 5–10% of mid (do not widen; do not require stop &gt; spread). After fill: place broker <strong>STOP only</strong>. Monitor TP in loop until OCO exists.</td></tr>
       <tr><th>Equity exits</th><td>Take profit <strong>+25%</strong> of total trade cost. Stop loss <strong>−20%</strong> of total trade cost. Prefer broker stop; same stop-first policy until OCO.</td></tr>
       <tr><th>Sessions / loop</th><td>RTH + extended + overnight monitoring. Cadence: RTH <strong>15m</strong> / extended <strong>30m</strong> / overnight <strong>60m</strong>. Unconfirmed proposals valid <strong>until next loop</strong> (then replaced).</td></tr>
       <tr><th>Execution</th><td>Agent F: human confirm in this Cursor chat for every live order. Agent H: unsupervised path designed OFF until you enable.</td></tr>
@@ -326,12 +326,7 @@
       <li>Agent F confirm flow dry-tested (review without place)</li>
     </ul>
 
-    <div class="open">
-      <h3 style="margin-top:0">Still open (not locked)</h3>
-      <ul>
-        <li><strong>Options −7% stop vs 5–10% spread:</strong> Keep −7%, widen stop, or require stop distance &gt; spread?</li>
-      </ul>
-    </div>
+    <p class="note">Phase 0 spec questions are locked. Options day-trading playbook remains DRAFT until you approve release.</p>
 
     <div class="footer">
       File: docs/phase0-trading-plan-printable.html &nbsp;·&nbsp;

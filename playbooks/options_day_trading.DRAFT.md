@@ -12,6 +12,7 @@ Do not use for live order placement until explicitly approved.
 - Max 1 contract
 - Liquidity: spread ≤ 10% of mid OR ≤ $0.10 absolute; reject one-sided quotes
 - Exits: TP +20% / SL −7% of cash risked; broker **stop first** until OCO exists
+- Keep **−7%** stop even if option bid–ask is 5–10% of mid (do not widen; do not require stop > spread)
 - No new options entries overnight
 - Index options allowed
 - Use Options Watchlist + all other watchlists; no crypto

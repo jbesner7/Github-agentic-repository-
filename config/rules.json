@@ -54,6 +54,7 @@
     "options": {
       "take_profit_pct_of_cash": 0.2,
       "stop_loss_pct_of_cash": 0.07,
+      "keep_stop_even_if_spread_wider": true,
       "broker_exit": "stop_first_until_oco"
     },
     "equity": {
@@ -79,7 +80,5 @@
       "regulatory_note": "Owner stated PDT rule no longer exists. Pipeline does not independently verify securities law; this is an operational lock only."
     }
   },
-  "open_questions": [
-    "Options -7% stop vs 5-10% spread — keep, widen, or require stop > spread?"
-  ]
+  "open_questions": []
 }
