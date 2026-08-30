@@ -79,10 +79,9 @@
   "option_candidate_count": 1,
   "equity_fallback_count": 71,
   "risk_plan_count": 1,
-  "open_questions": [
-    "Options -7% stop vs 5-10% spread \u2014 keep, widen, or require stop > spread?"
-  ],
+  "open_questions": [],
   "locked_since_cycle": {
-    "pdt": "do_not_reduce_day_trades_owner_accept_risk"
+    "pdt": "do_not_reduce_day_trades_owner_accept_risk",
+    "options_stop_vs_spread": "keep_minus_7pct"
   }
 }
