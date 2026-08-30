@@ -9,7 +9,7 @@ Options playbook is **RELEASED**. **No** `place_*` until an explicit confirm of 
 | A–E + I | `pipeline/*` | `signals/*` |
 | F Supervised | `pipeline/execution.py` | `signals/execution_review.json`, `journal/reviews.jsonl` |
 | G Loop | `pipeline/orchestrator.py` | `journal/loop_runs.jsonl` |
-| H Unsupervised | Phase 5 | OFF |
+| H Unsupervised | `playbooks/agent_h_autonomous.PROMPT.md` | OFF until you paste + activate a Cursor Automation |
 
 ## Run
 1. Assemble RH MCP dumps into `data/raw/latest_raw.json`

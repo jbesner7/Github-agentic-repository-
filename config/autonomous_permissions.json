@@ -1,0 +1,71 @@
+{
+  "agent": "H_unsupervised",
+  "status": "PASTE_INTO_CURSOR_AUTOMATION_TO_ENABLE",
+  "standing_authorization": {
+    "owner": "Jarrod Besner",
+    "granted": "2026-08-30",
+    "effect": "This document is the owner's standing permission for a Cursor Automation to call review_* then place_* without waiting for a chat reply. Disable the Automation to revoke.",
+    "does_not_authorize": [
+      "This Cursor chat (Agent F) still requires a specific-order confirm before place_*.",
+      "Any account that is not Agentic.",
+      "Crypto.",
+      "Short options, credit spreads, multi-leg, exercise."
+    ]
+  },
+  "account": {
+    "nickname": "Agentic",
+    "account_number_last4": "2907",
+    "resolve": "Call get_accounts. Use the single account with agentic_allowed=true whose account_number ends in 2907. Pass that full account_number only to RH tools. Never trade 5638 or any other account."
+  },
+  "allowed_place_tools": [
+    "review_option_order",
+    "place_option_order",
+    "review_equity_order",
+    "place_equity_order",
+    "cancel_option_order",
+    "cancel_equity_order"
+  ],
+  "forbidden_place_tools": [
+    "place_crypto_order",
+    "preview_crypto_order",
+    "exercise_option",
+    "cancel_option_exercise"
+  ],
+  "universe": {
+    "include_all_robinhood_watchlists": true,
+    "include_crypto": false,
+    "include_index_options": true
+  },
+  "priority": ["options", "equity"],
+  "options": {
+    "playbook": "playbooks/options_day_trading.md",
+    "structures_allowed": ["long_call", "long_put"],
+    "max_dte": 7,
+    "strike": "atm_then_one_otm",
+    "delta_abs_min": 0.4,
+    "delta_abs_max": 0.5,
+    "delta_source": "robinhood_get_option_quotes_only",
+    "max_contracts": 1,
+    "no_new_entries_overnight": true
+  },
+  "liquidity": {
+    "min_average_volume": 2000000,
+    "option_preferred_spread_pct_of_price": 0.05,
+    "option_max_spread_pct_of_price": 0.1,
+    "reject_one_sided_quotes": true
+  },
+  "risk": {
+    "max_open_positions": 1,
+    "options_working_pair": {"stop_loss_pct": 0.2, "take_profit_pct": 0.4},
+    "equity": {"take_profit_pct": 0.25, "stop_loss_pct": 0.2},
+    "broker_exit": "stop_first_until_oco"
+  },
+  "loop": {
+    "rth_minutes": 15,
+    "extended_minutes": 30,
+    "overnight_minutes": 60
+  },
+  "pdt": {
+    "reduce_day_trades_for_pdt": false
+  }
+}
