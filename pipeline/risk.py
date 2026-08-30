@@ -6,8 +6,8 @@ OPTIONS_SL_PCT_MIN = 0.20
 OPTIONS_SL_PCT_MAX = 0.50
 OPTIONS_TP_PCT_MIN = 0.30
 OPTIONS_TARGET_REWARD_TO_RISK = 2.0
-OPTIONS_DEFAULT_SL_PCT = 0.25
-OPTIONS_DEFAULT_TP_PCT = 0.50
+OPTIONS_DEFAULT_SL_PCT = 0.20
+OPTIONS_DEFAULT_TP_PCT = 0.40
 
 
 def options_risk_plan(
@@ -21,7 +21,7 @@ def options_risk_plan(
     """Cash-risked plan for long options. Does not invent prices beyond inputs.
 
     Locked bands: SL 20–50% of premium; TP 30–100%+ of premium; aim 1:2 R:R.
-    Default working pair is −25% / +50% (1:2, inside the bands).
+    Owner-locked working pair is −20% / +40% (1:2, inside the bands).
     """
     if contracts != 1:
         raise ValueError("Phase rules require max 1 contract")

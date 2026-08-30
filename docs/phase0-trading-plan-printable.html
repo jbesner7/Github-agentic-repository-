@@ -225,10 +225,10 @@
       <tr><th>Universe</th><td>All Robinhood watchlists (current + future), including <strong>Options Watchlist</strong>. <strong>No crypto</strong>. Deduplicate each run. Index underlyings/options allowed.</td></tr>
       <tr><th>Priority</th><td><strong>Options first</strong> → equity fallback if no liquid option candidate.</td></tr>
       <tr><th>Patterns</th><td>Head &amp; shoulders, inverse H&amp;S; double top, triple top; double bottom, triple bottom; ascending / descending / symmetrical triangles. Timeframes: <strong>15m / 1h / daily</strong>.</td></tr>
-      <tr><th>Options structure</th><td>Buy call or buy put only (no shorts / no credit spreads). Expiry ≤ <strong>7 DTE</strong>. Strike: ATM first, else 1 OTM. Prefer delta ~0.40–0.50 via <strong>RH-returned Greeks only</strong> (no invented numbers). Playbook stays <strong>DRAFT</strong> until you approve release. <strong>No new options entries overnight</strong>.</td></tr>
+      <tr><th>Options structure</th><td>Buy call or buy put only (no shorts / no credit spreads). Expiry ≤ <strong>7 DTE</strong>. Strike: ATM first, else 1 OTM. Prefer delta ~0.40–0.50 via <strong>RH-returned Greeks only</strong> (no invented numbers). Playbook is <strong>RELEASED</strong>; each live order still needs an explicit confirm in this chat. <strong>No new options entries overnight</strong>.</td></tr>
       <tr><th>Greeks (Agent I)</th><td>Read delta, gamma, theta, vega, rho, IV from <code>get_option_quotes</code>. Use for strike filter and journal. Never invent Greeks.</td></tr>
       <tr><th>Liquidity</th><td>Underlying volume gate (v1 target ≥ ~2M ADV where applicable). Option bid–ask under <strong>5–10% of the option’s price</strong> (prefer ≤ 5%; reject &gt; 10%). No absolute-dollar override. Reject missing / one-sided quotes.</td></tr>
-      <tr><th>Options exits</th><td>Stop loss <strong>20–50%</strong> of premium. Profit target <strong>30–100%+</strong> of premium, aiming for <strong>1:2</strong> risk-to-reward. Pipeline default working pair: <strong>−25% / +50%</strong>. After fill: place broker <strong>STOP only</strong>. Monitor TP in loop until OCO exists.</td></tr>
+      <tr><th>Options exits</th><td>Stop loss <strong>20–50%</strong> of premium. Profit target <strong>30–100%+</strong> of premium, aiming for <strong>1:2</strong> risk-to-reward. Owner-locked working pair: <strong>−20% / +40%</strong>. After fill: place broker <strong>STOP only</strong>. Monitor TP in loop until OCO exists.</td></tr>
       <tr><th>Equity exits</th><td>Take profit <strong>+25%</strong> of total trade cost. Stop loss <strong>−20%</strong> of total trade cost. Prefer broker stop; same stop-first policy until OCO.</td></tr>
       <tr><th>Sessions / loop</th><td>RTH + extended + overnight monitoring. Cadence: RTH <strong>15m</strong> / extended <strong>30m</strong> / overnight <strong>60m</strong>. Unconfirmed proposals valid <strong>until next loop</strong> (then replaced).</td></tr>
       <tr><th>Execution</th><td>Agent F: human confirm in this Cursor chat for every live order. Agent H: unsupervised path designed OFF until you enable.</td></tr>
@@ -244,7 +244,7 @@
           <li>Max size: <strong>1 contract</strong></li>
           <li>SL: <strong>20–50%</strong> of premium</li>
           <li>TP: <strong>30–100%+</strong> of premium (aim 1:2)</li>
-          <li>Default pair: <strong>−25% / +50%</strong></li>
+          <li>Working pair: <strong>−20% / +40%</strong></li>
           <li>Spread: prefer ≤ <strong>5%</strong>, reject &gt; <strong>10%</strong></li>
           <li>Broker: <strong>stop order first</strong></li>
           <li>TP monitored until OCO available</li>
@@ -275,7 +275,7 @@
         <tr><td><strong>C</strong> News</td><td>News / earnings catalysts</td><td>signals/news</td></tr>
         <tr><td><strong>D</strong> Structure</td><td>Long call/put ≤7 DTE (incl. index); equity fallback</td><td>signals/option_candidates</td></tr>
         <tr><td><strong>I</strong> Greeks</td><td>RH quote Greeks recognition; delta band filter</td><td>signals/greeks</td></tr>
-        <tr><td><strong>E</strong> Risk</td><td>Options SL 20–50% / TP 30–100%+ (aim 1:2; default −25%/+50%); equity +25%/−20%; stop-first plan</td><td>signals/risk_plan</td></tr>
+        <tr><td><strong>E</strong> Risk</td><td>Options SL 20–50% / TP 30–100%+ (aim 1:2; locked −20%/+40%); equity +25%/−20%; stop-first plan</td><td>signals/risk_plan</td></tr>
         <tr><td><strong>F</strong> Supervised exec</td><td>review → your confirm → place</td><td>journal/orders</td></tr>
         <tr><td><strong>G</strong> Loop</td><td>Orchestrate while Automation ON; refresh proposals each loop</td><td>journal/loop_runs</td></tr>
         <tr><td><strong>H</strong> Unsupervised</td><td>Auto-place after rules (Phase 5; OFF until enabled)</td><td>journal/orders (tagged)</td></tr>
@@ -312,7 +312,7 @@
       </thead>
       <tbody>
         <tr><td><strong>0</strong></td><td>Spec lock + this printable plan</td><td>Your go / no-go</td></tr>
-        <tr><td><strong>1</strong></td><td>Playbooks (chart + options DRAFT) + Greeks agent spec</td><td>Options playbook unreleased until you approve</td></tr>
+        <tr><td><strong>1</strong></td><td>Playbooks (chart + options RELEASED) + Greeks agent spec</td><td>Options playbook released 2026-08-30; per-order confirm still required</td></tr>
         <tr><td><strong>2</strong></td><td>Signal pipeline A–E + I (read-only)</td><td>You review signal quality</td></tr>
         <tr><td><strong>3</strong></td><td>Supervised F live</td><td>Funded ≈ $1,500; dry review first</td></tr>
         <tr><td><strong>4</strong></td><td>Loop G behind Automation toggle</td><td>Still confirms via F; proposals refresh each loop</td></tr>
@@ -322,18 +322,18 @@
 
     <h2>7. Hard gates before live orders</h2>
     <ul>
-      <li>Agentic funded (target $1,500; currently $0 at last check)</li>
-      <li>Options day-trading playbook <strong>approved by you</strong></li>
+      <li>Agentic funded (target $1,500; $1,500 buying power at last check)</li>
+      <li>Options day-trading playbook <strong>RELEASED</strong> — still need an explicit confirm of a specific order</li>
       <li>Greeks read from RH quotes only (no invented numbers)</li>
       <li>Agent F confirm flow dry-tested (review without place)</li>
     </ul>
 
-    <p class="note">Phase 0 spec questions are locked. Options day-trading playbook remains DRAFT until you approve release.</p>
+    <p class="note">Phase 0 spec questions are locked. Options day-trading playbook is RELEASED. Live place still requires an explicit confirm of a specific order in this chat.</p>
 
     <div class="footer">
       File: docs/phase0-trading-plan-printable.html &nbsp;·&nbsp;
       Print: Letter portrait, backgrounds on &nbsp;·&nbsp;
-      Updated: options SL 20–50% / TP 30–100%+ (1:2) · spread 5–10% of price
+      Updated: playbook RELEASED · working pair −20% / +40% · spread 5–10% of price
     </div>
   </div>
 </body>

@@ -41,7 +41,8 @@
     },
     "max_contracts": 1,
     "no_new_entries_overnight": true,
-    "playbook_status": "DRAFT_NOT_RELEASED"
+    "playbook_status": "RELEASED",
+    "playbook_path": "playbooks/options_day_trading.md"
   },
   "liquidity": {
     "min_average_volume": 2000000,
@@ -57,9 +58,9 @@
       "take_profit_pct_of_premium_min": 0.3,
       "take_profit_pct_of_premium_uncapped": true,
       "target_reward_to_risk": 2.0,
-      "stop_loss_pct_of_cash": 0.25,
-      "take_profit_pct_of_cash": 0.5,
-      "default_pair_note": "Pipeline default −25% / +50% is a 1:2 pair inside the allowed bands. Owner may pick any pair in-band that keeps reward ≥ 2× risk.",
+      "stop_loss_pct_of_cash": 0.2,
+      "take_profit_pct_of_cash": 0.4,
+      "default_pair_note": "Owner-locked working pair −20% / +40% (1:2).",
       "broker_exit": "stop_first_until_oco"
     },
     "equity": {

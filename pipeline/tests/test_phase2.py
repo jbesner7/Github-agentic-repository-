@@ -85,10 +85,10 @@ def test_greeks_no_invention():
 def test_options_risk_math():
     plan = options_risk_plan(premium_per_share=2.0, contracts=1)
     assert plan["cash_risked"] == 200.0
-    assert plan["take_profit_pct"] == 0.50
-    assert plan["stop_loss_pct"] == 0.25
-    assert plan["take_profit_value"] == 300.0
-    assert plan["stop_loss_value"] == 150.0
+    assert plan["take_profit_pct"] == 0.40
+    assert plan["stop_loss_pct"] == 0.20
+    assert plan["take_profit_value"] == 280.0
+    assert plan["stop_loss_value"] == 160.0
     assert plan["reward_to_risk"] == 2.0
     assert plan["meets_target_rr"] is True
 

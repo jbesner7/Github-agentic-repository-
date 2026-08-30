@@ -2,7 +2,7 @@
 
 Phase 2 remains the signal pipeline. Phase 3 adds **Agent F** dry review.
 
-**No** `place_*` until: playbook RELEASED **and** explicit confirm in this Cursor chat.
+Options playbook is **RELEASED**. **No** `place_*` until an explicit confirm of a **specific** order in this Cursor chat.
 
 | Agent | Module | Output |
 |---|---|---|
