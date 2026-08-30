@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Engineering Report — Agentic Trading Build</title>
+  <style>
+    :root {
+      --bg: #0e1116;
+      --panel: #171b22;
+      --ink: #e8edf4;
+      --muted: #9aa6b5;
+      --line: #2a3140;
+      --accent: #7eb8ff;
+      --good: #7dcea0;
+      --warn: #e6c07b;
+      --bad: #e06c75;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; background: #07090c; color: var(--ink); }
+    body {
+      font-family: "IBM Plex Sans", "Segoe UI", Helvetica, Arial, sans-serif;
+    }
+    .toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      background: #07090c;
+      border-bottom: 1px solid var(--line);
+      padding: 8px 16px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .toolbar button, .toolbar a.btn {
+      background: var(--accent);
+      color: #0b1220;
+      border: 0;
+      padding: 7px 12px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      font-size: 13px;
+    }
+    .toolbar .spacer { flex: 1; }
+    .deck {
+      width: min(1280px, 96vw);
+      margin: 18px auto 40px;
+    }
+    .slide {
+      display: none;
+      min-height: calc(100vh - 90px);
+      background: var(--bg);
+      border: 1px solid var(--line);
+      padding: 48px 56px 40px;
+    }
+    .slide.active { display: flex; flex-direction: column; }
+    .kicker {
+      color: var(--accent);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+    h1 { font-size: 42px; letter-spacing: -0.03em; line-height: 1.1; margin: 0 0 16px; }
+    h2 { font-size: 32px; letter-spacing: -0.02em; margin: 0 0 18px; }
+    h3 { font-size: 16px; margin: 0 0 8px; color: var(--accent); }
+    p, li { font-size: 18px; line-height: 1.45; color: var(--ink); }
+    .muted { color: var(--muted); }
+    .lead { font-size: 22px; max-width: 46rem; color: #d5dce6; }
+    .rule { width: 72px; height: 3px; background: var(--accent); margin: 16px 0 22px; }
+    .grid { display: grid; gap: 14px; }
+    .g2 { grid-template-columns: 1fr 1fr; }
+    .g3 { grid-template-columns: 1fr 1fr 1fr; }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      padding: 14px 16px;
+    }
+    .card ul { margin: 8px 0 0; padding-left: 1.1rem; }
+    .card li { font-size: 15px; margin: 4px 0; }
+    table { width: 100%; border-collapse: collapse; font-size: 15px; }
+    th, td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+    th { background: #202632; color: #c9d4e3; }
+    code, .mono {
+      font-family: "IBM Plex Mono", Consolas, "Courier New", monospace;
+    }
+    code { font-size: 0.92em; color: #c7e0ff; }
+    .diagram {
+      font-family: "IBM Plex Mono", Consolas, "Courier New", monospace;
+      font-size: 13px;
+      line-height: 1.28;
+      white-space: pre;
+      background: #10141b;
+      border: 1px solid var(--line);
+      padding: 16px 18px;
+      overflow: auto;
+      color: #d7e3f2;
+    }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0 0; }
+    .chip {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      padding: 4px 9px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .chip.on { color: var(--good); border-color: #335544; }
+    .chip.warn { color: var(--warn); }
+    .foot {
+      margin-top: auto;
+      padding-top: 22px;
+      display: flex;
+      justify-content: space-between;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .principles li { margin: 10px 0; }
+    .big-num { font-size: 36px; font-weight: 700; letter-spacing: -0.03em; color: var(--accent); }
+    .num-label { color: var(--muted); font-size: 14px; }
+    @media print {
+      .toolbar { display: none !important; }
+      .deck { width: auto; margin: 0; }
+      .slide {
+        display: flex !important;
+        flex-direction: column;
+        page-break-after: always;
+        break-after: page;
+        min-height: 0;
+        height: 7.1in;
+        border: 0;
+        padding: 0.45in 0.55in;
+      }
+      .slide:last-child { page-break-after: auto; }
+    }
+    @page { size: Letter landscape; margin: 0.35in; }
+    @media (max-width: 900px) {
+      .slide { padding: 28px 20px; min-height: calc(100vh - 80px); }
+      h1 { font-size: 30px; }
+      h2 { font-size: 24px; }
+      .g2, .g3 { grid-template-columns: 1fr; }
+      .diagram { font-size: 11px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="toolbar no-print">
+    <button type="button" id="prev">Prev</button>
+    <button type="button" id="next">Next</button>
+    <span id="pos">1 / 1</span>
+    <span class="spacer"></span>
+    <span>Arrow keys · Space · Home/End</span>
+    <button type="button" onclick="window.print()">Print / PDF</button>
+    <a class="btn" href="system-creation-report-printable.html">Letter report</a>
+  </div>
+
+  <div class="deck" id="deck">
+
+    <section class="slide active" data-title="Title">
+      <div class="kicker">Engineering presentation · not a trade ticket</div>
+      <h1>Agentic trading system<br />Engineering report</h1>
+      <div class="rule"></div>
+      <p class="lead">How the build is structured: control plane, signal pipeline, fail-closed gates, and the split between supervised chat and one unsupervised Automation.</p>
+      <p class="muted">Owner: Jarrod Besner · Broker: Robinhood · Tradable account: Agentic ••••2907 · Repo: Github-agentic-repository- · As of 2026-08-30</p>
+      <div class="chips">
+        <span class="chip on">Options playbook RELEASED</span>
+        <span class="chip on">Agent H Automation ON</span>
+        <span class="chip">This chat still confirm-gated</span>
+        <span class="chip">0 live places from this build</span>
+        <span class="chip">13 unit tests passing</span>
+      </div>
+      <div class="foot"><span>Engineering report</span><span>1</span></div>
+    </section>
+
+    <section class="slide" data-title="Problem">
+      <div class="kicker">01 · Problem</div>
+      <h2>What this system had to solve</h2>
+      <div class="grid g2">
+        <div class="card">
+          <h3>Product constraint</h3>
+          <ul>
+            <li>One funded account, $1,500 buying power</li>
+            <li>Options first, equity fallback</li>
+            <li>Max one open position, one contract</li>
+            <li>Watchlists as the only universe</li>
+            <li>No crypto, no shorts, no multi-leg</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Engineering constraint</h3>
+          <ul>
+            <li>Broker access is Robinhood MCP, not a custom OMS</li>
+            <li>No OCO / bracket orders in the tool set</li>
+            <li>Cursor Automations are <em>stateless discrete fires</em></li>
+            <li>Cloud agents can invent numbers unless gated</li>
+            <li>MCP exposes every tool once connected</li>
+          </ul>
+        </div>
+      </div>
+      <p class="muted">The build is a gated decision pipeline plus two place authorities — not a continuously running trading server.</p>
+      <div class="foot"><span>Engineering report</span><span>2</span></div>
+    </section>
+
+    <section class="slide" data-title="Principles">
+      <div class="kicker">02 · Design principles</div>
+      <h2>Fail-closed, honest numbers, one kill switch</h2>
+      <ol class="principles">
+        <li><strong>Fail closed.</strong> Missing clock, account, quote, delta, spread, or buying power → place nothing.</li>
+        <li><strong>Do not invent market data.</strong> Greeks only from <code>get_option_quotes</code>. No Black–Scholes fallback.</li>
+        <li><strong>Spec is code.</strong> Locked rules live in <code>config/rules.json</code> and <code>config/autonomous_permissions.json</code>.</li>
+        <li><strong>Agents are modules, not fleets.</strong> A–E + I are functions in one pipeline. One Automation (H) may place.</li>
+        <li><strong>Two authorities, never mixed.</strong> This chat needs a specific-order confirm. H has standing permission only while the Automation is enabled.</li>
+        <li><strong>Mask secrets in git.</strong> Full account numbers only in RH tool args. Journal and reports use ••••2907.</li>
+      </ol>
+      <div class="foot"><span>Engineering report</span><span>3</span></div>
+    </section>
+
+    <section class="slide" data-title="Control plane">
+      <div class="kicker">03 · Control plane</div>
+      <h2>Two place paths, one account</h2>
+      <div class="diagram">Cursor Automation  “Agentic AI Bot”
+  enabled = ON / disable = OFF
+  each fire = new stateless Cloud Agent
+  fail-closed ET clock  →  skipped: outside_rth
+                 │
+                 │  (H may review_* then place_*)
+                 ▼
+   pipeline A–E + I   ←  assembled RH MCP dumps
+   signals/*  journal/*
+                 │
+        ┌────────┴────────┐
+        ▼                 ▼
+  F  this chat         H  Automation
+  confirm required     no chat reply
+        └────────┬────────┘
+                 ▼
+        Agentic ••••2907 only
+        regular_hours entries</div>
+      <p class="muted">Connecting Robinhood MCP grants every broker tool. Forbidden calls are prompt-enforced, not tool-stripped. Disable is the kill switch.</p>
+      <div class="foot"><span>Engineering report</span><span>4</span></div>
+    </section>
+
+    <section class="slide" data-title="Agent map">
+      <div class="kicker">04 · Agent map</div>
+      <h2>Letters are pipeline stages</h2>
+      <table>
+        <thead><tr><th>ID</th><th>Role</th><th>Code</th><th>Runtime</th></tr></thead>
+        <tbody>
+          <tr><td>A</td><td>Watchlists, drop crypto, ADV ≥ 2M</td><td><code>pipeline/universe.py</code></td><td>Function in cycle</td></tr>
+          <tr><td>B</td><td>Pattern heuristics + majority bias</td><td><code>pipeline/patterns.py</code></td><td>Function in cycle</td></tr>
+          <tr><td>C</td><td>News / earnings packaging</td><td><code>pipeline/news.py</code></td><td>Function in cycle</td></tr>
+          <tr><td>D</td><td>Long call/put, DTE 0–7, ATM→1 OTM</td><td><code>pipeline/options_structure.py</code></td><td>Function in cycle</td></tr>
+          <tr><td>I</td><td>Copy RH Greeks; |Δ| 0.40–0.50</td><td><code>pipeline/greeks.py</code></td><td>Function in cycle</td></tr>
+          <tr><td>E</td><td>−20% / +40% cash-risk math</td><td><code>pipeline/risk.py</code></td><td>Function in cycle</td></tr>
+          <tr><td>F</td><td>Supervised review / place gate</td><td><code>pipeline/execution.py</code></td><td>This chat</td></tr>
+          <tr><td>G</td><td>One-shot orchestrator</td><td><code>pipeline/orchestrator.py</code></td><td>Script, not a daemon</td></tr>
+          <tr><td>H</td><td>Unsupervised RTH cycle + place</td><td><code>playbooks/agent_h_autonomous.PROMPT.md</code></td><td>Cursor Automation</td></tr>
+        </tbody>
+      </table>
+      <p class="muted">Do not spin A–D into separate Automations. They share one universe and one bias. Two place-capable agents on one account can double-fill.</p>
+      <div class="foot"><span>Engineering report</span><span>5</span></div>
+    </section>
+
+    <section class="slide" data-title="Data flow">
+      <div class="kicker">05 · Data flow</div>
+      <h2>MCP in, deterministic filters out</h2>
+      <div class="diagram">RH MCP (read)
+  watchlists · fundamentals · historicals
+  chains · instruments (paged) · quotes · portfolio
+        │
+        ▼
+  data/raw/*.json   assembled by the Cursor agent
+        │
+        ▼
+  scripts/run_phase2_cycle.py
+  pipeline.orchestrator.run_pipeline(raw)
+        │
+        ▼
+  signals/universe.json
+  signals/technicals.json
+  signals/option_candidates.json
+  signals/greeks.json
+  signals/risk_plan.json
+  journal/YYYY-MM-DD.md
+        │
+        ▼
+  F confirm  or  H review_* → place_*
+  (Phase 2/3 code paths never place)</div>
+      <p class="muted"><code>run_pipeline</code> asserts <code>phase2_places_orders is False</code>. Place is a later human or H step, not a pipeline side effect.</p>
+      <div class="foot"><span>Engineering report</span><span>6</span></div>
+    </section>
+
+    <section class="slide" data-title="Spec as code">
+      <div class="kicker">06 · Spec as code</div>
+      <h2>Locks are files, not chat memory</h2>
+      <div class="grid g2">
+        <div class="card">
+          <h3>config/rules.json</h3>
+          <ul>
+            <li>Account last-4, universe, crypto off</li>
+            <li>Pattern types and timeframes</li>
+            <li>DTE, delta band, 1 contract</li>
+            <li>Spread prefer 5% / reject 10%</li>
+            <li>Working pair −20% / +40%</li>
+            <li>Playbook RELEASED</li>
+            <li>F still confirm-gated</li>
+            <li><code>unsupervised_agent_h: enabled</code></li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>config/autonomous_permissions.json</h3>
+          <ul>
+            <li>Status <code>ACTIVE</code> as of 2026-08-30</li>
+            <li>Allowed: review/place/cancel equity + options</li>
+            <li>Forbidden: crypto, exercise</li>
+            <li>RTH-only scan and buy</li>
+            <li>Max one open position</li>
+            <li>Automation id recorded after first fire</li>
+            <li>Missing file → H must place nothing</li>
+          </ul>
+        </div>
+      </div>
+      <p class="muted">Later owner locks supersede earlier ones. Journal keeps the history; the JSON is the current machine spec.</p>
+      <div class="foot"><span>Engineering report</span><span>7</span></div>
+    </section>
+
+    <section class="slide" data-title="Universe">
+      <div class="kicker">07 · Universe engineering</div>
+      <h2>All lists, then drop, then ADV</h2>
+      <div class="grid g3">
+        <div class="card">
+          <div class="big-num">A</div>
+          <div class="num-label">extract_watchlist_symbols</div>
+          <ul>
+            <li>Union every Robinhood list</li>
+            <li>Include Options Watchlist underlyings</li>
+            <li>Drop <code>currency_pair</code> / tokenized stock</li>
+            <li>Dedupe by symbol</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="big-num">2M</div>
+          <div class="num-label">min average_volume</div>
+          <ul>
+            <li>From <code>get_equity_fundamentals</code></li>
+            <li>Batches of ≤10 symbols</li>
+            <li>Missing volume → reject</li>
+            <li>Weekend scan: 89 → 72 liquid</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="big-num">0</div>
+          <div class="num-label">crypto path</div>
+          <ul>
+            <li>BTC / ETH / XRP skipped</li>
+            <li>place_crypto_* forbidden</li>
+            <li>Index underlyings allowed</li>
+            <li>No second universe file</li>
+          </ul>
+        </div>
+      </div>
+      <div class="foot"><span>Engineering report</span><span>8</span></div>
+    </section>
+
+    <section class="slide" data-title="Patterns">
+      <div class="kicker">08 · Pattern engine</div>
+      <h2>Deterministic heuristics, strict majority</h2>
+      <div class="grid g2">
+        <div class="card">
+          <h3>detect_patterns</h3>
+          <ul>
+            <li>Needs ≥30 OHLC bars</li>
+            <li>Local extrema, order = 3</li>
+            <li>H&amp;S, inverse H&amp;S, double/triple top &amp; bottom, triangles</li>
+            <li>~1.5% near-equality on peaks/troughs</li>
+            <li>Each hit carries <code>bullish</code> or <code>bearish</code></li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>dominant_bias</h3>
+          <ul>
+            <li>Count bullish vs bearish hits</li>
+            <li>Require <strong>strict majority</strong></li>
+            <li>Tie or empty → <code>null</code> → no option structure</li>
+            <li>H cost control: daily first; 10m + 1h only on daily hits; stop at one bias</li>
+          </ul>
+        </div>
+      </div>
+      <p class="muted">RH MCP has no <code>15minute</code> interval. Closest bar is <code>10minute</code>. Rules JSON still lists 15m as the intended TF; live scans used 10m.</p>
+      <div class="foot"><span>Engineering report</span><span>9</span></div>
+    </section>
+
+    <section class="slide" data-title="Options structure">
+      <div class="kicker">09 · Options structure</div>
+      <h2>Bias → one vanilla long</h2>
+      <table>
+        <thead><tr><th>Step</th><th>Rule</th><th>Implementation</th></tr></thead>
+        <tbody>
+          <tr><td>Side</td><td>Bullish → long call. Bearish → long put. Else skip.</td><td><code>choose_structure_from_bias</code></td></tr>
+          <tr><td>Expiry</td><td>Calendar DTE 0–7. Do not guess DTE.</td><td><code>filter_expirations</code></td></tr>
+          <tr><td>Strike</td><td>ATM if within 1% of spot, else one OTM.</td><td><code>pick_atm_or_one_otm</code></td></tr>
+          <tr><td>Size</td><td>Exactly 1 contract. Keyword-only risk math.</td><td><code>options_risk_plan(..., contracts=1)</code></td></tr>
+          <tr><td>Hours</td><td><code>market_hours=regular_hours</code> on entries.</td><td>F proposal + H prompt</td></tr>
+        </tbody>
+      </table>
+      <p class="muted">Instrument lists paginate at 100. First-page “OTM” on AMD/MU was a pagination artifact. H and F must page until ATM is in set.</p>
+      <div class="foot"><span>Engineering report</span><span>10</span></div>
+    </section>
+
+    <section class="slide" data-title="Honesty gates">
+      <div class="kicker">10 · Honesty gates</div>
+      <h2>Greeks and spread refuse invention</h2>
+      <div class="grid g2">
+        <div class="card">
+          <h3>extract_greeks</h3>
+          <ul>
+            <li>Copies delta, gamma, theta, vega, rho, IV only if present</li>
+            <li>Missing fields listed, never filled</li>
+            <li><code>delta_in_band</code> uses abs(delta) 0.40–0.50</li>
+            <li>0.396 (NU) and 0.522 (META) both fail — the band is closed</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>option_quote_liquid</h3>
+          <ul>
+            <li>mid = (bid+ask)/2</li>
+            <li>spread% = (ask−bid)/mid</li>
+            <li>Prefer ≤5%, accept ≤10%, reject &gt;10%</li>
+            <li>Reject one-sided or mid ≤ 0</li>
+            <li><strong>No $0.10 absolute override</strong></li>
+          </ul>
+        </div>
+      </div>
+      <p class="muted">Cheap names fail on percent width even when the dollar spread looks small. That is intentional.</p>
+      <div class="foot"><span>Engineering report</span><span>11</span></div>
+    </section>
+
+    <section class="slide" data-title="Risk and exits">
+      <div class="kicker">11 · Risk and exits</div>
+      <h2>Math in-repo; broker has no OCO</h2>
+      <div class="grid g2">
+        <div class="card">
+          <h3>options_risk_plan</h3>
+          <ul>
+            <li>Keyword-only <code>premium_per_share</code></li>
+            <li>Cash = premium × 100 × 1</li>
+            <li>Locked pair: SL 20%, TP 40% → 1:2</li>
+            <li>Bands enforced: SL 20–50%, TP ≥ 30%</li>
+            <li>Raises if contracts ≠ 1</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Stop-first until OCO exists</h3>
+          <ul>
+            <li>MCP cannot rest a true OCO</li>
+            <li>Two live exits can double-fill</li>
+            <li>After fill: broker STOP only</li>
+            <li>TP watched on a later RTH fire</li>
+            <li>Equity fallback: +25% / −20% of cost</li>
+          </ul>
+        </div>
+      </div>
+      <p class="muted">SNOW Sep 4 327.5 put cleared spread and delta on Friday marks, then failed affordability: $1,975 cash vs $1,500 buying power.</p>
+      <div class="foot"><span>Engineering report</span><span>12</span></div>
+    </section>
+
+    <section class="slide" data-title="F vs H">
+      <div class="kicker">12 · Place authorities</div>
+      <h2>F is gated in code. H is gated by prompt + enable.</h2>
+      <table>
+        <thead><tr><th></th><th>Agent F (this chat)</th><th>Agent H (Automation)</th></tr></thead>
+        <tbody>
+          <tr><td>Permission</td><td><code>can_place_live(confirm, released)</code></td><td>Standing prompt + enabled Automation + permissions file</td></tr>
+          <tr><td>Confirm</td><td>Explicit specific order in this chat</td><td>No chat reply</td></tr>
+          <tr><td>Clock</td><td>Owner-requested tests may scan Sunday</td><td>ET RTH check <em>before any RH call</em></td></tr>
+          <tr><td>Place tools</td><td>Blocked unless both gates true</td><td>review_* then place_* on ••••2907</td></tr>
+          <tr><td>Off switch</td><td>Don’t confirm</td><td>Disable Automation, or delete permissions file</td></tr>
+        </tbody>
+      </table>
+      <p class="muted">Proposal builder hard-codes quantity 1, GFD, <code>regular_hours</code>, buy-to-open, and <code>places_order: false</code>.</p>
+      <div class="foot"><span>Engineering report</span><span>13</span></div>
+    </section>
+
+    <section class="slide" data-title="RTH fail-closed">
+      <div class="kicker">13 · Session design</div>
+      <h2>Automation treats cron as untrusted</h2>
+      <div class="grid g2">
+        <div class="card">
+          <h3>Clock first</h3>
+          <ul>
+            <li>America/New_York</li>
+            <li>Mon–Fri 09:30 inclusive → 16:00 exclusive</li>
+            <li>Weekend / holiday / pre / after → journal one line, exit</li>
+            <li>Do not invent a holiday calendar</li>
+            <li>If clock says RTH but RH session is closed → still skip</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Proved on first fire</h3>
+          <ul>
+            <li>Automation Agentic AI Bot: enabled</li>
+            <li>Run “Automated trading logic”</li>
+            <li>Sunday 06:49:57 EDT</li>
+            <li>Wrote <code>skipped: outside_rth</code></li>
+            <li>No RH calls, no scan, no buy</li>
+          </ul>
+        </div>
+      </div>
+      <p class="muted">Cron can still start a billable run at night. The prompt exits; it does not delay until the open.</p>
+      <div class="foot"><span>Engineering report</span><span>14</span></div>
+    </section>
+
+    <section class="slide" data-title="MCP limits">
+      <div class="kicker">14 · Broker adapter limits</div>
+      <h2>The MCP is the integration surface</h2>
+      <table>
+        <thead><tr><th>Limit</th><th>Engineering response</th></tr></thead>
+        <tbody>
+          <tr><td>No <code>15minute</code> historical interval</td><td>Use <code>10minute</code> + <code>hour</code> + <code>day</code></td></tr>
+          <tr><td>Instruments page size 100</td><td>Follow <code>next</code> cursor; never treat first-page max strike as ATM</td></tr>
+          <tr><td>Fundamentals batch ≤10</td><td>Chunk watchlist symbols</td></tr>
+          <tr><td>Quotes &gt;20 omit official closes</td><td>Keep quote batches small when close is required</td></tr>
+          <tr><td>No OCO</td><td>Stop-first; TP on a later run</td></tr>
+          <tr><td>Buying power is not on accounts</td><td><code>get_portfolio</code> is authoritative spendable cash</td></tr>
+          <tr><td>All tools exposed with the server</td><td>Prompt denylist + Disable kill switch</td></tr>
+        </tbody>
+      </table>
+      <div class="foot"><span>Engineering report</span><span>15</span></div>
+    </section>
+
+    <section class="slide" data-title="Repo">
+      <div class="kicker">15 · Repository layout</div>
+      <h2>Small surface, explicit artifacts</h2>
+      <div class="grid g2">
+        <div class="card">
+          <h3>Runtime</h3>
+          <ul>
+            <li><code>pipeline/*.py</code> — A–G + I</li>
+            <li><code>scripts/run_phase2_cycle.py</code></li>
+            <li><code>pipeline/tests/</code> — 13 tests</li>
+            <li><code>data/raw/</code> — assembled MCP dumps</li>
+            <li><code>signals/</code> — last cycle JSON</li>
+            <li><code>journal/</code> — human locks + skips</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Spec and docs</h3>
+          <ul>
+            <li><code>config/rules.json</code></li>
+            <li><code>config/autonomous_permissions.json</code></li>
+            <li><code>playbooks/*.md</code> + H prompt</li>
+            <li><code>docs/phase0-trading-plan-printable.html</code></li>
+            <li><code>docs/system-creation-report-printable.html</code></li>
+            <li><code>docs/engineering-presentation.html</code> — this deck</li>
+          </ul>
+        </div>
+      </div>
+      <p class="muted">Phase 4 “always-on loop” is not a process in the repo. Discrete Automation fires replace a daemon.</p>
+      <div class="foot"><span>Engineering report</span><span>16</span></div>
+    </section>
+
+    <section class="slide" data-title="Tests">
+      <div class="kicker">16 · Verification</div>
+      <h2>Unit tests lock the gates</h2>
+      <table>
+        <thead><tr><th>Test</th><th>What it protects</th></tr></thead>
+        <tbody>
+          <tr><td>Crypto exclusion</td><td>BTC-USD never enters equity universe</td></tr>
+          <tr><td>ADV gate</td><td>Below 2M rejected</td></tr>
+          <tr><td>Spread 5 / 10 / reject</td><td>Preferred, acceptable, too wide; cheap $0.10 still rejects</td></tr>
+          <tr><td>Greeks no-invention</td><td>Missing theta stays missing</td></tr>
+          <tr><td>Risk math + bands</td><td>−20/+40 on $2 = $200 / $160 / $280; illegal SL/TP raise</td></tr>
+          <tr><td>ATM + DTE filter</td><td>As-of Sunday, Sep 2 is in window</td></tr>
+          <tr><td>F place gate</td><td>Draft or no confirm → cannot place</td></tr>
+        </tbody>
+      </table>
+      <p class="muted">Last recorded: <code>python3 -m pytest pipeline/tests -q</code> → 13 passed. Live RH cycles are journaled separately; they are not mocked in CI.</p>
+      <div class="foot"><span>Engineering report</span><span>17</span></div>
+    </section>
+
+    <section class="slide" data-title="Validation">
+      <div class="kicker">17 · Live validation (read-only)</div>
+      <h2>The weekend scan exercised the whole funnel</h2>
+      <div class="grid g3">
+        <div class="card">
+          <div class="big-num">89→72</div>
+          <div class="num-label">equities after ADV</div>
+          <p class="muted" style="font-size:14px;margin:8px 0 0">17 names failed 2M volume. Crypto already dropped.</p>
+        </div>
+        <div class="card">
+          <div class="big-num">28</div>
+          <div class="num-label">combined-bias names</div>
+          <p class="muted" style="font-size:14px;margin:8px 0 0">16 call / 12 put. CPRT and VIRT had no 0–7 DTE weekly.</p>
+        </div>
+        <div class="card">
+          <div class="big-num">3</div>
+          <div class="num-label">stale-quote passers</div>
+          <p class="muted" style="font-size:14px;margin:8px 0 0">GOOGL call, TSM put, SKHY put. SNOW failed cash. 0 orders.</p>
+        </div>
+      </div>
+      <p>Engineering takeaway: the bottleneck is gates (spread, delta, DTE, cash), not agent count. Pagination and the missing 15m interval are the adapter bugs that matter.</p>
+      <div class="foot"><span>Engineering report</span><span>18</span></div>
+    </section>
+
+    <section class="slide" data-title="Debts">
+      <div class="kicker">18 · Known debts</div>
+      <h2>What is unfinished on purpose</h2>
+      <div class="grid g2">
+        <div class="card">
+          <h3>Not built</h3>
+          <ul>
+            <li>Always-on Phase 4 daemon</li>
+            <li>Broker OCO / brackets</li>
+            <li>Holiday calendar service</li>
+            <li>Tool-level MCP denylist (prompt only)</li>
+            <li>Bar-key adapter: RH uses <code>*_price</code>; detector wants <code>close</code></li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Operational risk</h3>
+          <ul>
+            <li>H first fire branched from <code>main</code> and opened a one-line journal PR — do not merge over the full journal</li>
+            <li>Two H instances can race if duplicated</li>
+            <li>Weekend/night cron still bills a skip run</li>
+            <li>signals/* snapshots can lag current locks</li>
+          </ul>
+        </div>
+      </div>
+      <div class="foot"><span>Engineering report</span><span>19</span></div>
+    </section>
+
+    <section class="slide" data-title="Close">
+      <div class="kicker">19 · Status</div>
+      <h2>Built as a gated pipeline. Live place is still rare.</h2>
+      <div class="grid g2">
+        <div class="card">
+          <h3>On</h3>
+          <ul>
+            <li>Spec files + playbooks</li>
+            <li>Deterministic A–E + I pipeline</li>
+            <li>F confirm gate in code</li>
+            <li>H Automation enabled; Sunday skip proved</li>
+            <li>Printable creation report + this deck</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Off / unused</h3>
+          <ul>
+            <li>No live <code>place_*</code> from this build</li>
+            <li>This chat still needs a named ticket</li>
+            <li>First legal H entry window: Monday RTH</li>
+            <li>Companion Letter report: <code>docs/system-creation-report-printable.html</code></li>
+          </ul>
+        </div>
+      </div>
+      <p class="lead" style="margin-top:22px;font-size:18px">Engineering summary: one account, one contract, honest quotes, fail-closed session, stop-first exits, and a single unsupervised Automation — not a fleet.</p>
+      <div class="foot"><span>Engineering report · 2026-08-30 · Agentic ••••2907 · 0 live places</span><span>20</span></div>
+    </section>
+
+  </div>
+
+  <script>
+    const slides = Array.from(document.querySelectorAll(".slide"));
+    const pos = document.getElementById("pos");
+    let i = 0;
+    function show(n) {
+      i = Math.max(0, Math.min(slides.length - 1, n));
+      slides.forEach((s, idx) => s.classList.toggle("active", idx === i));
+      pos.textContent = (i + 1) + " / " + slides.length;
+      history.replaceState(null, "", "#s" + (i + 1));
+    }
+    document.getElementById("prev").onclick = () => show(i - 1);
+    document.getElementById("next").onclick = () => show(i + 1);
+    document.addEventListener("keydown", (e) => {
+      if (["ArrowRight", "ArrowDown", "PageDown", " "].includes(e.key)) { e.preventDefault(); show(i + 1); }
+      if (["ArrowLeft", "ArrowUp", "PageUp", "Backspace"].includes(e.key)) { e.preventDefault(); show(i - 1); }
+      if (e.key === "Home") show(0);
+      if (e.key === "End") show(slides.length - 1);
+    });
+    const hash = parseInt((location.hash || "").replace(/\D/g, ""), 10);
+    show(Number.isFinite(hash) && hash > 0 ? hash - 1 : 0);
+  </script>
+</body>
+</html>
