@@ -1,0 +1,610 @@
+{
+  "agent": "C_news",
+  "as_of": "2026-08-30T08:26:05+00:00",
+  "symbols": {
+    "AAOI": {
+      "symbol": "AAOI",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "AAPL": {
+      "symbol": "AAPL",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 1,
+      "headlines": [
+        {
+          "title": "Apple Raises US Subscription Price for Apple TV",
+          "published_at": "2026-08-28T14:30:13-04:00",
+          "source": "MT Newswires",
+          "url": null
+        }
+      ],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "ACHR": {
+      "symbol": "ACHR",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "AMAT": {
+      "symbol": "AMAT",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "AMD": {
+      "symbol": "AMD",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "AMZN": {
+      "symbol": "AMZN",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "ANET": {
+      "symbol": "ANET",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "AVGO": {
+      "symbol": "AVGO",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "BABA": {
+      "symbol": "BABA",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "BIDU": {
+      "symbol": "BIDU",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "BMNR": {
+      "symbol": "BMNR",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "CIFR": {
+      "symbol": "CIFR",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "COF": {
+      "symbol": "COF",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "COIN": {
+      "symbol": "COIN",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "COP": {
+      "symbol": "COP",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "CPRT": {
+      "symbol": "CPRT",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "CRCL": {
+      "symbol": "CRCL",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "CRWV": {
+      "symbol": "CRWV",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "DHT": {
+      "symbol": "DHT",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "FIGR": {
+      "symbol": "FIGR",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "FTI": {
+      "symbol": "FTI",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "GOOGL": {
+      "symbol": "GOOGL",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "GTLB": {
+      "symbol": "GTLB",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "HOOD": {
+      "symbol": "HOOD",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "IBM": {
+      "symbol": "IBM",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "INTC": {
+      "symbol": "INTC",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "IONQ": {
+      "symbol": "IONQ",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "JOBY": {
+      "symbol": "JOBY",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "KHC": {
+      "symbol": "KHC",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "KLAR": {
+      "symbol": "KLAR",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "META": {
+      "symbol": "META",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "MP": {
+      "symbol": "MP",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "MRVL": {
+      "symbol": "MRVL",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "MSFT": {
+      "symbol": "MSFT",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "MU": {
+      "symbol": "MU",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "NU": {
+      "symbol": "NU",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": {
+        "next": {
+          "date": "2026-11-12",
+          "timing": "pm",
+          "verified": false,
+          "eps_estimate": "0.220000"
+        }
+      },
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "NVDA": {
+      "symbol": "NVDA",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 1,
+      "headlines": [
+        {
+          "title": "Broadcom Stock Faces Valuation Test as Fiscal Q3 Earnings Approach",
+          "published_at": "2026-08-29T18:15:09-04:00",
+          "source": "Benzinga",
+          "url": null
+        }
+      ],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "NVO": {
+      "symbol": "NVO",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "ORCL": {
+      "symbol": "ORCL",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "PLTR": {
+      "symbol": "PLTR",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "PONY": {
+      "symbol": "PONY",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "PYPL": {
+      "symbol": "PYPL",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "QBTS": {
+      "symbol": "QBTS",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "QCOM": {
+      "symbol": "QCOM",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "QS": {
+      "symbol": "QS",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "RBRK": {
+      "symbol": "RBRK",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "RDDT": {
+      "symbol": "RDDT",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "RGTI": {
+      "symbol": "RGTI",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "RXRX": {
+      "symbol": "RXRX",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "SHOP": {
+      "symbol": "SHOP",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "SKHY": {
+      "symbol": "SKHY",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "SMCI": {
+      "symbol": "SMCI",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "SNDK": {
+      "symbol": "SNDK",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "SNOW": {
+      "symbol": "SNOW",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "SOFI": {
+      "symbol": "SOFI",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": {
+        "next": {
+          "date": "2026-10-27",
+          "timing": "am",
+          "verified": false,
+          "eps_estimate": "0.170000"
+        }
+      },
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "SOUN": {
+      "symbol": "SOUN",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "SPCH": {
+      "symbol": "SPCH",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "SSPC": {
+      "symbol": "SSPC",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "TEM": {
+      "symbol": "TEM",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "TER": {
+      "symbol": "TER",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "TSLA": {
+      "symbol": "TSLA",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "TSM": {
+      "symbol": "TSM",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "TTD": {
+      "symbol": "TTD",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "TXG": {
+      "symbol": "TXG",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "UNP": {
+      "symbol": "UNP",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "UPS": {
+      "symbol": "UPS",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "URA": {
+      "symbol": "URA",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "VG": {
+      "symbol": "VG",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "VIRT": {
+      "symbol": "VIRT",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "VTI": {
+      "symbol": "VTI",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "XOM": {
+      "symbol": "XOM",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    },
+    "XYZ": {
+      "symbol": "XYZ",
+      "as_of": "2026-08-30T08:26:05+00:00",
+      "headline_count": 0,
+      "headlines": [],
+      "earnings": null,
+      "notes": "Read-only catalyst pack; no sentiment scores invented."
+    }
+  }
+}

@@ -1,0 +1,355 @@
+{
+  "agent": "B_patterns",
+  "as_of": "2026-08-30T08:26:05+00:00",
+  "symbols": {
+    "AAOI": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    },
+    "AAPL": {
+      "pattern_hits": [
+        {
+          "pattern": "double_top",
+          "timeframe": "day",
+          "indices": [
+            149,
+            157
+          ],
+          "prices": [
+            313.33,
+            316.83
+          ],
+          "neckline": 302.25,
+          "bias": "bearish"
+        },
+        {
+          "pattern": "inverse_head_and_shoulders",
+          "timeframe": "day",
+          "indices": [
+            145,
+            152,
+            159
+          ],
+          "prices": [
+            303.42,
+            302.25,
+            309.35
+          ],
+          "bias": "bullish"
+        }
+      ],
+      "dominant_bias": null
+    },
+    "ACHR": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    },
+    "AMAT": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    },
+    "AMD": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    },
+    "AMZN": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    },
+    "ANET": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    },
+    "AVGO": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    },
+    "BABA": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    },
+    "BIDU": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    },
+    "BMNR": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    },
+    "CIFR": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    },
+    "COF": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    },
+    "COIN": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    },
+    "COP": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    },
+    "CPRT": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    },
+    "CRCL": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    },
+    "CRWV": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    },
+    "DHT": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    },
+    "FIGR": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    },
+    "FTI": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    },
+    "GOOGL": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    },
+    "GTLB": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    },
+    "HOOD": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    },
+    "IBM": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    },
+    "INTC": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    },
+    "IONQ": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    },
+    "JOBY": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    },
+    "KHC": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    },
+    "KLAR": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    },
+    "META": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    },
+    "MP": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    },
+    "MRVL": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    },
+    "MSFT": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    },
+    "MU": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    },
+    "NU": {
+      "pattern_hits": [
+        {
+          "pattern": "inverse_head_and_shoulders",
+          "timeframe": "day",
+          "indices": [
+            142,
+            152,
+            158
+          ],
+          "prices": [
+            14.04,
+            13.56,
+            14.21
+          ],
+          "bias": "bullish"
+        }
+      ],
+      "dominant_bias": "bullish"
+    },
+    "NVDA": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    },
+    "NVO": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    },
+    "ORCL": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    },
+    "PLTR": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    },
+    "PONY": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    },
+    "PYPL": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    },
+    "QBTS": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    },
+    "QCOM": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    },
+    "QS": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    },
+    "RBRK": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    },
+    "RDDT": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    },
+    "RGTI": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    },
+    "RXRX": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    },
+    "SHOP": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    },
+    "SKHY": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    },
+    "SMCI": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    },
+    "SNDK": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    },
+    "SNOW": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    },
+    "SOFI": {
+      "pattern_hits": [
+        {
+          "pattern": "double_top",
+          "timeframe": "day",
+          "indices": [
+            146,
+            153
+          ],
+          "prices": [
+            18.7,
+            18.43
+          ],
+          "neckline": 17.94,
+          "bias": "bearish"
+        }
+      ],
+      "dominant_bias": "bearish"
+    },
+    "SOUN": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    },
+    "SPCH": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    },
+    "SSPC": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    },
+    "TEM": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    },
+    "TER": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    },
+    "TSLA": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    },
+    "TSM": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    },
+    "TTD": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    },
+    "TXG": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    },
+    "UNP": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    },
+    "UPS": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    },
+    "URA": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    },
+    "VG": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    },
+    "VIRT": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    },
+    "VTI": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    },
+    "XOM": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    },
+    "XYZ": {
+      "pattern_hits": [],
+      "dominant_bias": null
+    }
+  }
+}

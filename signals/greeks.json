@@ -1,0 +1,59 @@
+{
+  "agent": "I_greeks",
+  "as_of": "2026-08-30T08:26:05+00:00",
+  "source": "robinhood_get_option_quotes",
+  "rows": [
+    {
+      "symbol": "NU",
+      "option_id": "c772963f-7a6f-4af4-b04f-cdc735bc2ea6",
+      "expiration": "2026-09-04",
+      "type": "call",
+      "strike": "14.5",
+      "greeks": {
+        "delta": 0.395984,
+        "gamma": 0.554128,
+        "theta": -0.025005,
+        "vega": 0.006748,
+        "rho": 0.000821,
+        "implied_volatility": 0.397041
+      },
+      "missing_fields": [],
+      "source": "robinhood_get_option_quotes",
+      "liquidity": {
+        "ok": true,
+        "reason": null,
+        "bid": 0.15,
+        "ask": 0.22,
+        "mid": 0.185,
+        "spread": 0.07,
+        "spread_pct_of_mid": 0.3783783783783784
+      }
+    },
+    {
+      "symbol": "SOFI",
+      "option_id": "a29d992b-6bf2-44da-9f9a-c636bc8c4cd1",
+      "expiration": "2026-09-04",
+      "type": "put",
+      "strike": "18.0",
+      "greeks": {
+        "delta": -0.466138,
+        "gamma": 0.369435,
+        "theta": -0.038199,
+        "vega": 0.008793,
+        "rho": -0.001277,
+        "implied_volatility": 0.487342
+      },
+      "missing_fields": [],
+      "source": "robinhood_get_option_quotes",
+      "liquidity": {
+        "ok": true,
+        "reason": null,
+        "bid": 0.37,
+        "ask": 0.43,
+        "mid": 0.4,
+        "spread": 0.06,
+        "spread_pct_of_mid": 0.15
+      }
+    }
+  ]
+}

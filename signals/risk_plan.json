@@ -1,0 +1,26 @@
+{
+  "agent": "E_risk",
+  "as_of": "2026-08-30T08:26:05+00:00",
+  "mode": "read_only",
+  "max_open_positions": 1,
+  "plans": [
+    {
+      "symbol": "SOFI",
+      "option_id": "a29d992b-6bf2-44da-9f9a-c636bc8c4cd1",
+      "asset_class": "option",
+      "contracts": 1,
+      "premium_per_share": 0.4,
+      "multiplier": 100.0,
+      "cash_risked": 40.0,
+      "take_profit_pct": 0.2,
+      "stop_loss_pct": 0.07,
+      "take_profit_value": 48.0,
+      "stop_loss_value": 37.199999999999996,
+      "take_profit_premium": 0.48,
+      "stop_loss_premium": 0.372,
+      "broker_exit": "stop_first_until_oco",
+      "monitor_take_profit_in_loop": true
+    }
+  ],
+  "notes": "Stop-first until OCO; TP monitored in loop. Phase 2 does not place orders."
+}

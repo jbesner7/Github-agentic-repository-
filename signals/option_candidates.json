@@ -1,0 +1,394 @@
+{
+  "agent": "D_option_structure",
+  "as_of": "2026-08-30T08:26:05+00:00",
+  "mode": "read_only",
+  "candidates": [
+    {
+      "symbol": "SOFI",
+      "structure": "long_put",
+      "bias": "bearish",
+      "expiration": "2026-09-04",
+      "option_type": "put",
+      "strike": "18.0",
+      "option_id": "a29d992b-6bf2-44da-9f9a-c636bc8c4cd1",
+      "selection": "atm",
+      "premium_mark": 0.4,
+      "greeks": {
+        "delta": -0.466138,
+        "gamma": 0.369435,
+        "theta": -0.038199,
+        "vega": 0.008793,
+        "rho": -0.001277,
+        "implied_volatility": 0.487342
+      },
+      "liquidity": {
+        "bid": 0.37,
+        "ask": 0.43,
+        "mid": 0.4,
+        "spread": 0.06,
+        "spread_pct_of_mid": 0.15
+      },
+      "contracts": 1,
+      "playbook_status": "DRAFT_NOT_RELEASED"
+    }
+  ],
+  "equity_fallbacks": [
+    {
+      "symbol": "AAOI",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "AAPL",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "ACHR",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "AMAT",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "AMD",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "AMZN",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "ANET",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "AVGO",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "BABA",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "BIDU",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "BMNR",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "CIFR",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "COF",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "COIN",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "COP",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "CPRT",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "CRCL",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "CRWV",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "DHT",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "FIGR",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "FTI",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "GOOGL",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "GTLB",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "HOOD",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "IBM",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "INTC",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "IONQ",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "JOBY",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "KHC",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "KLAR",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "META",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "MP",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "MRVL",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "MSFT",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "MU",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "NU",
+      "reason": "greeks_filter:delta_abs_0.3960_outside_0.4_0.5",
+      "bias": "bullish",
+      "option_id": "c772963f-7a6f-4af4-b04f-cdc735bc2ea6"
+    },
+    {
+      "symbol": "NVDA",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "NVO",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "ORCL",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "PLTR",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "PONY",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "PYPL",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "QBTS",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "QCOM",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "QS",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "RBRK",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "RDDT",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "RGTI",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "RXRX",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "SHOP",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "SKHY",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "SMCI",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "SNDK",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "SNOW",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "SOUN",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "SPCH",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "SSPC",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "TEM",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "TER",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "TSLA",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "TSM",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "TTD",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "TXG",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "UNP",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "UPS",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "URA",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "VG",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "VIRT",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "VTI",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "XOM",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    },
+    {
+      "symbol": "XYZ",
+      "reason": "no_directional_bias_or_spot",
+      "bias": null
+    }
+  ],
+  "max_contracts": 1
+}

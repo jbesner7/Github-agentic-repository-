@@ -1,0 +1,1286 @@
+{
+  "agent": "A_scanner",
+  "as_of": "2026-08-30T08:26:05+00:00",
+  "mode": "read_only",
+  "extract": {
+    "equities": [
+      {
+        "symbol": "AAOI",
+        "object_type": "instrument",
+        "sources": [
+          "Playbook Monday ORB"
+        ]
+      },
+      {
+        "symbol": "AAPL",
+        "object_type": "instrument",
+        "sources": [
+          "My First List"
+        ]
+      },
+      {
+        "symbol": "ACHR",
+        "object_type": "instrument",
+        "sources": [
+          "My First List",
+          "ARKVX"
+        ]
+      },
+      {
+        "symbol": "AMAT",
+        "object_type": "instrument",
+        "sources": [
+          "Playbook Monday ORB"
+        ]
+      },
+      {
+        "symbol": "AMD",
+        "object_type": "instrument",
+        "sources": [
+          "My First List",
+          "Playbook Monday ORB"
+        ]
+      },
+      {
+        "symbol": "AMZN",
+        "object_type": "instrument",
+        "sources": [
+          "My First List"
+        ]
+      },
+      {
+        "symbol": "ANET",
+        "object_type": "instrument",
+        "sources": [
+          "My First List"
+        ]
+      },
+      {
+        "symbol": "AVGO",
+        "object_type": "instrument",
+        "sources": [
+          "My First List",
+          "Playbook Monday ORB"
+        ]
+      },
+      {
+        "symbol": "BABA",
+        "object_type": "instrument",
+        "sources": [
+          "My First List"
+        ]
+      },
+      {
+        "symbol": "BIDU",
+        "object_type": "instrument",
+        "sources": [
+          "My First List"
+        ]
+      },
+      {
+        "symbol": "BLSH",
+        "object_type": "instrument",
+        "sources": [
+          "My First List"
+        ]
+      },
+      {
+        "symbol": "BMNR",
+        "object_type": "instrument",
+        "sources": [
+          "My First List"
+        ]
+      },
+      {
+        "symbol": "CIFR",
+        "object_type": "instrument",
+        "sources": [
+          "Playbook Monday ORB"
+        ]
+      },
+      {
+        "symbol": "COF",
+        "object_type": "instrument",
+        "sources": [
+          "Playbook Monday ORB"
+        ]
+      },
+      {
+        "symbol": "COIN",
+        "object_type": "instrument",
+        "sources": [
+          "My First List",
+          "ARKVX"
+        ]
+      },
+      {
+        "symbol": "COP",
+        "object_type": "instrument",
+        "sources": [
+          "Playbook Monday ORB"
+        ]
+      },
+      {
+        "symbol": "CPRT",
+        "object_type": "instrument",
+        "sources": [
+          "Playbook Monday ORB"
+        ]
+      },
+      {
+        "symbol": "CRCL",
+        "object_type": "instrument",
+        "sources": [
+          "My First List"
+        ]
+      },
+      {
+        "symbol": "CRSP",
+        "object_type": "instrument",
+        "sources": [
+          "ARKVX"
+        ]
+      },
+      {
+        "symbol": "CRWV",
+        "object_type": "instrument",
+        "sources": [
+          "My First List"
+        ]
+      },
+      {
+        "symbol": "DE",
+        "object_type": "instrument",
+        "sources": [
+          "My First List"
+        ]
+      },
+      {
+        "symbol": "DHT",
+        "object_type": "instrument",
+        "sources": [
+          "Playbook Monday ORB"
+        ]
+      },
+      {
+        "symbol": "DK",
+        "object_type": "instrument",
+        "sources": [
+          "Playbook Monday ORB"
+        ]
+      },
+      {
+        "symbol": "FDXF",
+        "object_type": "instrument",
+        "sources": [
+          "Playbook Monday ORB"
+        ]
+      },
+      {
+        "symbol": "FIGR",
+        "object_type": "instrument",
+        "sources": [
+          "My First List",
+          "Playbook Monday ORB"
+        ]
+      },
+      {
+        "symbol": "FSLR",
+        "object_type": "instrument",
+        "sources": [
+          "My First List"
+        ]
+      },
+      {
+        "symbol": "FTI",
+        "object_type": "instrument",
+        "sources": [
+          "Playbook Monday ORB"
+        ]
+      },
+      {
+        "symbol": "GOOGL",
+        "object_type": "instrument",
+        "sources": [
+          "My First List"
+        ]
+      },
+      {
+        "symbol": "GTLB",
+        "object_type": "instrument",
+        "sources": [
+          "My First List"
+        ]
+      },
+      {
+        "symbol": "HIW",
+        "object_type": "instrument",
+        "sources": [
+          "Playbook Monday ORB"
+        ]
+      },
+      {
+        "symbol": "HOOD",
+        "object_type": "instrument",
+        "sources": [
+          "My First List",
+          "ARKVX"
+        ]
+      },
+      {
+        "symbol": "IBM",
+        "object_type": "instrument",
+        "sources": [
+          "My First List"
+        ]
+      },
+      {
+        "symbol": "IHS",
+        "object_type": "instrument",
+        "sources": [
+          "Playbook Monday ORB"
+        ]
+      },
+      {
+        "symbol": "INTC",
+        "object_type": "instrument",
+        "sources": [
+          "My First List"
+        ]
+      },
+      {
+        "symbol": "IONQ",
+        "object_type": "instrument",
+        "sources": [
+          "My First List"
+        ]
+      },
+      {
+        "symbol": "JOBY",
+        "object_type": "instrument",
+        "sources": [
+          "My First List"
+        ]
+      },
+      {
+        "symbol": "KHC",
+        "object_type": "instrument",
+        "sources": [
+          "Playbook Monday ORB"
+        ]
+      },
+      {
+        "symbol": "KLAR",
+        "object_type": "instrument",
+        "sources": [
+          "My First List"
+        ]
+      },
+      {
+        "symbol": "KOID",
+        "object_type": "instrument",
+        "sources": [
+          "My First List"
+        ]
+      },
+      {
+        "symbol": "LIT",
+        "object_type": "instrument",
+        "sources": [
+          "My First List"
+        ]
+      },
+      {
+        "symbol": "MELI",
+        "object_type": "instrument",
+        "sources": [
+          "My First List"
+        ]
+      },
+      {
+        "symbol": "META",
+        "object_type": "instrument",
+        "sources": [
+          "My First List"
+        ]
+      },
+      {
+        "symbol": "MP",
+        "object_type": "instrument",
+        "sources": [
+          "Playbook Monday ORB"
+        ]
+      },
+      {
+        "symbol": "MRVL",
+        "object_type": "instrument",
+        "sources": [
+          "My First List"
+        ]
+      },
+      {
+        "symbol": "MSFT",
+        "object_type": "instrument",
+        "sources": [
+          "My First List"
+        ]
+      },
+      {
+        "symbol": "MTG",
+        "object_type": "instrument",
+        "sources": [
+          "Playbook Monday ORB"
+        ]
+      },
+      {
+        "symbol": "MU",
+        "object_type": "instrument",
+        "sources": [
+          "My First List"
+        ]
+      },
+      {
+        "symbol": "NTRA",
+        "object_type": "instrument",
+        "sources": [
+          "ARKVX"
+        ]
+      },
+      {
+        "symbol": "NU",
+        "object_type": "instrument",
+        "sources": [
+          "Playbook Monday ORB"
+        ]
+      },
+      {
+        "symbol": "NVDA",
+        "object_type": "instrument",
+        "sources": [
+          "My First List"
+        ]
+      },
+      {
+        "symbol": "NVO",
+        "object_type": "instrument",
+        "sources": [
+          "Playbook Monday ORB"
+        ]
+      },
+      {
+        "symbol": "ORCL",
+        "object_type": "instrument",
+        "sources": [
+          "My First List"
+        ]
+      },
+      {
+        "symbol": "PLTR",
+        "object_type": "instrument",
+        "sources": [
+          "My First List",
+          "ARKVX"
+        ]
+      },
+      {
+        "symbol": "PONY",
+        "object_type": "instrument",
+        "sources": [
+          "My First List"
+        ]
+      },
+      {
+        "symbol": "PRGS",
+        "object_type": "instrument",
+        "sources": [
+          "My First List"
+        ]
+      },
+      {
+        "symbol": "PTRN",
+        "object_type": "instrument",
+        "sources": [
+          "My First List"
+        ]
+      },
+      {
+        "symbol": "PYPL",
+        "object_type": "instrument",
+        "sources": [
+          "My First List"
+        ]
+      },
+      {
+        "symbol": "QBTS",
+        "object_type": "instrument",
+        "sources": [
+          "My First List"
+        ]
+      },
+      {
+        "symbol": "QCOM",
+        "object_type": "instrument",
+        "sources": [
+          "My First List"
+        ]
+      },
+      {
+        "symbol": "QS",
+        "object_type": "instrument",
+        "sources": [
+          "My First List"
+        ]
+      },
+      {
+        "symbol": "QTUM",
+        "object_type": "instrument",
+        "sources": [
+          "My First List"
+        ]
+      },
+      {
+        "symbol": "QTUP",
+        "object_type": "instrument",
+        "sources": [
+          "My First List"
+        ]
+      },
+      {
+        "symbol": "RBRK",
+        "object_type": "instrument",
+        "sources": [
+          "My First List"
+        ]
+      },
+      {
+        "symbol": "RDDT",
+        "object_type": "instrument",
+        "sources": [
+          "Playbook Monday ORB"
+        ]
+      },
+      {
+        "symbol": "RGTI",
+        "object_type": "instrument",
+        "sources": [
+          "My First List"
+        ]
+      },
+      {
+        "symbol": "RXRX",
+        "object_type": "instrument",
+        "sources": [
+          "ARKVX"
+        ]
+      },
+      {
+        "symbol": "SHOP",
+        "object_type": "instrument",
+        "sources": [
+          "ARKVX"
+        ]
+      },
+      {
+        "symbol": "SKHY",
+        "object_type": "instrument",
+        "sources": [
+          "My First List"
+        ]
+      },
+      {
+        "symbol": "SMCI",
+        "object_type": "instrument",
+        "sources": [
+          "My First List"
+        ]
+      },
+      {
+        "symbol": "SNDK",
+        "object_type": "instrument",
+        "sources": [
+          "My First List"
+        ]
+      },
+      {
+        "symbol": "SNOW",
+        "object_type": "instrument",
+        "sources": [
+          "My First List"
+        ]
+      },
+      {
+        "symbol": "SOFI",
+        "object_type": "instrument",
+        "sources": [
+          "My First List"
+        ]
+      },
+      {
+        "symbol": "SOUN",
+        "object_type": "instrument",
+        "sources": [
+          "My First List"
+        ]
+      },
+      {
+        "symbol": "SPCH",
+        "object_type": "instrument",
+        "sources": [
+          "My First List"
+        ]
+      },
+      {
+        "symbol": "SSPC",
+        "object_type": "instrument",
+        "sources": [
+          "My First List"
+        ]
+      },
+      {
+        "symbol": "TEM",
+        "object_type": "instrument",
+        "sources": [
+          "My First List",
+          "ARKVX"
+        ]
+      },
+      {
+        "symbol": "TER",
+        "object_type": "instrument",
+        "sources": [
+          "My First List"
+        ]
+      },
+      {
+        "symbol": "TSLA",
+        "object_type": "instrument",
+        "sources": [
+          "My First List",
+          "ARKVX",
+          "Playbook Monday ORB"
+        ]
+      },
+      {
+        "symbol": "TSM",
+        "object_type": "instrument",
+        "sources": [
+          "My First List"
+        ]
+      },
+      {
+        "symbol": "TTD",
+        "object_type": "instrument",
+        "sources": [
+          "My First List"
+        ]
+      },
+      {
+        "symbol": "TXG",
+        "object_type": "instrument",
+        "sources": [
+          "ARKVX"
+        ]
+      },
+      {
+        "symbol": "UNP",
+        "object_type": "instrument",
+        "sources": [
+          "My First List"
+        ]
+      },
+      {
+        "symbol": "UPS",
+        "object_type": "instrument",
+        "sources": [
+          "Playbook Monday ORB"
+        ]
+      },
+      {
+        "symbol": "URA",
+        "object_type": "instrument",
+        "sources": [
+          "My First List"
+        ]
+      },
+      {
+        "symbol": "VG",
+        "object_type": "instrument",
+        "sources": [
+          "Playbook Monday ORB"
+        ]
+      },
+      {
+        "symbol": "VIRT",
+        "object_type": "instrument",
+        "sources": [
+          "Playbook Monday ORB"
+        ]
+      },
+      {
+        "symbol": "VTI",
+        "object_type": "instrument",
+        "sources": [
+          "My First List"
+        ]
+      },
+      {
+        "symbol": "XOM",
+        "object_type": "instrument",
+        "sources": [
+          "Playbook Monday ORB"
+        ]
+      },
+      {
+        "symbol": "XYZ",
+        "object_type": "instrument",
+        "sources": [
+          "My First List"
+        ]
+      }
+    ],
+    "indexes": [],
+    "option_watchlist_underlyings": [],
+    "skipped_crypto": [
+      "BTC",
+      "ETH",
+      "XRP"
+    ],
+    "equity_symbols": [
+      "AAOI",
+      "AAPL",
+      "ACHR",
+      "AMAT",
+      "AMD",
+      "AMZN",
+      "ANET",
+      "AVGO",
+      "BABA",
+      "BIDU",
+      "BLSH",
+      "BMNR",
+      "CIFR",
+      "COF",
+      "COIN",
+      "COP",
+      "CPRT",
+      "CRCL",
+      "CRSP",
+      "CRWV",
+      "DE",
+      "DHT",
+      "DK",
+      "FDXF",
+      "FIGR",
+      "FSLR",
+      "FTI",
+      "GOOGL",
+      "GTLB",
+      "HIW",
+      "HOOD",
+      "IBM",
+      "IHS",
+      "INTC",
+      "IONQ",
+      "JOBY",
+      "KHC",
+      "KLAR",
+      "KOID",
+      "LIT",
+      "MELI",
+      "META",
+      "MP",
+      "MRVL",
+      "MSFT",
+      "MTG",
+      "MU",
+      "NTRA",
+      "NU",
+      "NVDA",
+      "NVO",
+      "ORCL",
+      "PLTR",
+      "PONY",
+      "PRGS",
+      "PTRN",
+      "PYPL",
+      "QBTS",
+      "QCOM",
+      "QS",
+      "QTUM",
+      "QTUP",
+      "RBRK",
+      "RDDT",
+      "RGTI",
+      "RXRX",
+      "SHOP",
+      "SKHY",
+      "SMCI",
+      "SNDK",
+      "SNOW",
+      "SOFI",
+      "SOUN",
+      "SPCH",
+      "SSPC",
+      "TEM",
+      "TER",
+      "TSLA",
+      "TSM",
+      "TTD",
+      "TXG",
+      "UNP",
+      "UPS",
+      "URA",
+      "VG",
+      "VIRT",
+      "VTI",
+      "XOM",
+      "XYZ"
+    ],
+    "index_symbols": []
+  },
+  "liquidity": {
+    "passed": [
+      {
+        "symbol": "AAOI",
+        "average_volume": 9777098.275421
+      },
+      {
+        "symbol": "AAPL",
+        "average_volume": 39557195.623939
+      },
+      {
+        "symbol": "ACHR",
+        "average_volume": 28128080.614281
+      },
+      {
+        "symbol": "AMAT",
+        "average_volume": 6942298.60978
+      },
+      {
+        "symbol": "AMD",
+        "average_volume": 17427781.577802
+      },
+      {
+        "symbol": "AMZN",
+        "average_volume": 33755156.921593
+      },
+      {
+        "symbol": "ANET",
+        "average_volume": 5776879.249818
+      },
+      {
+        "symbol": "AVGO",
+        "average_volume": 21063352.469792
+      },
+      {
+        "symbol": "BABA",
+        "average_volume": 17061967.100879
+      },
+      {
+        "symbol": "BIDU",
+        "average_volume": 4386065.234001
+      },
+      {
+        "symbol": "BMNR",
+        "average_volume": 52427259.194392
+      },
+      {
+        "symbol": "CIFR",
+        "average_volume": 37066901.742511
+      },
+      {
+        "symbol": "COF",
+        "average_volume": 3100328.081377
+      },
+      {
+        "symbol": "COIN",
+        "average_volume": 11907536.120685
+      },
+      {
+        "symbol": "COP",
+        "average_volume": 6753964.108939
+      },
+      {
+        "symbol": "CPRT",
+        "average_volume": 11130828.866945
+      },
+      {
+        "symbol": "CRCL",
+        "average_volume": 17014064.519257
+      },
+      {
+        "symbol": "CRWV",
+        "average_volume": 22203203.150177
+      },
+      {
+        "symbol": "DHT",
+        "average_volume": 3547946.964606
+      },
+      {
+        "symbol": "FIGR",
+        "average_volume": 4744293.756929
+      },
+      {
+        "symbol": "FTI",
+        "average_volume": 2441599.962319
+      },
+      {
+        "symbol": "GOOGL",
+        "average_volume": 21284084.391403
+      },
+      {
+        "symbol": "GTLB",
+        "average_volume": 3621007.745839
+      },
+      {
+        "symbol": "HOOD",
+        "average_volume": 21665416.225304
+      },
+      {
+        "symbol": "IBM",
+        "average_volume": 4762459.196308
+      },
+      {
+        "symbol": "INTC",
+        "average_volume": 93941905.242284
+      },
+      {
+        "symbol": "IONQ",
+        "average_volume": 16033163.894419
+      },
+      {
+        "symbol": "JOBY",
+        "average_volume": 22892733.75107
+      },
+      {
+        "symbol": "KHC",
+        "average_volume": 14354963.30257
+      },
+      {
+        "symbol": "KLAR",
+        "average_volume": 12093762.522195
+      },
+      {
+        "symbol": "META",
+        "average_volume": 17445216.211841
+      },
+      {
+        "symbol": "MP",
+        "average_volume": 5805784.177548
+      },
+      {
+        "symbol": "MRVL",
+        "average_volume": 29297911.077001
+      },
+      {
+        "symbol": "MSFT",
+        "average_volume": 23162158.254229
+      },
+      {
+        "symbol": "MU",
+        "average_volume": 26430009.033203
+      },
+      {
+        "symbol": "NU",
+        "average_volume": 70332632.36828
+      },
+      {
+        "symbol": "NVDA",
+        "average_volume": 141635312.907671
+      },
+      {
+        "symbol": "NVO",
+        "average_volume": 12241835.274449
+      },
+      {
+        "symbol": "ORCL",
+        "average_volume": 19515799.583589
+      },
+      {
+        "symbol": "PLTR",
+        "average_volume": 31029788.698586
+      },
+      {
+        "symbol": "PONY",
+        "average_volume": 4805261.528514
+      },
+      {
+        "symbol": "PYPL",
+        "average_volume": 12798403.59878
+      },
+      {
+        "symbol": "QBTS",
+        "average_volume": 16341415.057761
+      },
+      {
+        "symbol": "QCOM",
+        "average_volume": 10042067.007612
+      },
+      {
+        "symbol": "QS",
+        "average_volume": 18664305.476737
+      },
+      {
+        "symbol": "RBRK",
+        "average_volume": 4085909.88081
+      },
+      {
+        "symbol": "RDDT",
+        "average_volume": 8275488.129049
+      },
+      {
+        "symbol": "RGTI",
+        "average_volume": 16725245.864859
+      },
+      {
+        "symbol": "RXRX",
+        "average_volume": 17388947.958939
+      },
+      {
+        "symbol": "SHOP",
+        "average_volume": 6084957.770238
+      },
+      {
+        "symbol": "SKHY",
+        "average_volume": 18262568.951411
+      },
+      {
+        "symbol": "SMCI",
+        "average_volume": 42351413.825473
+      },
+      {
+        "symbol": "SNDK",
+        "average_volume": 12103350.425363
+      },
+      {
+        "symbol": "SNOW",
+        "average_volume": 3601428.609436
+      },
+      {
+        "symbol": "SOFI",
+        "average_volume": 44705044.290597
+      },
+      {
+        "symbol": "SOUN",
+        "average_volume": 25448815.429102
+      },
+      {
+        "symbol": "SPCH",
+        "average_volume": 25672841.833063
+      },
+      {
+        "symbol": "SSPC",
+        "average_volume": 14359779.595872
+      },
+      {
+        "symbol": "TEM",
+        "average_volume": 10645148.990159
+      },
+      {
+        "symbol": "TER",
+        "average_volume": 2548985.593599
+      },
+      {
+        "symbol": "TSLA",
+        "average_volume": 34144586.380196
+      },
+      {
+        "symbol": "TSM",
+        "average_volume": 9812081.001828
+      },
+      {
+        "symbol": "TTD",
+        "average_volume": 15836226.829033
+      },
+      {
+        "symbol": "TXG",
+        "average_volume": 3026069.319691
+      },
+      {
+        "symbol": "UNP",
+        "average_volume": 2467316.141882
+      },
+      {
+        "symbol": "UPS",
+        "average_volume": 4110391.120889
+      },
+      {
+        "symbol": "URA",
+        "average_volume": 3712968.241294
+      },
+      {
+        "symbol": "VG",
+        "average_volume": 12726258.585518
+      },
+      {
+        "symbol": "VIRT",
+        "average_volume": 2010492.890958
+      },
+      {
+        "symbol": "VTI",
+        "average_volume": 2991862.812606
+      },
+      {
+        "symbol": "XOM",
+        "average_volume": 14245299.338534
+      },
+      {
+        "symbol": "XYZ",
+        "average_volume": 3926881.135603
+      }
+    ],
+    "rejected": [
+      {
+        "symbol": "BLSH",
+        "reason": "below_min_average_volume",
+        "average_volume": 1878993.40343,
+        "min_average_volume": 2000000.0
+      },
+      {
+        "symbol": "CRSP",
+        "reason": "below_min_average_volume",
+        "average_volume": 1822018.229196,
+        "min_average_volume": 2000000.0
+      },
+      {
+        "symbol": "DE",
+        "reason": "below_min_average_volume",
+        "average_volume": 1436099.552601,
+        "min_average_volume": 2000000.0
+      },
+      {
+        "symbol": "DK",
+        "reason": "below_min_average_volume",
+        "average_volume": 1636547.429557,
+        "min_average_volume": 2000000.0
+      },
+      {
+        "symbol": "FDXF",
+        "reason": "below_min_average_volume",
+        "average_volume": 1082778.825544,
+        "min_average_volume": 2000000.0
+      },
+      {
+        "symbol": "FSLR",
+        "reason": "below_min_average_volume",
+        "average_volume": 1611138.23303,
+        "min_average_volume": 2000000.0
+      },
+      {
+        "symbol": "HIW",
+        "reason": "below_min_average_volume",
+        "average_volume": 840317.608283,
+        "min_average_volume": 2000000.0
+      },
+      {
+        "symbol": "IHS",
+        "reason": "below_min_average_volume",
+        "average_volume": 1053479.384855,
+        "min_average_volume": 2000000.0
+      },
+      {
+        "symbol": "KOID",
+        "reason": "below_min_average_volume",
+        "average_volume": 179892.890064,
+        "min_average_volume": 2000000.0
+      },
+      {
+        "symbol": "LIT",
+        "reason": "below_min_average_volume",
+        "average_volume": 284742.315437,
+        "min_average_volume": 2000000.0
+      },
+      {
+        "symbol": "MELI",
+        "reason": "below_min_average_volume",
+        "average_volume": 433596.612309,
+        "min_average_volume": 2000000.0
+      },
+      {
+        "symbol": "MTG",
+        "reason": "below_min_average_volume",
+        "average_volume": 1442654.64501,
+        "min_average_volume": 2000000.0
+      },
+      {
+        "symbol": "NTRA",
+        "reason": "below_min_average_volume",
+        "average_volume": 1276226.146906,
+        "min_average_volume": 2000000.0
+      },
+      {
+        "symbol": "PRGS",
+        "reason": "below_min_average_volume",
+        "average_volume": 369117.271151,
+        "min_average_volume": 2000000.0
+      },
+      {
+        "symbol": "PTRN",
+        "reason": "below_min_average_volume",
+        "average_volume": 1583587.505594,
+        "min_average_volume": 2000000.0
+      },
+      {
+        "symbol": "QTUM",
+        "reason": "below_min_average_volume",
+        "average_volume": 308937.222203,
+        "min_average_volume": 2000000.0
+      },
+      {
+        "symbol": "QTUP",
+        "reason": "below_min_average_volume",
+        "average_volume": 58639.513211,
+        "min_average_volume": 2000000.0
+      }
+    ],
+    "passed_symbols": [
+      "AAOI",
+      "AAPL",
+      "ACHR",
+      "AMAT",
+      "AMD",
+      "AMZN",
+      "ANET",
+      "AVGO",
+      "BABA",
+      "BIDU",
+      "BMNR",
+      "CIFR",
+      "COF",
+      "COIN",
+      "COP",
+      "CPRT",
+      "CRCL",
+      "CRWV",
+      "DHT",
+      "FIGR",
+      "FTI",
+      "GOOGL",
+      "GTLB",
+      "HOOD",
+      "IBM",
+      "INTC",
+      "IONQ",
+      "JOBY",
+      "KHC",
+      "KLAR",
+      "META",
+      "MP",
+      "MRVL",
+      "MSFT",
+      "MU",
+      "NU",
+      "NVDA",
+      "NVO",
+      "ORCL",
+      "PLTR",
+      "PONY",
+      "PYPL",
+      "QBTS",
+      "QCOM",
+      "QS",
+      "RBRK",
+      "RDDT",
+      "RGTI",
+      "RXRX",
+      "SHOP",
+      "SKHY",
+      "SMCI",
+      "SNDK",
+      "SNOW",
+      "SOFI",
+      "SOUN",
+      "SPCH",
+      "SSPC",
+      "TEM",
+      "TER",
+      "TSLA",
+      "TSM",
+      "TTD",
+      "TXG",
+      "UNP",
+      "UPS",
+      "URA",
+      "VG",
+      "VIRT",
+      "VTI",
+      "XOM",
+      "XYZ"
+    ]
+  },
+  "index_symbols": [],
+  "eligible_equities": [
+    "AAOI",
+    "AAPL",
+    "ACHR",
+    "AMAT",
+    "AMD",
+    "AMZN",
+    "ANET",
+    "AVGO",
+    "BABA",
+    "BIDU",
+    "BMNR",
+    "CIFR",
+    "COF",
+    "COIN",
+    "COP",
+    "CPRT",
+    "CRCL",
+    "CRWV",
+    "DHT",
+    "FIGR",
+    "FTI",
+    "GOOGL",
+    "GTLB",
+    "HOOD",
+    "IBM",
+    "INTC",
+    "IONQ",
+    "JOBY",
+    "KHC",
+    "KLAR",
+    "META",
+    "MP",
+    "MRVL",
+    "MSFT",
+    "MU",
+    "NU",
+    "NVDA",
+    "NVO",
+    "ORCL",
+    "PLTR",
+    "PONY",
+    "PYPL",
+    "QBTS",
+    "QCOM",
+    "QS",
+    "RBRK",
+    "RDDT",
+    "RGTI",
+    "RXRX",
+    "SHOP",
+    "SKHY",
+    "SMCI",
+    "SNDK",
+    "SNOW",
+    "SOFI",
+    "SOUN",
+    "SPCH",
+    "SSPC",
+    "TEM",
+    "TER",
+    "TSLA",
+    "TSM",
+    "TTD",
+    "TXG",
+    "UNP",
+    "UPS",
+    "URA",
+    "VG",
+    "VIRT",
+    "VTI",
+    "XOM",
+    "XYZ"
+  ]
+}
