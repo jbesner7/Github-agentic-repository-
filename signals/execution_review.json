@@ -1,0 +1,58 @@
+{
+  "event": "phase3_dry_review",
+  "as_of": "2026-08-30T08:41:36+00:00",
+  "proposal": {
+    "agent": "F_supervised_execution",
+    "mode": "dry_review_until_confirm",
+    "as_of": "2026-08-30T08:41:36+00:00",
+    "account_last4": "2907",
+    "action": "buy_to_open",
+    "symbol": "SOFI",
+    "structure": "long_put",
+    "expiration": "2026-09-04",
+    "option_type": "put",
+    "strike": "18.0",
+    "option_id": "a29d992b-6bf2-44da-9f9a-c636bc8c4cd1",
+    "quantity": "1",
+    "order_type": "limit",
+    "price": "0.43",
+    "time_in_force": "gfd",
+    "market_hours": "regular_hours",
+    "chain_symbol": "SOFI",
+    "underlying_type": "equity",
+    "legs": [
+      {
+        "option_id": "a29d992b-6bf2-44da-9f9a-c636bc8c4cd1",
+        "side": "buy",
+        "position_effect": "open",
+        "ratio_quantity": 1
+      }
+    ],
+    "playbook_status": "DRAFT_NOT_RELEASED",
+    "places_order": false
+  },
+  "review": {
+    "account_number_last4": "2907",
+    "type": "limit",
+    "direction": "debit",
+    "quantity": "1",
+    "price": "0.43",
+    "time_in_force": "gfd",
+    "market_hours": "regular_hours",
+    "order_checks": {},
+    "quote_as_of": "2026-08-28T19:59:59.990491179Z",
+    "bid": "0.37",
+    "ask": "0.43",
+    "mark": "0.40",
+    "delta": "-0.466144",
+    "fees_total": "0.04",
+    "collateral_cash": "0.0000"
+  },
+  "error": null,
+  "places_order": false,
+  "playbook_status": "DRAFT_NOT_RELEASED",
+  "place_gate": {
+    "allowed": false,
+    "reason": "options_playbook_still_draft"
+  }
+}

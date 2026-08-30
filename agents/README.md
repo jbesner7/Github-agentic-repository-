@@ -1,17 +1,15 @@
-# Agents (Phase 2)
+# Agents (Phase 3)
 
-Phase 2 is **read-only**. Agents write `signals/` + `journal/` only. **No** `place_*` / `cancel_*` calls.
+Phase 2 remains the signal pipeline. Phase 3 adds **Agent F** dry review.
+
+**No** `place_*` until: playbook RELEASED **and** explicit confirm in this Cursor chat.
 
 | Agent | Module | Output |
 |---|---|---|
-| A Scanner | `pipeline/universe.py` | `signals/universe.json` |
-| B Patterns | `pipeline/patterns.py` | `signals/technicals.json` |
-| C News | `pipeline/news.py` | `signals/news.json` |
-| D Structure | `pipeline/options_structure.py` | `signals/option_candidates.json` |
-| I Greeks | `pipeline/greeks.py` | `signals/greeks.json` |
-| E Risk | `pipeline/risk.py` | `signals/risk_plan.json` |
+| A–E + I | `pipeline/*` | `signals/*` |
+| F Supervised | `pipeline/execution.py` | `signals/execution_review.json`, `journal/reviews.jsonl` |
 | G Loop | `pipeline/orchestrator.py` | `journal/loop_runs.jsonl` |
-| F / H | (Phase 3 / 5) | not active |
+| H Unsupervised | Phase 5 | OFF |
 
 ## Run
 1. Assemble RH MCP dumps into `data/raw/latest_raw.json`

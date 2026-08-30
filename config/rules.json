@@ -1,6 +1,6 @@
 {
-  "phase": 2,
-  "mode": "read_only_signals",
+  "phase": 3,
+  "mode": "supervised_dry_review",
   "account": {
     "nickname": "Agentic",
     "account_number_last4": "2907",
@@ -72,6 +72,7 @@
   },
   "execution": {
     "phase2_places_orders": false,
+    "phase3_places_orders": false,
     "confirm_channel": "cursor_chat_only",
     "unsupervised_agent_h": "designed_off",
     "pdt": {
