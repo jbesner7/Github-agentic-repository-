@@ -6,18 +6,18 @@
   <title>Engineering Report — Agentic Trading Build</title>
   <style>
     :root {
-      --bg: #0e1116;
-      --panel: #171b22;
-      --ink: #e8edf4;
-      --muted: #9aa6b5;
-      --line: #2a3140;
-      --accent: #7eb8ff;
-      --good: #7dcea0;
-      --warn: #e6c07b;
-      --bad: #e06c75;
+      --bg: #ffffff;
+      --panel: #f4f4f4;
+      --ink: #111111;
+      --muted: #333333;
+      --line: #222222;
+      --accent: #0b3d8c;
+      --good: #1b6b3a;
+      --warn: #8a6400;
+      --bad: #a32030;
     }
     * { box-sizing: border-box; }
-    html, body { margin: 0; height: 100%; background: #07090c; color: var(--ink); }
+    html, body { margin: 0; height: 100%; background: #ffffff; color: var(--ink); }
     body {
       font-family: "IBM Plex Sans", "Segoe UI", Helvetica, Arial, sans-serif;
     }
@@ -28,7 +28,7 @@
       display: flex;
       gap: 12px;
       align-items: center;
-      background: #07090c;
+      background: #ffffff;
       border-bottom: 1px solid var(--line);
       padding: 8px 16px;
       font-size: 13px;
@@ -36,7 +36,7 @@
     }
     .toolbar button, .toolbar a.btn {
       background: var(--accent);
-      color: #0b1220;
+      color: #ffffff;
       border: 0;
       padding: 7px 12px;
       font-weight: 700;
@@ -70,7 +70,7 @@
     h3 { font-size: 16px; margin: 0 0 8px; color: var(--accent); }
     p, li { font-size: 18px; line-height: 1.45; color: var(--ink); }
     .muted { color: var(--muted); }
-    .lead { font-size: 22px; max-width: 46rem; color: #d5dce6; }
+    .lead { font-size: 22px; max-width: 46rem; color: #333333; }
     .rule { width: 72px; height: 3px; background: var(--accent); margin: 16px 0 22px; }
     .grid { display: grid; gap: 14px; }
     .g2 { grid-template-columns: 1fr 1fr; }
@@ -84,21 +84,21 @@
     .card li { font-size: 15px; margin: 4px 0; }
     table { width: 100%; border-collapse: collapse; font-size: 15px; }
     th, td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
-    th { background: #202632; color: #c9d4e3; }
+    th { background: #e8e8e8; color: #111111; }
     code, .mono {
       font-family: "IBM Plex Mono", Consolas, "Courier New", monospace;
     }
-    code { font-size: 0.92em; color: #c7e0ff; }
+    code { font-size: 0.92em; color: #0b3d8c; }
     .diagram {
       font-family: "IBM Plex Mono", Consolas, "Courier New", monospace;
       font-size: 13px;
       line-height: 1.28;
       white-space: pre;
-      background: #10141b;
+      background: #f4f4f4;
       border: 1px solid var(--line);
       padding: 16px 18px;
       overflow: auto;
-      color: #d7e3f2;
+      color: #111111;
     }
     .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0 0; }
     .chip {
@@ -108,7 +108,7 @@
       font-size: 13px;
       color: var(--muted);
     }
-    .chip.on { color: var(--good); border-color: #335544; }
+    .chip.on { color: var(--good); border-color: #1b6b3a; }
     .chip.warn { color: var(--warn); }
     .foot {
       margin-top: auto;
@@ -125,7 +125,7 @@
     @media print {
       html, body {
         height: auto !important;
-        background: #0e1116 !important;
+        background: #ffffff !important;
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
       }
@@ -145,7 +145,7 @@
         overflow: hidden;
         border: 1px solid var(--line);
         padding: 0.32in 0.4in 0.22in;
-        background: #0e1116 !important;
+        background: #ffffff !important;
       }
       .slide:last-child { page-break-after: auto; break-after: auto; }
       h1 { font-size: 32px; }
