@@ -1,6 +1,18 @@
 {
   "agent": "H_unsupervised",
-  "status": "PASTE_INTO_CURSOR_AUTOMATION_TO_ENABLE",
+  "status": "ACTIVE",
+  "automation": {
+    "id": "9af478e7-a454-11f1-a7d1-d6b4613131ce",
+    "name": "Agentic AI Bot",
+    "url": "https://cursor.com/automations/9af478e7-a454-11f1-a7d1-d6b4613131ce",
+    "enabled_verified": "2026-08-30T11:01:00Z",
+    "first_run": {
+      "bcId": "bc-5cca3960-dbb3-4c0e-9d3b-82b772bc4eec",
+      "url": "https://cursor.com/agents/bc-5cca3960-dbb3-4c0e-9d3b-82b772bc4eec",
+      "result": "skipped_outside_rth",
+      "journal_pr": "https://github.com/jbesner7/Github-agentic-repository-/pull/3"
+    }
+  },
   "standing_authorization": {
     "owner": "Jarrod Besner",
     "granted": "2026-08-30",

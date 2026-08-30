@@ -4,7 +4,7 @@
 
 Live `place_*` from **this Cursor chat (Agent F)** still requires an explicit confirm of a **specific** order.
 
-Autonomous placing is a **separate** Cursor Automation (Agent H). Paste `playbooks/agent_h_autonomous.PROMPT.md` at https://cursor.com/automations and activate it to turn H ON. Disable that Automation to turn H OFF. That prompt is the standing place-permission; this chat is not.
+Autonomous placing is a **separate** Cursor Automation (Agent H). Owner activated **Agentic AI Bot** on 2026-08-30: https://cursor.com/automations/9af478e7-a454-11f1-a7d1-d6b4613131ce. Disable that Automation to turn H OFF. That prompt is the standing place-permission; this chat is not.
 
 ## Locked rules
 - Long call or long put only (no shorts)

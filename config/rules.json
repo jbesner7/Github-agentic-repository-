@@ -80,7 +80,7 @@
     "phase2_places_orders": false,
     "phase3_places_orders": false,
     "confirm_channel": "cursor_chat_only",
-    "unsupervised_agent_h": "designed_off",
+    "unsupervised_agent_h": "enabled",
     "pdt": {
       "reduce_day_trades_for_pdt": false,
       "owner_instruction": "Accept risk. Do not throttle day-trade frequency for PDT.",
