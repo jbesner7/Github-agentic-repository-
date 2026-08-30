@@ -1,0 +1,81 @@
+{
+  "phase": 2,
+  "mode": "read_only_signals",
+  "account": {
+    "nickname": "Agentic",
+    "account_number_last4": "2907",
+    "target_funding_usd": 1500,
+    "notes": "Pass full account_number only to RH tools; mask in user-facing text."
+  },
+  "universe": {
+    "include_all_robinhood_watchlists": true,
+    "include_options_watchlist": true,
+    "include_crypto": false,
+    "include_index_options": true,
+    "dedupe_symbols": true
+  },
+  "priority": ["options", "equity"],
+  "patterns": {
+    "timeframes": ["15minute", "hour", "day"],
+    "types": [
+      "head_and_shoulders",
+      "inverse_head_and_shoulders",
+      "double_top",
+      "triple_top",
+      "double_bottom",
+      "triple_bottom",
+      "ascending_triangle",
+      "descending_triangle",
+      "symmetrical_triangle"
+    ]
+  },
+  "options": {
+    "structures_allowed": ["long_call", "long_put"],
+    "max_dte": 7,
+    "strike": {
+      "prefer": "atm",
+      "fallback": "one_otm",
+      "delta_min": 0.4,
+      "delta_max": 0.5,
+      "delta_source": "robinhood_option_quote_only"
+    },
+    "max_contracts": 1,
+    "no_new_entries_overnight": true,
+    "playbook_status": "DRAFT_NOT_RELEASED"
+  },
+  "liquidity": {
+    "min_average_volume": 2000000,
+    "option_max_spread_pct_of_mid": 0.1,
+    "option_max_spread_abs": 0.1,
+    "reject_one_sided_quotes": true
+  },
+  "risk": {
+    "max_open_positions": 1,
+    "options": {
+      "take_profit_pct_of_cash": 0.2,
+      "stop_loss_pct_of_cash": 0.07,
+      "broker_exit": "stop_first_until_oco"
+    },
+    "equity": {
+      "take_profit_pct_of_cost": 0.25,
+      "stop_loss_pct_of_cost": 0.2,
+      "broker_exit": "stop_first_until_oco",
+      "size": "up_to_full_buying_power"
+    }
+  },
+  "loop": {
+    "rth_minutes": 15,
+    "extended_minutes": 30,
+    "overnight_minutes": 60,
+    "proposal_ttl": "until_next_loop"
+  },
+  "execution": {
+    "phase2_places_orders": false,
+    "confirm_channel": "cursor_chat_only",
+    "unsupervised_agent_h": "designed_off"
+  },
+  "open_questions": [
+    "PDT risk on ~$1500 account — accept or reduce day trades?",
+    "Options -7% stop vs 5-10% spread — keep, widen, or require stop > spread?"
+  ]
+}

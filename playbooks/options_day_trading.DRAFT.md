@@ -1,0 +1,20 @@
+# Options Day Trading Playbook
+
+**Status: DRAFT — NOT RELEASED**
+
+Do not use for live order placement until explicitly approved.
+
+## Locked draft rules (from Phase 0)
+- Long call or long put only (no shorts)
+- Expiry ≤ 7 DTE
+- Strike: ATM preferred, else 1 OTM
+- Delta band preference: abs(delta) 0.40–0.50 from Robinhood quotes only
+- Max 1 contract
+- Liquidity: spread ≤ 10% of mid OR ≤ $0.10 absolute; reject one-sided quotes
+- Exits: TP +20% / SL −7% of cash risked; broker **stop first** until OCO exists
+- No new options entries overnight
+- Index options allowed
+- Use Options Watchlist + all other watchlists; no crypto
+
+## Approval
+Owner must reply with explicit approval to change status from DRAFT to RELEASED.
