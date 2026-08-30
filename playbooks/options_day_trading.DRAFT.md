@@ -15,6 +15,7 @@ Do not use for live order placement until explicitly approved.
 - No new options entries overnight
 - Index options allowed
 - Use Options Watchlist + all other watchlists; no crypto
+- PDT: do **not** reduce day-trade frequency (owner lock: accept risk; owner stated PDT rule no longer exists — not independently verified here)
 
 ## Approval
 Owner must reply with explicit approval to change status from DRAFT to RELEASED.

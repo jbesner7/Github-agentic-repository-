@@ -72,10 +72,14 @@
   "execution": {
     "phase2_places_orders": false,
     "confirm_channel": "cursor_chat_only",
-    "unsupervised_agent_h": "designed_off"
+    "unsupervised_agent_h": "designed_off",
+    "pdt": {
+      "reduce_day_trades_for_pdt": false,
+      "owner_instruction": "Accept risk. Do not throttle day-trade frequency for PDT.",
+      "regulatory_note": "Owner stated PDT rule no longer exists. Pipeline does not independently verify securities law; this is an operational lock only."
+    }
   },
   "open_questions": [
-    "PDT risk on ~$1500 account — accept or reduce day trades?",
     "Options -7% stop vs 5-10% spread — keep, widen, or require stop > spread?"
   ]
 }

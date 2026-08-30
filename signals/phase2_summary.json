@@ -80,7 +80,9 @@
   "equity_fallback_count": 71,
   "risk_plan_count": 1,
   "open_questions": [
-    "PDT risk on ~$1500 account \u2014 accept or reduce day trades?",
     "Options -7% stop vs 5-10% spread \u2014 keep, widen, or require stop > spread?"
-  ]
+  ],
+  "locked_since_cycle": {
+    "pdt": "do_not_reduce_day_trades_owner_accept_risk"
+  }
 }
