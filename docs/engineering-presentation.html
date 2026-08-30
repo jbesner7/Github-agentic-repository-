@@ -121,22 +121,42 @@
     .principles li { margin: 10px 0; }
     .big-num { font-size: 36px; font-weight: 700; letter-spacing: -0.03em; color: var(--accent); }
     .num-label { color: var(--muted); font-size: 14px; }
+    @page { size: Letter landscape; margin: 0.28in; }
     @media print {
-      .toolbar { display: none !important; }
-      .deck { width: auto; margin: 0; }
-      .slide {
+      html, body {
+        height: auto !important;
+        background: #0e1116 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .toolbar, .no-print { display: none !important; }
+      .deck { width: auto !important; margin: 0 !important; }
+      .slide, .slide.active {
         display: flex !important;
         flex-direction: column;
+        visibility: visible !important;
         page-break-after: always;
         break-after: page;
-        min-height: 0;
-        height: 7.1in;
-        border: 0;
-        padding: 0.45in 0.55in;
+        page-break-inside: avoid;
+        break-inside: avoid;
+        min-height: 7.4in;
+        height: 7.4in;
+        max-height: 7.4in;
+        overflow: hidden;
+        border: 1px solid var(--line);
+        padding: 0.32in 0.4in 0.22in;
+        background: #0e1116 !important;
       }
-      .slide:last-child { page-break-after: auto; }
+      .slide:last-child { page-break-after: auto; break-after: auto; }
+      h1 { font-size: 32px; }
+      h2 { font-size: 24px; }
+      p, li { font-size: 15px; }
+      .lead { font-size: 18px; }
+      .card li { font-size: 13px; }
+      table { font-size: 12px; }
+      .diagram { font-size: 11px; padding: 10px 12px; }
+      .foot { padding-top: 10px; }
     }
-    @page { size: Letter landscape; margin: 0.35in; }
     @media (max-width: 900px) {
       .slide { padding: 28px 20px; min-height: calc(100vh - 80px); }
       h1 { font-size: 30px; }
@@ -153,7 +173,8 @@
     <span id="pos">1 / 1</span>
     <span class="spacer"></span>
     <span>Arrow keys · Space · Home/End</span>
-    <button type="button" onclick="window.print()">Print / PDF</button>
+    <button type="button" onclick="window.print()">Print / Save as PDF</button>
+    <a class="btn" href="engineering-presentation.pdf">Download PDF</a>
     <a class="btn" href="system-creation-report-printable.html">Letter report</a>
   </div>
 
@@ -554,7 +575,7 @@
             <li><code>playbooks/*.md</code> + H prompt</li>
             <li><code>docs/phase0-trading-plan-printable.html</code></li>
             <li><code>docs/system-creation-report-printable.html</code></li>
-            <li><code>docs/engineering-presentation.html</code> — this deck</li>
+            <li><code>docs/engineering-presentation.html</code> + <code>.pdf</code></li>
           </ul>
         </div>
       </div>
@@ -682,6 +703,10 @@
     });
     const hash = parseInt((location.hash || "").replace(/\D/g, ""), 10);
     show(Number.isFinite(hash) && hash > 0 ? hash - 1 : 0);
+    window.addEventListener("beforeprint", () => {
+      slides.forEach((s) => s.classList.add("active"));
+    });
+    window.addEventListener("afterprint", () => show(i));
   </script>
 </body>
 </html>
