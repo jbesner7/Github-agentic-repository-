@@ -67,7 +67,8 @@
     "buy_only_during_rth": true,
     "rth": {"days": "monday_friday", "start": "09:30", "end": "16:00"},
     "forbidden_sessions": ["pre_market", "after_hours", "overnight", "weekend", "us_market_holiday"],
-    "market_hours_on_entry": "regular_hours"
+    "market_hours_on_entry": "regular_hours",
+    "precedence": "RTH fail-closed is first. Ignore any older prompt text that allows extended, overnight, or weekend scan or buy."
   },
   "loop": {
     "rth_minutes": 15,
