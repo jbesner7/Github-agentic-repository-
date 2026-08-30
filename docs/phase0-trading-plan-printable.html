@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Phase 0 — Agentic Trading Plan (Printable)</title>
+  <style>
+    :root {
+      --ink: #111;
+      --muted: #333;
+      --line: #222;
+      --bg: #fff;
+      --box: #f5f5f5;
+      --accent: #111;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      font-family: "IBM Plex Sans", "Segoe UI", Helvetica, Arial, sans-serif;
+      font-size: 10.5pt;
+      line-height: 1.35;
+    }
+    .toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      background: #111;
+      color: #fff;
+      padding: 10px 16px;
+      font-size: 13px;
+    }
+    .toolbar button {
+      background: #fff;
+      color: #111;
+      border: 0;
+      padding: 8px 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .page {
+      max-width: 8.5in;
+      margin: 0 auto;
+      padding: 0.55in 0.65in 0.7in;
+    }
+    h1 {
+      font-size: 18pt;
+      margin: 0 0 0.08in;
+      letter-spacing: -0.01em;
+    }
+    h2 {
+      font-size: 12.5pt;
+      margin: 0.28in 0 0.1in;
+      padding-bottom: 0.04in;
+      border-bottom: 1.5pt solid var(--line);
+      page-break-after: avoid;
+    }
+    h3 {
+      font-size: 11pt;
+      margin: 0.18in 0 0.06in;
+      page-break-after: avoid;
+    }
+    .meta {
+      font-size: 9.5pt;
+      color: var(--muted);
+      margin-bottom: 0.15in;
+    }
+    .meta strong { color: var(--ink); }
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 0.1in 0 0.18in;
+    }
+    .badge {
+      border: 1pt solid var(--line);
+      padding: 3px 8px;
+      font-size: 8.5pt;
+      background: var(--box);
+    }
+    .diagram {
+      font-family: "IBM Plex Mono", "Cascadia Mono", Consolas, "Courier New", monospace;
+      font-size: 7.4pt;
+      line-height: 1.22;
+      white-space: pre;
+      background: var(--box);
+      border: 1pt solid var(--line);
+      padding: 0.12in 0.14in;
+      overflow: hidden;
+      page-break-inside: avoid;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 9.5pt;
+      page-break-inside: avoid;
+      margin-bottom: 0.1in;
+    }
+    th, td {
+      border: 1pt solid var(--line);
+      padding: 0.06in 0.08in;
+      vertical-align: top;
+      text-align: left;
+    }
+    th { background: #eaeaea; font-weight: 700; }
+    table.rules th { width: 1.4in; }
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.12in;
+      page-break-inside: avoid;
+    }
+    .card {
+      border: 1pt solid var(--line);
+      padding: 0.1in 0.12in;
+      background: var(--box);
+      page-break-inside: avoid;
+    }
+    .card h3 { margin-top: 0; }
+    .card ul {
+      margin: 0.04in 0 0;
+      padding-left: 0.18in;
+    }
+    .card li { margin: 0.02in 0; }
+    .note {
+      font-size: 9pt;
+      color: var(--muted);
+      margin-top: 0.12in;
+    }
+    .open {
+      border: 1.5pt dashed #666;
+      padding: 0.1in 0.12in;
+      page-break-inside: avoid;
+    }
+    .footer {
+      margin-top: 0.22in;
+      padding-top: 0.08in;
+      border-top: 1pt solid #999;
+      font-size: 8.5pt;
+      color: var(--muted);
+    }
+    @media print {
+      .no-print { display: none !important; }
+      .page { max-width: none; padding: 0; }
+      a { color: inherit; text-decoration: none; }
+      h2, h3, .diagram, table, .card, .two-col, .open { break-inside: avoid; }
+    }
+    @page {
+      size: Letter portrait;
+      margin: 0.45in;
+    }
+  </style>
+</head>
+<body>
+  <div class="toolbar no-print">
+    <button type="button" onclick="window.print()">Print / Save as PDF</button>
+    <span>Phase 0 plan — Letter portrait · enable background graphics if offered</span>
+  </div>
+
+  <div class="page">
+    <h1>Phase 0 — Agentic Trading Plan</h1>
+    <div class="meta">
+      <strong>Account:</strong> Robinhood Agentic ••••2907 only &nbsp;·&nbsp;
+      <strong>Target funding:</strong> $1,500 &nbsp;·&nbsp;
+      <strong>Status:</strong> Spec locked (docs only; no live trading code yet)<br />
+      <strong>Confirms:</strong> This Cursor chat only &nbsp;·&nbsp;
+      <strong>Control:</strong> Cursor Automation toggle &nbsp;·&nbsp;
+      <strong>Journal:</strong> Markdown + JSONL
+    </div>
+    <div class="badge-row">
+      <span class="badge">Options priority</span>
+      <span class="badge">1 contract max</span>
+      <span class="badge">1 open position</span>
+      <span class="badge">No crypto</span>
+      <span class="badge">Index options OK</span>
+      <span class="badge">Stop-first (until OCO)</span>
+      <span class="badge">Human confirm every live order</span>
+    </div>
+
+    <!-- PAGE BLOCK: architecture -->
+    <h2>1. System architecture</h2>
+    <div class="diagram">┌──────────────────────────────────────────────────────────────────────────┐
+│                      CURSOR AUTOMATION TOGGLE                            │
+│                 OFF = idle     ON = Agent G loop runs                    │
+└──────────────────────────────────┬───────────────────────────────────────┘
+                                   ▼
+┌──────────────────────────────────────────────────────────────────────────┐
+│  G — ALWAYS-ON LOOP (orchestrator — never places orders)                 │
+│  Cadence: RTH every 15m | Extended every 30m | Overnight every 60m       │
+│  Proposals expire at next loop (replaced by fresh signals)               │
+└───┬─────────┬─────────┬─────────┬─────────┬─────────┬────────────────────┘
+    ▼         ▼         ▼         ▼         ▼         ▼
+┌───────┐ ┌───────┐ ┌───────┐ ┌───────┐ ┌───────┐ ┌────────────────────────┐
+│ A     │ │ B     │ │ C     │ │ D     │ │ I     │ │ E Risk                 │
+│Scan   │ │Pattn  │ │News   │ │Struct │ │Greeks │ │ Options: +20% / −7%    │
+│lists  │ │15m/1h │ │Catal. │ │long   │ │δ γ θ  │ │ Equity:  +25% / −20%   │
+│+ opt  │ │/daily │ │       │ │call/  │ │ν ρ IV │ │ After fill: STOP only  │
+│WL     │ │       │ │       │ │put    │ │from RH│ │ (TP monitored in loop) │
+│no cryp│ │       │ │       │ │+ eqty │ │quotes │ │ until OCO exists       │
+└───┬───┘ └───┬───┘ └───┬───┘ └───┬───┘ └───┬───┘ └──────────┬─────────────┘
+    └─────────┴────┬────┴─────────┴─────────┴────────────────┘
+                   ▼
+        signals/*  +  journal/*   (Markdown daily + JSONL)
+                   │
+       ┌───────────┴───────────┐
+       ▼                       ▼
+┌──────────────────┐   ┌───────────────────────────┐
+│ F SUPERVISED     │   │ H UNSUPERVISED (Phase 5)  │
+│ review → CONFIRM │   │ auto-place after rules    │
+│ (this chat) →    │   │ designed NOW · OFF until  │
+│ place            │   │ you explicitly enable     │
+└────────┬─────────┘   └─────────────┬─────────────┘
+         └───────────┬───────────────┘
+                     ▼
+          Robinhood AGENTIC ••••2907 only
+          Target funding $1,500</div>
+
+    <h2>2. Trading rules (master card)</h2>
+    <table class="rules">
+      <tr><th>Account</th><td>Agentic ••••2907 only. Target ~$1,500. Max <strong>1 open position</strong>. Options: <strong>1 contract max</strong>. Equity (when used): size up to full buying power for that single position.</td></tr>
+      <tr><th>Universe</th><td>All Robinhood watchlists (current + future), including <strong>Options Watchlist</strong>. <strong>No crypto</strong>. Deduplicate each run. Index underlyings/options allowed.</td></tr>
+      <tr><th>Priority</th><td><strong>Options first</strong> → equity fallback if no liquid option candidate.</td></tr>
+      <tr><th>Patterns</th><td>Head &amp; shoulders, inverse H&amp;S; double top, triple top; double bottom, triple bottom; ascending / descending / symmetrical triangles. Timeframes: <strong>15m / 1h / daily</strong>.</td></tr>
+      <tr><th>Options structure</th><td>Buy call or buy put only (no shorts / no credit spreads). Expiry ≤ <strong>7 DTE</strong>. Strike: ATM first, else 1 OTM. Prefer delta ~0.40–0.50 via <strong>RH-returned Greeks only</strong> (no invented numbers). Playbook stays <strong>DRAFT</strong> until you approve release. <strong>No new options entries overnight</strong>.</td></tr>
+      <tr><th>Greeks (Agent I)</th><td>Read delta, gamma, theta, vega, rho, IV from <code>get_option_quotes</code>. Use for strike filter and journal. Never invent Greeks.</td></tr>
+      <tr><th>Liquidity</th><td>Underlying volume gate (v1 target ≥ ~2M ADV where applicable). Option spread ≤ 5–10% of mid <em>or</em> ≤ $0.10 absolute on cheap contracts. Reject missing / one-sided quotes.</td></tr>
+      <tr><th>Options exits</th><td>Take profit <strong>+20%</strong> of cash risked (premium). Stop loss <strong>−7%</strong> of cash risked. After fill: place broker <strong>STOP only</strong>. Monitor TP in loop until OCO exists.</td></tr>
+      <tr><th>Equity exits</th><td>Take profit <strong>+25%</strong> of total trade cost. Stop loss <strong>−20%</strong> of total trade cost. Prefer broker stop; same stop-first policy until OCO.</td></tr>
+      <tr><th>Sessions / loop</th><td>RTH + extended + overnight monitoring. Cadence: RTH <strong>15m</strong> / extended <strong>30m</strong> / overnight <strong>60m</strong>. Unconfirmed proposals valid <strong>until next loop</strong> (then replaced).</td></tr>
+      <tr><th>Execution</th><td>Agent F: human confirm in this Cursor chat for every live order. Agent H: unsupervised path designed OFF until you enable.</td></tr>
+      <tr><th>Ops / journal</th><td>Cursor Automation toggle ON/OFF. Write trade journal + signals to this GitHub repo (Markdown + JSONL).</td></tr>
+    </table>
+
+    <h2>3. Exit rules at a glance</h2>
+    <div class="two-col">
+      <div class="card">
+        <h3>Options (priority)</h3>
+        <ul>
+          <li>Max size: <strong>1 contract</strong></li>
+          <li>TP: <strong>+20%</strong> of premium cash</li>
+          <li>SL: <strong>−7%</strong> of premium cash</li>
+          <li>Broker: <strong>stop order first</strong></li>
+          <li>TP monitored until OCO available</li>
+          <li>No new entries overnight</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Equity (fallback)</h3>
+        <ul>
+          <li>Max: <strong>1 open position</strong></li>
+          <li>Size: up to <strong>full buying power</strong></li>
+          <li>TP: <strong>+25%</strong> of trade cost</li>
+          <li>SL: <strong>−20%</strong> of trade cost</li>
+          <li>Broker: <strong>stop order first</strong></li>
+          <li>TP monitored until OCO available</li>
+        </ul>
+      </div>
+    </div>
+
+    <h2>4. Agent map</h2>
+    <table>
+      <thead>
+        <tr><th>Agent</th><th>Role</th><th>Outputs</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>A</strong> Scanner</td><td>All RH lists + Options Watchlist → liquidity filter (no crypto)</td><td>signals/universe</td></tr>
+        <tr><td><strong>B</strong> Patterns</td><td>Indicators + chart patterns on 15m / 1h / daily</td><td>signals/technicals</td></tr>
+        <tr><td><strong>C</strong> News</td><td>News / earnings catalysts</td><td>signals/news</td></tr>
+        <tr><td><strong>D</strong> Structure</td><td>Long call/put ≤7 DTE (incl. index); equity fallback</td><td>signals/option_candidates</td></tr>
+        <tr><td><strong>I</strong> Greeks</td><td>RH quote Greeks recognition; delta band filter</td><td>signals/greeks</td></tr>
+        <tr><td><strong>E</strong> Risk</td><td>Options +20%/−7%; equity +25%/−20%; stop-first plan</td><td>signals/risk_plan</td></tr>
+        <tr><td><strong>F</strong> Supervised exec</td><td>review → your confirm → place</td><td>journal/orders</td></tr>
+        <tr><td><strong>G</strong> Loop</td><td>Orchestrate while Automation ON; refresh proposals each loop</td><td>journal/loop_runs</td></tr>
+        <tr><td><strong>H</strong> Unsupervised</td><td>Auto-place after rules (Phase 5; OFF until enabled)</td><td>journal/orders (tagged)</td></tr>
+      </tbody>
+    </table>
+
+    <h2>5. Signal flow (simple)</h2>
+    <div class="diagram">Watchlists (all + Options WL)
+        │
+        ▼
+   A Universe (liquid, no crypto)
+        │
+        ├──────────────► B Patterns (15m / 1h / daily)
+        ├──────────────► C News / catalysts
+        │
+        ▼
+   D Option structure (call/put, ≤7 DTE, ATM→1 OTM)
+        │                index options allowed
+        ▼
+   I Greeks filter (δ ≈ 0.40–0.50 from RH quotes only)
+        │
+        ▼
+   E Risk plan (stop-first; TP monitored)
+        │
+        ▼
+   F Propose in Cursor chat ──confirm──► Place on Agentic
+        │
+        └── if no confirm by next loop → proposal replaced</div>
+
+    <h2>6. Build phases</h2>
+    <table>
+      <thead>
+        <tr><th>Phase</th><th>Deliverable</th><th>Gate</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>0</strong></td><td>Spec lock + this printable plan</td><td>Your go / no-go</td></tr>
+        <tr><td><strong>1</strong></td><td>Playbooks (chart + options DRAFT) + Greeks agent spec</td><td>Options playbook unreleased until you approve</td></tr>
+        <tr><td><strong>2</strong></td><td>Signal pipeline A–E + I (read-only)</td><td>You review signal quality</td></tr>
+        <tr><td><strong>3</strong></td><td>Supervised F live</td><td>Funded ≈ $1,500; dry review first</td></tr>
+        <tr><td><strong>4</strong></td><td>Loop G behind Automation toggle</td><td>Still confirms via F; proposals refresh each loop</td></tr>
+        <tr><td><strong>5</strong></td><td>Unsupervised H</td><td>Docs now; enable only when you say</td></tr>
+      </tbody>
+    </table>
+
+    <h2>7. Hard gates before live orders</h2>
+    <ul>
+      <li>Agentic funded (target $1,500; currently $0 at last check)</li>
+      <li>Options day-trading playbook <strong>approved by you</strong></li>
+      <li>Greeks read from RH quotes only (no invented numbers)</li>
+      <li>Agent F confirm flow dry-tested (review without place)</li>
+    </ul>
+
+    <div class="open">
+      <h3 style="margin-top:0">Still open (not locked)</h3>
+      <ul>
+        <li><strong>PDT:</strong> Accept day-trade / pattern-day-trader risk on ~$1,500, or reduce day-trade frequency?</li>
+        <li><strong>Options −7% stop vs 5–10% spread:</strong> Keep −7%, widen stop, or require stop distance &gt; spread?</li>
+      </ul>
+    </div>
+
+    <div class="footer">
+      File: docs/phase0-trading-plan-printable.html &nbsp;·&nbsp;
+      Print: Letter portrait, backgrounds on &nbsp;·&nbsp;
+      Updated with Q4 equity +25%/−20% and Q5 proposal-until-next-loop
+    </div>
+  </div>
+</body>
+</html>
