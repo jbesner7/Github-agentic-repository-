@@ -26,18 +26,37 @@ def test_liquidity_volume_gate():
 
 
 def test_option_spread_gate():
-    ok, reason, _ = option_quote_liquid(
+    preferred, reason, pref_m = option_quote_liquid(
         {"bid_price": "1.00", "ask_price": "1.05"},
-        max_spread_pct_of_mid=0.1,
-        max_spread_abs=0.1,
+        max_spread_pct_of_price=0.1,
+        preferred_spread_pct_of_price=0.05,
     )
-    assert ok and reason is None
+    assert preferred and reason is None
+    assert pref_m["spread_quality"] == "preferred"
+
+    acceptable, reason_ok, acc_m = option_quote_liquid(
+        {"bid_price": "1.00", "ask_price": "1.08"},
+        max_spread_pct_of_price=0.1,
+        preferred_spread_pct_of_price=0.05,
+    )
+    assert acceptable and reason_ok is None
+    assert acc_m["spread_quality"] == "acceptable"
+
     bad, reason2, _ = option_quote_liquid(
         {"bid_price": "1.00", "ask_price": "1.50"},
-        max_spread_pct_of_mid=0.1,
-        max_spread_abs=0.1,
+        max_spread_pct_of_price=0.1,
+        preferred_spread_pct_of_price=0.05,
     )
     assert not bad and reason2 == "spread_too_wide"
+
+    # $0.10 absolute on a cheap contract is ~22% of mid — reject (no dollar override).
+    cheap, cheap_reason, cheap_m = option_quote_liquid(
+        {"bid_price": "0.40", "ask_price": "0.50"},
+        max_spread_pct_of_price=0.1,
+        preferred_spread_pct_of_price=0.05,
+    )
+    assert not cheap and cheap_reason == "spread_too_wide"
+    assert cheap_m["spread_pct_of_price"] > 0.1
 
 
 def test_double_bottom_detection():
@@ -66,8 +85,29 @@ def test_greeks_no_invention():
 def test_options_risk_math():
     plan = options_risk_plan(premium_per_share=2.0, contracts=1)
     assert plan["cash_risked"] == 200.0
-    assert plan["take_profit_value"] == 240.0
-    assert abs(plan["stop_loss_value"] - 186.0) < 1e-9
+    assert plan["take_profit_pct"] == 0.50
+    assert plan["stop_loss_pct"] == 0.25
+    assert plan["take_profit_value"] == 300.0
+    assert plan["stop_loss_value"] == 150.0
+    assert plan["reward_to_risk"] == 2.0
+    assert plan["meets_target_rr"] is True
+
+
+def test_options_risk_bands():
+    wide = options_risk_plan(premium_per_share=1.0, stop_loss_pct=0.50, take_profit_pct=1.00)
+    assert wide["stop_loss_value"] == 50.0
+    assert wide["take_profit_value"] == 200.0
+    assert wide["reward_to_risk"] == 2.0
+    try:
+        options_risk_plan(premium_per_share=1.0, stop_loss_pct=0.07, take_profit_pct=0.50)
+        raise AssertionError("expected ValueError for SL below 20%")
+    except ValueError as exc:
+        assert "stop_loss_pct" in str(exc)
+    try:
+        options_risk_plan(premium_per_share=1.0, stop_loss_pct=0.25, take_profit_pct=0.20)
+        raise AssertionError("expected ValueError for TP below 30%")
+    except ValueError as exc:
+        assert "take_profit_pct" in str(exc)
 
 
 def test_equity_risk_math():

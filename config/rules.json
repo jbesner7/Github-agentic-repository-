@@ -45,16 +45,21 @@
   },
   "liquidity": {
     "min_average_volume": 2000000,
-    "option_max_spread_pct_of_mid": 0.1,
-    "option_max_spread_abs": 0.1,
+    "option_preferred_spread_pct_of_price": 0.05,
+    "option_max_spread_pct_of_price": 0.1,
     "reject_one_sided_quotes": true
   },
   "risk": {
     "max_open_positions": 1,
     "options": {
-      "take_profit_pct_of_cash": 0.2,
-      "stop_loss_pct_of_cash": 0.07,
-      "keep_stop_even_if_spread_wider": true,
+      "stop_loss_pct_of_premium_min": 0.2,
+      "stop_loss_pct_of_premium_max": 0.5,
+      "take_profit_pct_of_premium_min": 0.3,
+      "take_profit_pct_of_premium_uncapped": true,
+      "target_reward_to_risk": 2.0,
+      "stop_loss_pct_of_cash": 0.25,
+      "take_profit_pct_of_cash": 0.5,
+      "default_pair_note": "Pipeline default −25% / +50% is a 1:2 pair inside the allowed bands. Owner may pick any pair in-band that keeps reward ≥ 2× risk.",
       "broker_exit": "stop_first_until_oco"
     },
     "equity": {

@@ -137,11 +137,15 @@ def apply_liquidity_filter(
 def option_quote_liquid(
     quote: dict[str, Any],
     *,
-    max_spread_pct_of_mid: float,
-    max_spread_abs: float,
+    max_spread_pct_of_price: float,
+    preferred_spread_pct_of_price: float = 0.05,
     reject_one_sided: bool = True,
 ) -> tuple[bool, str | None, dict[str, Any]]:
-    """Return (ok, reason, metrics) for an option quote liquidity gate."""
+    """Return (ok, reason, metrics) for an option quote liquidity gate.
+
+    Spread is measured as (ask − bid) / mid. Prefer ≤ 5% of price; reject above 10%.
+    There is no absolute-dollar override.
+    """
     try:
         bid = float(quote.get("bid_price") or 0)
         ask = float(quote.get("ask_price") or 0)
@@ -154,12 +158,26 @@ def option_quote_liquid(
     mid = (bid + ask) / 2.0
     spread = ask - bid
     spread_pct = (spread / mid) if mid > 0 else None
-    metrics = {"bid": bid, "ask": ask, "mid": mid, "spread": spread, "spread_pct_of_mid": spread_pct}
+    metrics: dict[str, Any] = {
+        "bid": bid,
+        "ask": ask,
+        "mid": mid,
+        "spread": spread,
+        "spread_pct_of_price": spread_pct,
+        "spread_pct_of_mid": spread_pct,
+        "preferred_spread_pct_of_price": preferred_spread_pct_of_price,
+        "max_spread_pct_of_price": max_spread_pct_of_price,
+    }
 
     if mid <= 0:
         return False, "non_positive_mid", metrics
-    if spread_pct is not None and spread_pct <= max_spread_pct_of_mid:
+    if spread_pct is None:
+        return False, "spread_too_wide", metrics
+    if spread_pct <= preferred_spread_pct_of_price:
+        metrics["spread_quality"] = "preferred"
         return True, None, metrics
-    if spread <= max_spread_abs:
+    if spread_pct <= max_spread_pct_of_price:
+        metrics["spread_quality"] = "acceptable"
         return True, None, metrics
+    metrics["spread_quality"] = "too_wide"
     return False, "spread_too_wide", metrics

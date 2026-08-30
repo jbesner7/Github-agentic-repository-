@@ -130,8 +130,8 @@ def run_pipeline(raw: dict[str, Any]) -> dict[str, Any]:
         quote = quotes_by_id.get(oid) or {}
         ok_liq, liq_reason, liq_metrics = option_quote_liquid(
             quote,
-            max_spread_pct_of_mid=float(rules["liquidity"]["option_max_spread_pct_of_mid"]),
-            max_spread_abs=float(rules["liquidity"]["option_max_spread_abs"]),
+            max_spread_pct_of_price=float(rules["liquidity"]["option_max_spread_pct_of_price"]),
+            preferred_spread_pct_of_price=float(rules["liquidity"]["option_preferred_spread_pct_of_price"]),
             reject_one_sided=bool(rules["liquidity"]["reject_one_sided_quotes"]),
         )
         gpack = extract_greeks(quote)
