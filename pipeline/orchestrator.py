@@ -3,6 +3,7 @@ from __future__ import annotations
 from collections import Counter
 from typing import Any
 
+from pipeline.equity_day_trade import buying_power_from_raw, select_equity_day_trade_candidates
 from pipeline.greeks import delta_in_band, extract_greeks
 from pipeline.io_util import append_jsonl, load_rules, utc_now_iso, write_json, SIGNALS, JOURNAL
 from pipeline.news import build_news_signal
@@ -204,6 +205,35 @@ def run_pipeline(raw: dict[str, Any]) -> dict[str, Any]:
         {"agent": "I_greeks", "as_of": as_of, "source": "robinhood_get_option_quotes", "rows": greeks_rows},
     )
 
+    equity_candidates, equity_rejects = select_equity_day_trade_candidates(
+        symbols=liq["passed_symbols"],
+        technicals_by_symbol=technicals["symbols"],
+        option_candidate_symbols={c["symbol"] for c in option_candidates},
+        quotes_by_symbol=raw.get("equity_quotes_by_symbol") or {},
+        tradability_by_symbol=raw.get("equity_tradability_by_symbol") or {},
+        fundamentals_by_symbol=raw.get("fundamentals_by_symbol") or {},
+        buying_power=buying_power_from_raw(raw),
+        playbook_status=str(rules["risk"]["equity"]["playbook_status"]),
+        take_profit_pct=float(rules["risk"]["equity"]["take_profit_pct_of_cost"]),
+        stop_loss_pct=float(rules["risk"]["equity"]["stop_loss_pct_of_cost"]),
+    )
+    write_json(
+        SIGNALS / "equity_candidates.json",
+        {
+            "agent": "D_equity_day_trade",
+            "as_of": as_of,
+            "mode": "read_only",
+            "playbook_status": rules["risk"]["equity"]["playbook_status"],
+            "playbook_path": rules["risk"]["equity"]["playbook_path"],
+            "side": "long_only",
+            "no_shorting": True,
+            "priority": "options_first",
+            "candidates": equity_candidates,
+            "rejected": equity_rejects,
+            "option_fallback_notes": equity_fallbacks,
+        },
+    )
+
     # --- Agent E ---
     risk_plans: list[dict[str, Any]] = []
     for cand in option_candidates:
@@ -224,6 +254,9 @@ def run_pipeline(raw: dict[str, Any]) -> dict[str, Any]:
         )
         risk_plans.append({"symbol": fb["symbol"], **plan})
 
+    for cand in equity_candidates:
+        risk_plans.append({"symbol": cand["symbol"], **cand["risk"]})
+
     write_json(
         SIGNALS / "risk_plan.json",
         {
@@ -242,6 +275,7 @@ def run_pipeline(raw: dict[str, Any]) -> dict[str, Any]:
         "places_orders": False,
         "eligible_equities": liq["passed_symbols"],
         "option_candidate_count": len(option_candidates),
+        "equity_candidate_count": len(equity_candidates),
         "equity_fallback_count": len(equity_fallbacks),
         "risk_plan_count": len(risk_plans),
         "open_questions": rules.get("open_questions", []),
@@ -261,7 +295,8 @@ def run_pipeline(raw: dict[str, Any]) -> dict[str, Any]:
     prev += f"\n## Phase 2 read-only cycle ({as_of})\n"
     prev += f"- Eligible equities: {', '.join(liq['passed_symbols']) or '(none)'}\n"
     prev += f"- Option candidates: {len(option_candidates)}\n"
-    prev += f"- Equity fallbacks: {len(equity_fallbacks)}\n"
+    prev += f"- Equity day-trade candidates: {len(equity_candidates)}\n"
+    prev += f"- Equity fallbacks (option miss): {len(equity_fallbacks)}\n"
     prev += "- Orders placed: **none** (Phase 2 read-only)\n"
     md_path.write_text(prev, encoding="utf-8")
 

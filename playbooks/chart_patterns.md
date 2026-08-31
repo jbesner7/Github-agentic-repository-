@@ -21,4 +21,4 @@ Status: **ACTIVE for signal detection heuristics** (refine anytime).
 ## Detection notes
 - Implemented as deterministic OHLCV heuristics in `pipeline/patterns.py`.
 - Dominant bias requires a strict majority of bullish vs bearish hits across timeframes.
-- Neutral-only results → no options structure (equity fallback path).
+- Neutral-only or bearish results → no long-share day trade. Bearish goes to the options put path. Neutral → skip.

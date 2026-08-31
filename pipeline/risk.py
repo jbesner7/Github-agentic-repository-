@@ -63,8 +63,10 @@ def equity_risk_plan(
     cost_basis: float,
     take_profit_pct: float = 0.25,
     stop_loss_pct: float = 0.2,
+    shares: int | None = None,
+    limit_price: float | None = None,
 ) -> dict[str, Any]:
-    return {
+    plan: dict[str, Any] = {
         "asset_class": "equity",
         "cost_basis": cost_basis,
         "take_profit_pct": take_profit_pct,
@@ -73,4 +75,13 @@ def equity_risk_plan(
         "stop_loss_value": cost_basis * (1.0 - stop_loss_pct),
         "broker_exit": "stop_first_until_oco",
         "monitor_take_profit_in_loop": True,
+        "flatten_before_close": True,
+        "side": "long_only",
     }
+    if shares is not None:
+        plan["shares"] = int(shares)
+    if limit_price is not None:
+        plan["limit_price"] = limit_price
+        plan["stop_price"] = limit_price * (1.0 - stop_loss_pct)
+        plan["take_profit_price"] = limit_price * (1.0 + take_profit_pct)
+    return plan
