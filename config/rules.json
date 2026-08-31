@@ -67,7 +67,12 @@
       "take_profit_pct_of_cost": 0.25,
       "stop_loss_pct_of_cost": 0.2,
       "broker_exit": "stop_first_until_oco",
-      "size": "up_to_full_buying_power"
+      "size": "up_to_full_buying_power",
+      "side": "long_only",
+      "no_shorting": true,
+      "playbook_status": "DRAFT",
+      "playbook_path": "playbooks/equities_day_trading.md",
+      "implementation": "awaiting_owner_approval"
     }
   },
   "loop": {
