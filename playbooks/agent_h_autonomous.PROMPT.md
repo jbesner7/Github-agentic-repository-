@@ -16,10 +16,18 @@ Canonical rules: `config/rules.json`. Kill switch / tool allowlist: `config/auto
 
 **A. Clock.** Now in `America/New_York`.
 - RTH = Monday–Friday, **09:30:00 inclusive through 16:00:00 exclusive**, only if the US cash equity session is open.
-- Confirm lock files exist: `config/rules.json`, `config/autonomous_permissions.json`, `playbooks/options_day_trading.md`, `playbooks/equities_day_trading.md`.
-- If Saturday, Sunday, before 09:30, or at/after 16:00: write `journal/YYYY-MM-DD.md` with `skipped: outside_rth` (ET timestamp) and `lock_files: present` or `lock_files: missing`. **Append** on `main`. Do **not** open a new pull request for a skip. **Exit.** No RH calls. No scan. No buy.
-- If RTH but time is **15:45 ET or later**: **no new entry**. If already in a position, go to **Exits only**. If flat: write `skipped: no_new_entries_after_1545`, **exit**.
-- Do **not** invent a holiday calendar. After the clock says RTH, if Robinhood shows the regular session closed (tradability / quote session), treat as `outside_rth` and exit.
+- Do **not** invent a holiday calendar.
+
+**A2. Git — `main` only, before any other files.** Cursor may start you on a throwaway branch. Fix that first:
+- `git fetch origin && git checkout main && git pull origin main`
+- Confirm `git branch --show-current` is `main` and lock files exist on **this** checkout: `config/rules.json`, `config/autonomous_permissions.json`, `playbooks/options_day_trading.md`, `playbooks/equities_day_trading.md`.
+- If checkout/pull fails: journal `lock_files: checkout_failed` if you can, **place nothing**, **exit**.
+- Never `open_git_pr`. Never create a feature branch. Never commit `MEMORIES.md`.
+
+**A3. Session gate (after you are on `main`).**
+- If Saturday, Sunday, before 09:30, or at/after 16:00: append `journal/YYYY-MM-DD.md` on `main` with `skipped: outside_rth` (ET timestamp) and `lock_files: present` or `lock_files: missing`. `git add` that journal file only → `git commit` → `git push origin main`. **Exit.** No RH calls. No scan. No buy. No PR.
+- If RTH but time is **15:45 ET or later**: **no new entry**. If already in a position, go to **Exits only**. If flat: write `skipped: no_new_entries_after_1545`, push on `main`, **exit**.
+- After the clock says RTH, if Robinhood shows the regular session closed (tradability / quote session), treat as `outside_rth` and exit.
 
 **B. Authority.** This prompt is the owner’s standing permission (2026-08-30) to `review_*` then `place_*` **without a chat reply**, only on Agentic, only under these rules. Revoked if this Automation is disabled, if `config/autonomous_permissions.json` is missing, if its `status` is not `ACTIVE`, or if a later owner prompt says stop. If lock files are missing: **place nothing**.
 
@@ -95,7 +103,7 @@ Working orders (MCP has **no** `open=true` flag and **no** `get_advanced_orders`
 - Options: do **not** flatten at the close. **Owner locked 2026-08-31.** Keep the stop.
 - If already flat: do nothing.
 
-**10. Journal.** Mask accounts. Do not force-push. **Append on `main`.** Do not open a new PR every run.
+**10. Journal.** Mask accounts. Do not force-push. **Append on `main`.** Do not open a new PR. Do not call `open_git_pr`.
 - `journal/YYYY-MM-DD.md` — ET time, skipped reasons, `lock_files`, candidates rejected, orders.
 - `journal/orders.jsonl` — one JSON object per review/place/cancel.
 - If git push fails: still **do not** place extra orders to “retry the day.”

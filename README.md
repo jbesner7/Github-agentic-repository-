@@ -26,7 +26,7 @@ Do not run two place-capable Automations. Git updates do **not** change the past
 
 ## H schedule
 
-Schedule the Automation every **15 minutes** if you want. Each fire **exits before any market work** if it is not RTH. Skip journals **append on `main`** — do not open a new PR per skip.
+Schedule the Automation every **15 minutes** if you want. Each fire **exits before any market work** if it is not RTH. Skip journals **append on `main`** — do not open a new PR per skip. H must `checkout` + `pull` `main` before reading lock files.
 
 ## Read-only pipeline
 

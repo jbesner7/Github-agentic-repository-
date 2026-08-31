@@ -23,7 +23,7 @@ Robinhood MCP has no `15minute` interval and no `open=true` order filter. Use `1
 
 ## Journal
 
-Append `journal/YYYY-MM-DD.md` on **`main`**. Do not open a new PR for an outside-RTH skip. Do not merge H skip PRs over lock files.
+Append `journal/YYYY-MM-DD.md` on **`main`** only. `git checkout main && git pull origin main` before reads or writes. Do not open a new PR. Do not call `open_git_pr`. Do not commit `MEMORIES.md`.
 
 ## Honesty
 

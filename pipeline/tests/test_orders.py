@@ -40,6 +40,9 @@ def test_rules_json_matches_working_states_and_10minute():
     assert rules["loop"]["flatten_equity_before_close"] is True
     assert rules["loop"]["options_may_hold_overnight_with_stop"] is True
     assert "flatten_before_close" not in rules["loop"]
+    assert rules["git"]["work_on"] == "main"
+    assert rules["git"]["open_pull_request"] is False
+    assert rules["git"]["create_feature_branch"] is False
 
 
 def test_permissions_is_kill_switch_not_a_rules_copy():

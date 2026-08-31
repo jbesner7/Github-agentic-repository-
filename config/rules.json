@@ -102,6 +102,14 @@
     "options_may_hold_overnight_with_stop": true,
     "proposal_ttl": "until_next_loop"
   },
+  "git": {
+    "work_on": "main",
+    "pull_before_read": true,
+    "open_pull_request": false,
+    "create_feature_branch": false,
+    "commit_memories": false,
+    "note": "H must checkout and pull main before reading lock files. Never open_git_pr."
+  },
   "execution": {
     "phase2_places_orders": false,
     "phase3_places_orders": false,

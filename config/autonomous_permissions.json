@@ -22,6 +22,7 @@
     "does_not_authorize": [
       "This Cursor chat (Agent F) still requires a specific-order confirm before place_*.",
       "Agent F placing during RTH while this Automation is enabled.",
+      "Opening a pull request or working off main.",
       "Placing from historical signals/* snapshots.",
       "Any account that is not Agentic.",
       "Crypto.",
