@@ -14,7 +14,7 @@ Autonomous placing is a **separate** Cursor Automation (Agent H). Owner activate
 - Max 1 contract
 - Liquidity: bid–ask under **5–10% of the option’s price** (prefer ≤ 5%; reject > 10%). No absolute-dollar override. Reject one-sided quotes
 - Exits: stop loss **20–50%** of premium; profit target **30–100%+** of premium; aim **1:2 risk-to-reward** (reward ≥ 2× risk). Owner-locked working pair: **−20% / +40%**. Broker **stop first** until OCO exists
-- No new options entries overnight. No new entries after **15:45 ET**. An open long option **may be held overnight** with the broker stop (unlike equities, which flatten).
+- No new options entries overnight. No new entries after **15:45 ET**. An open long option **may be held overnight** with the broker stop (unlike equities, which flatten). **Owner confirmed 2026-08-31: keep this lock.** Do not flatten options at the close.
 - Intraday bars: `10minute` (Robinhood MCP has no `15minute`)
 - Use Options Watchlist + all other watchlists; no crypto
 - PDT: do **not** reduce day-trade frequency (owner lock: accept risk; owner stated PDT rule no longer exists — not independently verified here)

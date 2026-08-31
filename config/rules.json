@@ -42,6 +42,8 @@
     "max_contracts": 1,
     "no_new_entries_overnight": true,
     "may_hold_overnight_with_stop": true,
+    "flatten_at_close": false,
+    "overnight_lock_confirmed": "2026-08-31",
     "playbook_status": "RELEASED",
     "playbook_path": "playbooks/options_day_trading.md"
   },

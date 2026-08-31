@@ -92,7 +92,7 @@ Working orders (MCP has **no** `open=true` flag and **no** `get_advanced_orders`
 - If no working stop on the position: place the stop from §7. Do not also place a live TP.
 - If live mark is at/through TP: `review_*` + `place_*` **sell-to-close** (or equity sell) limit, `regular_hours`. Then cancel a now-useless stop if it would double-fill.
 - Equity still open at/after 15:45 ET: flatten with `review_equity_order` then `place_equity_order` **sell** of the open shares, `regular_hours`.
-- Options: do **not** flatten at the close unless the owner later changes this. Keep the stop.
+- Options: do **not** flatten at the close. **Owner locked 2026-08-31.** Keep the stop.
 - If already flat: do nothing.
 
 **10. Journal.** Mask accounts. Do not force-push. **Append on `main`.** Do not open a new PR every run.

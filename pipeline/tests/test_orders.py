@@ -35,6 +35,8 @@ def test_rules_json_matches_working_states_and_10minute():
     assert rules["historicals"]["intraday_interval"] == "10minute"
     assert "15minute" not in rules["patterns"]["timeframes"]
     assert rules["options"]["may_hold_overnight_with_stop"] is True
+    assert rules["options"]["flatten_at_close"] is False
+    assert rules["options"]["overnight_lock_confirmed"] == "2026-08-31"
     assert rules["loop"]["flatten_equity_before_close"] is True
     assert rules["loop"]["options_may_hold_overnight_with_stop"] is True
     assert "flatten_before_close" not in rules["loop"]
