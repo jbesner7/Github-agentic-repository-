@@ -1,4 +1,7 @@
 {
+  "historical": true,
+  "do_not_place": true,
+  "snapshot_note": "Weekend 2026-08-30 snapshot. Stale quotes / superseded fields. Do not place from this file.",
   "event": "phase3_dry_review",
   "as_of": "2026-08-30T08:41:36+00:00",
   "proposal": {

@@ -1,20 +1,64 @@
-from pipeline.execution import build_option_entry_proposal, can_place_live
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
+from pipeline.execution import (
+    build_option_entry_proposal,
+    can_place_live,
+    load_latest_equity_candidates,
+    load_latest_option_candidates,
+)
+
+ET = ZoneInfo("America/New_York")
+SUNDAY = datetime(2026, 8, 30, 12, 0, tzinfo=ET)
+MONDAY_RTH = datetime(2026, 8, 31, 10, 0, tzinfo=ET)
 
 
 def test_place_blocked_when_playbook_draft():
-    ok, reason = can_place_live(explicit_confirm=True, playbook_released=False)
+    ok, reason = can_place_live(
+        explicit_confirm=True, playbook_released=False, h_enabled=False, now=SUNDAY
+    )
     assert not ok
     assert reason == "options_playbook_still_draft"
 
 
 def test_place_blocked_without_confirm():
-    ok, reason = can_place_live(explicit_confirm=False, playbook_released=True)
+    ok, reason = can_place_live(
+        explicit_confirm=False, playbook_released=True, h_enabled=False, now=SUNDAY
+    )
     assert not ok
     assert reason == "missing_explicit_user_confirm"
 
 
-def test_place_allowed_only_with_confirm_and_release():
-    ok, reason = can_place_live(explicit_confirm=True, playbook_released=True)
+def test_place_allowed_only_with_confirm_and_release_outside_rth():
+    ok, reason = can_place_live(
+        explicit_confirm=True, playbook_released=True, h_enabled=True, now=SUNDAY
+    )
+    assert ok and reason is None
+
+
+def test_place_blocked_while_h_owns_rth():
+    ok, reason = can_place_live(
+        explicit_confirm=True, playbook_released=True, h_enabled=True, now=MONDAY_RTH
+    )
+    assert not ok
+    assert reason == "h_owns_rth_while_enabled"
+
+
+def test_place_allowed_during_rth_if_h_disabled():
+    ok, reason = can_place_live(
+        explicit_confirm=True, playbook_released=True, h_enabled=False, now=MONDAY_RTH
+    )
+    assert ok and reason is None
+
+
+def test_place_allowed_during_rth_with_override():
+    ok, reason = can_place_live(
+        explicit_confirm=True,
+        playbook_released=True,
+        h_enabled=True,
+        now=MONDAY_RTH,
+        h_rth_override=True,
+    )
     assert ok and reason is None
 
 
@@ -33,3 +77,30 @@ def test_proposal_is_one_contract_buy_to_open():
     assert p["places_order"] is False
     assert p["legs"][0]["side"] == "buy"
     assert p["legs"][0]["position_effect"] == "open"
+
+
+def test_load_latest_skips_historical_do_not_place(tmp_path, monkeypatch):
+    import json
+
+    import pipeline.execution as execution
+
+    monkeypatch.setattr(execution, "SIGNALS", tmp_path)
+    (tmp_path / "option_candidates.json").write_text(
+        json.dumps(
+            {
+                "historical": True,
+                "do_not_place": True,
+                "candidates": [{"symbol": "SOFI"}],
+            }
+        )
+    )
+    (tmp_path / "equity_candidates.json").write_text(
+        json.dumps({"do_not_place": True, "candidates": [{"symbol": "AAPL"}]})
+    )
+    assert load_latest_option_candidates() == []
+    assert load_latest_equity_candidates() == []
+
+    (tmp_path / "option_candidates.json").write_text(
+        json.dumps({"candidates": [{"symbol": "NU"}]})
+    )
+    assert load_latest_option_candidates()[0]["symbol"] == "NU"

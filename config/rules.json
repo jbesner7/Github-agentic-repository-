@@ -1,6 +1,6 @@
 {
   "phase": 3,
-  "mode": "supervised_dry_review",
+  "mode": "f_confirm_plus_h_unsupervised",
   "account": {
     "nickname": "Agentic",
     "account_number_last4": "2907",
@@ -16,7 +16,7 @@
   },
   "priority": ["options", "equity"],
   "patterns": {
-    "timeframes": ["10minute", "15minute", "hour", "day"],
+    "timeframes": ["10minute", "hour", "day"],
     "types": [
       "head_and_shoulders",
       "inverse_head_and_shoulders",
@@ -41,6 +41,9 @@
     },
     "max_contracts": 1,
     "no_new_entries_overnight": true,
+    "may_hold_overnight_with_stop": true,
+    "flatten_at_close": false,
+    "overnight_lock_confirmed": "2026-08-31",
     "playbook_status": "RELEASED",
     "playbook_path": "playbooks/options_day_trading.md"
   },
@@ -80,12 +83,23 @@
       "playbook_path": "playbooks/equities_day_trading.md"
     }
   },
+  "orders": {
+    "option_working_states": ["queued", "confirmed", "partially_filled", "pending_cancelled"],
+    "equity_working_states": ["new", "queued", "confirmed", "unconfirmed", "partially_filled"],
+    "note": "RH MCP has no open=true filter and no get_advanced_orders tool on this connection. Query these states."
+  },
+  "historicals": {
+    "intraday_interval": "10minute",
+    "note": "Robinhood MCP has no 15minute interval."
+  },
   "loop": {
     "rth_minutes": 15,
+    "note": "Owner-side H schedule. Each fire is discrete and exits if not RTH. Not a daemon.",
     "scan_and_entry_session": "regular_hours_only",
     "rth": {"timezone": "America/New_York", "start": "09:30", "end": "16:00"},
     "no_new_entries_after": "15:45",
-    "flatten_before_close": true,
+    "flatten_equity_before_close": true,
+    "options_may_hold_overnight_with_stop": true,
     "proposal_ttl": "until_next_loop"
   },
   "execution": {
@@ -93,6 +107,12 @@
     "phase3_places_orders": false,
     "confirm_channel": "cursor_chat_only",
     "unsupervised_agent_h": "enabled",
+    "agent_f": {
+      "requires_specific_order_confirm": true,
+      "block_during_rth_while_h_enabled": true,
+      "do_not_place_from_signals_snapshots": true,
+      "re_quote_live_before_place": true
+    },
     "pdt": {
       "reduce_day_trades_for_pdt": false,
       "owner_instruction": "Accept risk. Do not throttle day-trade frequency for PDT.",

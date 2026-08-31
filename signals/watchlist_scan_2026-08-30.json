@@ -1,4 +1,7 @@
 {
+  "historical": true,
+  "do_not_place": true,
+  "snapshot_note": "Weekend 2026-08-30 snapshot. Stale quotes / superseded fields. Do not place from this file.",
   "agent": "F_weekend_test_scan",
   "as_of": "2026-08-30T10:28:24+00:00",
   "session": "outside_rth",

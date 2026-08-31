@@ -1,4 +1,5 @@
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
 from pipeline.equity_day_trade import (
     equity_quote_ok,
@@ -126,12 +127,40 @@ def test_equity_risk_prices_from_limit():
 
 
 def test_equity_place_gate_and_proposal_is_buy_only():
-    ok, reason = can_place_live(explicit_confirm=True, playbook_released=False, playbook_kind="equity")
+    sunday = datetime(2026, 8, 30, 12, 0, tzinfo=ZoneInfo("America/New_York"))
+    monday = datetime(2026, 8, 31, 10, 0, tzinfo=ZoneInfo("America/New_York"))
+    ok, reason = can_place_live(
+        explicit_confirm=True,
+        playbook_released=False,
+        playbook_kind="equity",
+        h_enabled=False,
+        now=sunday,
+    )
     assert not ok and reason == "equity_playbook_still_draft"
-    ok2, reason2 = can_place_live(explicit_confirm=False, playbook_released=True, playbook_kind="equity")
+    ok2, reason2 = can_place_live(
+        explicit_confirm=False,
+        playbook_released=True,
+        playbook_kind="equity",
+        h_enabled=False,
+        now=sunday,
+    )
     assert not ok2 and reason2 == "missing_explicit_user_confirm"
-    ok3, reason3 = can_place_live(explicit_confirm=True, playbook_released=True, playbook_kind="equity")
+    ok3, reason3 = can_place_live(
+        explicit_confirm=True,
+        playbook_released=True,
+        playbook_kind="equity",
+        h_enabled=False,
+        now=sunday,
+    )
     assert ok3 and reason3 is None
+    blocked, blocked_reason = can_place_live(
+        explicit_confirm=True,
+        playbook_released=True,
+        playbook_kind="equity",
+        h_enabled=True,
+        now=monday,
+    )
+    assert not blocked and blocked_reason == "h_owns_rth_while_enabled"
 
     proposal = build_equity_entry_proposal(
         {

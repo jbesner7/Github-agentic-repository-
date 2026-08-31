@@ -3,7 +3,7 @@
 Status: **ACTIVE for signal detection heuristics** (refine anytime).
 
 ## Timeframes
-- 15-minute
+- 10-minute (Robinhood MCP has no 15-minute bars)
 - 1-hour
 - Daily
 
