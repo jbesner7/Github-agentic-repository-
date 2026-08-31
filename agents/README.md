@@ -2,7 +2,7 @@
 
 Phase 2 remains the signal pipeline. Phase 3 adds **Agent F** dry review.
 
-Options playbook is **RELEASED**. Equities day-trading playbook is **DRAFT** (`playbooks/equities_day_trading.md`) — not implemented, not a place-authorization. **No** `place_*` until an explicit confirm of a **specific** order in this Cursor chat.
+Options playbook is **RELEASED**. Equities day-trading playbook is **RELEASED** (`playbooks/equities_day_trading.md`) — long shares only, no shorting, options first. **No** `place_*` from this chat until an explicit confirm of a **specific** order.
 
 | Agent | Module | Output |
 |---|---|---|

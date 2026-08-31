@@ -21,7 +21,8 @@
       "This Cursor chat (Agent F) still requires a specific-order confirm before place_*.",
       "Any account that is not Agentic.",
       "Crypto.",
-      "Short options, credit spreads, multi-leg, exercise."
+      "Short options, credit spreads, multi-leg, exercise.",
+      "Short stock or inverse ETFs."
     ]
   },
   "account": {
@@ -70,7 +71,19 @@
   "risk": {
     "max_open_positions": 1,
     "options_working_pair": {"stop_loss_pct": 0.2, "take_profit_pct": 0.4},
-    "equity": {"take_profit_pct": 0.25, "stop_loss_pct": 0.2},
+    "equity": {
+      "playbook": "playbooks/equities_day_trading.md",
+      "playbook_status": "RELEASED",
+      "take_profit_pct": 0.25,
+      "stop_loss_pct": 0.2,
+      "size": "up_to_full_buying_power",
+      "side": "long_only",
+      "no_shorting": true,
+      "whole_shares_only": true,
+      "flatten_before_close": true,
+      "no_new_entries_after": "15:45",
+      "entries_regular_hours_only": true
+    },
     "broker_exit": "stop_first_until_oco"
   },
   "session": {
@@ -78,6 +91,8 @@
     "scan_only_during_rth": true,
     "buy_only_during_rth": true,
     "rth": {"days": "monday_friday", "start": "09:30", "end": "16:00"},
+    "no_new_entries_after": "15:45",
+    "flatten_before_close": true,
     "forbidden_sessions": ["pre_market", "after_hours", "overnight", "weekend", "us_market_holiday"],
     "market_hours_on_entry": "regular_hours",
     "precedence": "RTH fail-closed is first. Ignore any older prompt text that allows extended, overnight, or weekend scan or buy."

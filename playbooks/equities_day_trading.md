@@ -1,8 +1,10 @@
 # Equities Day Trading Playbook
 
-**Status: DRAFT** (written 2026-08-31). **Do not implement. Do not place.**
+**Status: RELEASED** (owner approved 2026-08-31)
 
-This file is a spec for owner approval. It is **not** a standing authorization. Agent F still needs an explicit confirm of a **specific** order after this playbook is RELEASED. Agent H stays on `playbooks/options_day_trading.md` and the existing equity **fallback** until this file is RELEASED **and** implementation is separately approved.
+Live `place_*` from **this Cursor chat (Agent F)** still requires an explicit confirm of a **specific** order. This release is not a blanket authorize-all.
+
+Autonomous placing is Agent H, options first, then this playbook as the equity path. Disable the Automation to turn H OFF.
 
 ## Locked numbers (copied, not new)
 
@@ -14,7 +16,7 @@ From `config/rules.json` `risk.equity` and `risk.max_open_positions`:
 - Max **one** open position (equity or option — one account-wide slot)
 - Broker **stop first** until OCO exists; do not rest a live take-profit
 
-Last verified Agentic buying power (2026-08-30): **$1,500**. Re-read `get_portfolio` before any future ticket. Do not hard-code that figure.
+Last verified Agentic buying power (2026-08-30): **$1,500**. Re-read `get_portfolio` before any ticket. Do not hard-code that figure.
 
 ## Side — no shorting
 
@@ -55,6 +57,7 @@ Locked types: H&S, inverse H&S, double/triple top or bottom, ascending/descendin
 4. Whole shares: `shares = floor(buying_power / limit)`. Notional = shares × limit. Must be **≤ buying power**. If shares &lt; 1, skip (cannot afford one share).
 5. Always `review_equity_order` then `place_equity_order` with the **same** params. If `order_checks` block: do not place.
 6. Max **one** new entry per run. If any open position or working order already exists: **no new entry**.
+7. Options first: if a passing option candidate exists this run, do **not** also open an equity day trade.
 
 ## After a fill
 
@@ -70,8 +73,3 @@ Locked types: H&S, inverse H&S, double/triple top or bottom, ascending/descendin
 - Size above buying power
 - Invented prices or weekend quotes as live marks
 - Extended, overnight, or weekend scan/buy
-- Implementing or placing from this DRAFT
-
-## Approval gate
-
-Owner must say **RELEASED** (or equivalent) before anyone implements pipeline/Agent H changes or places an equity day-trade from this playbook. Until then: options playbook + existing fallback text in Agent H are unchanged.

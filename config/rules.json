@@ -16,7 +16,7 @@
   },
   "priority": ["options", "equity"],
   "patterns": {
-    "timeframes": ["15minute", "hour", "day"],
+    "timeframes": ["10minute", "15minute", "hour", "day"],
     "types": [
       "head_and_shoulders",
       "inverse_head_and_shoulders",
@@ -70,15 +70,22 @@
       "size": "up_to_full_buying_power",
       "side": "long_only",
       "no_shorting": true,
-      "playbook_status": "DRAFT",
-      "playbook_path": "playbooks/equities_day_trading.md",
-      "implementation": "awaiting_owner_approval"
+      "whole_shares_only": true,
+      "flatten_before_close": true,
+      "no_new_entries_after": "15:45",
+      "order_type": "limit",
+      "time_in_force": "gfd",
+      "market_hours": "regular_hours",
+      "playbook_status": "RELEASED",
+      "playbook_path": "playbooks/equities_day_trading.md"
     }
   },
   "loop": {
     "rth_minutes": 15,
     "scan_and_entry_session": "regular_hours_only",
     "rth": {"timezone": "America/New_York", "start": "09:30", "end": "16:00"},
+    "no_new_entries_after": "15:45",
+    "flatten_before_close": true,
     "proposal_ttl": "until_next_loop"
   },
   "execution": {
