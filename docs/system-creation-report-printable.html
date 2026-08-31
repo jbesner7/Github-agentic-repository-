@@ -167,7 +167,7 @@
         <strong>Owner:</strong> Jarrod Besner<br />
         <strong>Broker:</strong> Robinhood · tradable account Agentic ••••2907 only<br />
         <strong>Repo:</strong> Github-agentic-repository-<br />
-        <strong>As of:</strong> 2026-08-30 (Sunday) · US cash session closed<br />
+        <strong>As of:</strong> 2026-08-31 · lock files on <code>main</code> · H ON, F confirm-gated<br />
         <strong>Live orders placed by this build:</strong> none
       </p>
       <div class="badge-row">
@@ -213,22 +213,21 @@
       <div class="card">
         <h3>Built</h3>
         <ul>
-          <li>Locked spec in <code>config/rules.json</code></li>
+          <li>Locked spec in <code>config/rules.json</code> (single source of truth)</li>
           <li>Printable Phase 0 plan + this report</li>
           <li>Python pipeline agents A–E, I, F (dry review)</li>
-          <li>Chart + options playbooks</li>
-          <li>One live <em>read-only</em> signal cycle</li>
+          <li>Chart + options + equities playbooks RELEASED</li>
+          <li>One live <em>read-only</em> signal cycle (historical; do not place)</li>
           <li>One broker <em>review</em> (no place)</li>
-          <li>Agent H paste-ready Automation prompt</li>
-          <li>13 unit tests passing</li>
+          <li>Agent H Automation ON (Agentic AI Bot)</li>
+          <li>pytest under <code>pipeline/tests</code></li>
         </ul>
       </div>
       <div class="card">
         <h3>Not built / not live</h3>
         <ul>
           <li>No <code>place_*</code> from this chat</li>
-          <li>No Cursor Automation created or activated</li>
-          <li>No always-on Phase 4 loop process</li>
+          <li>No always-on Phase 4 loop process (H fires are discrete)</li>
           <li>No OCO / bracket at the broker (MCP has none)</li>
           <li>No crypto trading (excluded)</li>
           <li>No live-ready option ticket under current spread rule</li>
@@ -238,23 +237,23 @@
 
     <h2>2. Account, capital, and hard gates</h2>
     <table class="rules">
-      <tr><th>Tradable account</th><td>Agentic only. Last four <strong>2907</strong>. Resolve via <code>get_accounts</code> (<code>agentic_allowed=true</code>). Full number only in RH tool calls. Mask as ••••2907 in git and this report.</td></tr>
+      <tr><th>Tradable account</th><td>Agentic only. Last four <strong>2907</strong>. Resolve via <code>get_accounts</code> by nickname Agentic / last-4 2907. Full number only in RH tool calls. Mask as ••••2907 in git and this report.</td></tr>
       <tr><th>Do not trade</th><td>Cash individual ending <strong>5638</strong> (not agentic-allowed to this agent). Any other brokerage or crypto account.</td></tr>
       <tr><th>Funding (last RH read)</th><td>Agentic buying power / cash <strong>$1,500.00</strong> on the Phase 3 dry-review run. Target funding in spec: $1,500.</td></tr>
       <tr><th>Size</th><td>Max <strong>1 open position</strong>. Options: <strong>1 contract</strong>. Equity fallback: up to full buying power for that single position.</td></tr>
       <tr><th>Chat place gate</th><td>Playbook RELEASED <em>and</em> explicit confirm of a <strong>specific</strong> order in this Cursor chat. Release is not a blanket authorize-all.</td></tr>
-      <tr><th>H place gate</th><td>Separate Cursor Automation must be pasted, saved, and <strong>activated</strong>. Disable = off. This chat did not create that Automation.</td></tr>
+      <tr><th>H place gate</th><td>Cursor Automation <strong>Agentic AI Bot</strong> is ON. Disable = off. Standing prompt is the permission. Re-paste after prompt edits. This chat still confirm-gates F.</td></tr>
     </table>
 
     <h2>3. Locked trading rules (current)</h2>
     <table class="rules">
       <tr><th>Universe</th><td>All Robinhood watchlists (current + future), including Options Watchlist. <strong>No crypto</strong> (<code>currency_pair</code>, <code>tokenized_stock</code>). Deduplicate. Index underlyings/options allowed.</td></tr>
       <tr><th>Priority</th><td>Options first. Equity only if no option candidate clears gates.</td></tr>
-      <tr><th>Patterns</th><td>H&amp;S, inverse H&amp;S, double/triple top &amp; bottom, ascending / descending / symmetrical triangles. Timeframes: 15m, 1h, daily. Bias needs a strict majority; neutral → no options structure.</td></tr>
+      <tr><th>Patterns</th><td>H&amp;S, inverse H&amp;S, double/triple top &amp; bottom, ascending / descending / symmetrical triangles. Timeframes: 10m, 1h, daily (no <code>15minute</code>). Bias needs a strict majority; neutral → no options structure.</td></tr>
       <tr><th>Options structure</th><td>Long call or long put only. No shorts, no credit spreads, no multi-leg. DTE 0–7. ATM then one OTM. abs(delta) 0.40–0.50 from <strong>RH quotes only</strong>. Never invent Greeks.</td></tr>
       <tr><th>Liquidity</th><td>Underlying ADV ≥ ~2,000,000. Option bid–ask prefer ≤ 5% of mid; <strong>reject &gt; 10%</strong>. No $0.10 absolute override. Reject one-sided quotes.</td></tr>
-      <tr><th>Options exits</th><td>Band SL 20–50% / TP 30–100%+ of premium, aim 1:2. <strong>Owner-locked working pair −20% / +40%</strong>. After fill: broker <strong>STOP only</strong> (no OCO in this MCP). Monitor TP on later RTH runs.</td></tr>
-      <tr><th>Equity exits</th><td>TP +25% / SL −20% of trade cost. Same stop-first rule.</td></tr>
+      <tr><th>Options exits</th><td>Band SL 20–50% / TP 30–100%+ of premium, aim 1:2. <strong>Owner-locked working pair −20% / +40%</strong>. After fill: broker <strong>STOP only</strong> (no OCO in this MCP). Monitor TP on later RTH runs. <strong>May hold overnight</strong> with that stop. No new option entries overnight or after 15:45 ET.</td></tr>
+      <tr><th>Equity exits</th><td>TP +25% / SL −20% of trade cost. Same stop-first rule. <strong>Flatten before 16:00 ET</strong>. Long shares only; no shorting / inverse ETFs.</td></tr>
       <tr><th>Session (Automation)</th><td><strong>Scan and buy only in US RTH</strong>: Mon–Fri 09:30–16:00 America/New_York, cash session open. <code>market_hours=regular_hours</code> on entries. Outside RTH: no scan, no buy.</td></tr>
       <tr><th>PDT</th><td>Do not throttle day-trade frequency. Owner accepts risk. Owner stated PDT “no longer exists” — <strong>not independently verified</strong> as law in this repo.</td></tr>
       <tr><th>Confirms</th><td>This chat: every live order. Agent H: standing prompt is the confirm <em>for that Automation only</em>.</td></tr>
@@ -288,7 +287,7 @@
 │  CURSOR AUTOMATION (Agent H)     Activate = ON     Disable = OFF        │
 │  Fail-closed: if not US RTH → journal skipped: outside_rth → exit       │
 └───────────────────────────────────┬─────────────────────────────────────┘
-                                    │  (optional; not created from this chat)
+                                    │  Agentic AI Bot ON; Disable = OFF
                                     ▼
 ┌─────────────────────────────────────────────────────────────────────────┐
 │  G / cycle  ·  A Universe  ·  B Patterns  ·  C News                     │
@@ -313,14 +312,14 @@
       </thead>
       <tbody>
         <tr><td><strong>A</strong> Scanner</td><td>All lists + Options WL; drop crypto; ADV gate</td><td><code>pipeline/universe.py</code> → <code>signals/universe.json</code></td><td>Live read-only cycle run</td></tr>
-        <tr><td><strong>B</strong> Patterns</td><td>15m / 1h / daily heuristics</td><td><code>pipeline/patterns.py</code> → <code>signals/technicals.json</code></td><td>Live read-only cycle run</td></tr>
+        <tr><td><strong>B</strong> Patterns</td><td>10m / 1h / daily heuristics</td><td><code>pipeline/patterns.py</code> → <code>signals/technicals.json</code></td><td>Live read-only cycle run</td></tr>
         <tr><td><strong>C</strong> News</td><td>RH news / earnings packaging</td><td><code>pipeline/news.py</code> → <code>signals/news.json</code></td><td>Live read-only cycle run</td></tr>
         <tr><td><strong>D</strong> Structure</td><td>Long call/put ≤7 DTE; equity fallback</td><td><code>pipeline/options_structure.py</code></td><td>Live read-only cycle run</td></tr>
         <tr><td><strong>I</strong> Greeks</td><td>RH quote Greeks; delta 0.40–0.50</td><td><code>pipeline/greeks.py</code></td><td>Live read-only cycle run</td></tr>
         <tr><td><strong>E</strong> Risk</td><td>Exit math; stop-first plan</td><td><code>pipeline/risk.py</code></td><td>Defaults −20% / +40%</td></tr>
         <tr><td><strong>F</strong> Supervised</td><td>review → chat confirm → place</td><td><code>pipeline/execution.py</code></td><td>Dry review done; no place</td></tr>
         <tr><td><strong>G</strong> Loop</td><td>One-cycle orchestrator</td><td><code>pipeline/orchestrator.py</code></td><td>Script, not always-on</td></tr>
-        <tr><td><strong>H</strong> Unsupervised</td><td>Automation auto-place under prompt</td><td><code>playbooks/agent_h_autonomous.PROMPT.md</code></td><td>Written; <strong>not activated</strong></td></tr>
+        <tr><td><strong>H</strong> Unsupervised</td><td>Automation auto-place under prompt</td><td><code>playbooks/agent_h_autonomous.PROMPT.md</code></td><td><strong>ON</strong> — Agentic AI Bot; re-paste after edits</td></tr>
       </tbody>
     </table>
 
@@ -335,7 +334,7 @@
         <tr><td><strong>2</strong></td><td>Read-only A–E + I</td><td>One cycle 2026-08-30T08:26:05Z. 72 liquid names. 1 option candidate (later fails new spread). 0 places.</td></tr>
         <tr><td><strong>3</strong></td><td>Supervised F live</td><td>Dry <code>review_option_order</code> only. Place still needs a specific chat confirm and a ticket that passes current gates.</td></tr>
         <tr><td><strong>4</strong></td><td>Always-on G loop</td><td><strong>Not built</strong> as a daemon. Automation fires are discrete runs.</td></tr>
-        <tr><td><strong>5</strong></td><td>Unsupervised H</td><td>Prompt + JSON permissions written. Owner must paste and activate. Not done from this chat.</td></tr>
+        <tr><td><strong>5</strong></td><td>Unsupervised H</td><td><strong>ON</strong> as Agentic AI Bot (first fire 2026-08-30 skipped outside RTH). Re-paste prompt after edits. Git does not update the stored Automation text.</td></tr>
       </tbody>
     </table>
 
@@ -346,13 +345,15 @@
       </thead>
       <tbody>
         <tr><td><code>config/rules.json</code></td><td>Machine spec: account, universe, options, liquidity, risk, RTH, PDT, playbook RELEASED</td></tr>
-        <tr><td><code>config/autonomous_permissions.json</code></td><td>Agent H standing-permission object (activate via Automation, not this chat)</td></tr>
+        <tr><td><code>config/autonomous_permissions.json</code></td><td>Kill switch + tool allowlist. Trading numbers live in <code>rules.json</code>. Disable Automation or delete this file to stop H.</td></tr>
+        <tr><td><code>AGENTS.md</code> / <code>README.md</code></td><td>Operator notes and landing page</td></tr>
+        <tr><td><code>playbooks/equities_day_trading.md</code></td><td>Released long-only equity day-trade rules</td></tr>
         <tr><td><code>pipeline/*.py</code></td><td>A–E, I, F, G cycle</td></tr>
         <tr><td><code>scripts/run_phase2_cycle.py</code></td><td>Read-only cycle from <code>data/raw/latest_raw.json</code></td></tr>
         <tr><td><code>playbooks/options_day_trading.md</code></td><td>Released options rules</td></tr>
         <tr><td><code>playbooks/chart_patterns.md</code></td><td>Pattern list + heuristic notes</td></tr>
         <tr><td><code>playbooks/agent_h_autonomous.PROMPT.md</code></td><td>Canonical Automation prompt (RTH fail-closed first)</td></tr>
-        <tr><td><code>signals/*</code></td><td>Last cycle outputs (historical snapshot; not rewritten after later locks)</td></tr>
+        <tr><td><code>signals/*</code></td><td>Historical snapshots. Bannered <code>do_not_place</code>. Never place from git copies.</td></tr>
         <tr><td><code>journal/2026-08-30.md</code></td><td>Locks, cycle, dry review, prompt review</td></tr>
         <tr><td><code>docs/phase0-trading-plan-printable.html</code></td><td>Shorter Phase 0 card</td></tr>
         <tr><td><code>docs/system-creation-report-printable.html</code></td><td>This report</td></tr>
@@ -364,7 +365,7 @@
         │  skip crypto
         ▼
    A  ADV ≥ 2M
-        ├─► B  daily first; 15m/1h on daily hits (H prompt)
+        ├─► B  daily first; 10m/1h on daily hits (H prompt)
         ├─► C  news / earnings
         ▼
    D  long call/put, DTE 0–7, ATM → 1 OTM
@@ -394,6 +395,8 @@
         <tr><td>Owner confirm</td><td>Working pair <strong>−20% / +40%</strong></td><td><strong>Current</strong></td></tr>
         <tr><td>Owner confirm</td><td>Options playbook RELEASED</td><td><strong>Current</strong> (chat still needs per-order confirm)</td></tr>
         <tr><td>Owner confirm</td><td>Scan and buy <strong>RTH only</strong></td><td><strong>Current</strong> for Automation</td></tr>
+        <tr><td>Owner confirm</td><td>Equities playbook RELEASED; flatten before close; no shorting</td><td><strong>Current</strong></td></tr>
+        <tr><td>Owner confirm</td><td>Agent H Automation ON</td><td><strong>Current</strong> (Disable to stop)</td></tr>
       </tbody>
     </table>
 
@@ -421,7 +424,7 @@
     </table>
 
     <h2 class="page-break">12. Agent H / Cursor Automation</h2>
-    <p>A Cursor Automation is <strong>not</strong> this cloud-agent chat. It is a scheduled Cloud Agent the owner creates at <strong>cursor.com/automations</strong>. This creation wrote the prompt; it did <strong>not</strong> create or activate the Automation (0 Automation-sourced runs were listed on this repo when checked).</p>
+    <p>A Cursor Automation is <strong>not</strong> this cloud-agent chat. It is a scheduled Cloud Agent at <strong>cursor.com/automations</strong>. Owner activated <strong>Agentic AI Bot</strong> on 2026-08-30. First fire skipped outside RTH (no RH calls). Re-paste <code>playbooks/agent_h_autonomous.PROMPT.md</code> after prompt changes — git does not update the stored text. Skip journals append on <code>main</code>; do not open a new PR per skip.</p>
     <table class="rules">
       <tr><th>ON / OFF</th><td>Activate the Automation = ON. Disable = OFF (kills autonomous placing).</td></tr>
       <tr><th>Prompt</th><td><code>playbooks/agent_h_autonomous.PROMPT.md</code> — fail-closed ET clock <em>before</em> any RH call.</td></tr>
@@ -437,7 +440,7 @@
       <li>“Regular hours unless extended” on buys removed.</li>
       <li>Open working orders now fetched, not only positions.</li>
       <li>Exit path specified (stop-first; no live TP that can double-fill).</li>
-      <li>Pattern work: daily first, 15m/1h only on hits, stop at one bias (fits a discrete 15-minute fire).</li>
+      <li>Pattern work: daily first, 10m/1h only on hits, stop at one bias (fits a discrete 15-minute fire).</li>
     </ul>
 
     <h2>13. Honesty, PDT, and non-verification</h2>
@@ -456,7 +459,7 @@
       <tbody>
         <tr><td>Read-only scan (this repo)</td><td>Assemble RH dumps → <code>data/raw/latest_raw.json</code> → <code>python3 scripts/run_phase2_cycle.py</code> → read <code>signals/</code></td></tr>
         <tr><td>Supervised live ticket</td><td>Wait for RTH. New cycle. Candidate must pass spread + delta + 1-position. This chat posts the ticket. You confirm that ticket. Then <code>place_*</code>.</td></tr>
-        <tr><td>Autonomous ON</td><td>Paste canonical H prompt at cursor.com/automations, attach this repo, connect RH MCP, activate. Sunday fires should no-op.</td></tr>
+        <tr><td>Autonomous ON</td><td>H is ON. Confirm the pasted prompt matches git. Schedule every 15 minutes is OK; H exits if not RTH.</td></tr>
         <tr><td>Autonomous OFF</td><td>Disable the Automation. Or delete <code>config/autonomous_permissions.json</code> (prompt says place nothing).</td></tr>
         <tr><td>Print this report</td><td>Open this HTML → Print / Save as PDF → Letter, backgrounds on.</td></tr>
       </tbody>
@@ -465,18 +468,17 @@
     <h2>15. What is not built / not live</h2>
     <ul>
       <li>No live order has been placed on Agentic by this creation.</li>
-      <li>No Cursor Automation exists from this work; H is paper until you activate it.</li>
-      <li>Phase 4 is not an always-on process inside the repo — only a one-shot orchestrator script.</li>
+      <li>Phase 4 is not an always-on process inside the repo — only a one-shot orchestrator script. H fires every 15 minutes if scheduled, and exits outside RTH.</li>
       <li>Broker OCO/brackets are unavailable in the connected MCP tool set.</li>
-      <li>There is no current option candidate that passes the 10% spread gate on a live RTH quote.</li>
+      <li>There is no current option candidate that passes the 10% spread gate on a live RTH quote. Git <code>signals/*</code> files are historical — do not place from them.</li>
     </ul>
 
     <h2>16. Appendix — tests and source files</h2>
-    <p>Last recorded unit run: <code>python3 -m pytest pipeline/tests -q</code> → <strong>13 passed</strong>. Coverage includes crypto exclusion, ADV gate, 5–10% spread (no dollar override), Greeks no-invention, −20% / +40% risk math, band rejects, ATM/DTE pick, and F place-gate (draft / missing confirm / both required).</p>
-    <p class="note">Print: Letter portrait, background graphics on. Companion one-pager: <code>docs/phase0-trading-plan-printable.html</code>. Canonical H prompt: <code>playbooks/agent_h_autonomous.PROMPT.md</code>.</p>
+    <p>Unit tests: <code>python3 -m pytest pipeline/tests -q</code>. Coverage includes crypto exclusion, ADV gate, 5–10% spread (no dollar override), Greeks no-invention, −20% / +40% risk math, band rejects, ATM/DTE pick, F place-gate (draft / missing confirm / H-owns-RTH), working-order states, and 10-minute TF lock. Do not treat a hardcoded test count in older printouts as current.</p>
+    <p class="note">Print: Letter portrait, background graphics on. Companion one-pager: <code>docs/phase0-trading-plan-printable.html</code>. Canonical H prompt: <code>playbooks/agent_h_autonomous.PROMPT.md</code>. Canonical rules: <code>config/rules.json</code>.</p>
 
     <div class="footer">
-      File: docs/system-creation-report-printable.html · As of 2026-08-30 · Agentic ••••2907 · 0 live places from this build
+      File: docs/system-creation-report-printable.html · Updated 2026-08-31 · Agentic ••••2907 · 0 live places from this build
     </div>
   </div>
 </body>

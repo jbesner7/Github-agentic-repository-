@@ -127,7 +127,7 @@
   <section class="sheet">
     <div class="kicker">Page 1 of 2 · How a cycle runs</div>
     <h1>Agentic trading workflow</h1>
-    <p class="sub">One account (Agentic ••••2907) · one contract · options first · fail closed · white printable diagram · 2026-08-30</p>
+    <p class="sub">One account (Agentic ••••2907) · one contract · options first · fail closed · white printable diagram · updated 2026-08-31</p>
 
     <div class="spine">
       <div class="row">
@@ -186,7 +186,8 @@
         <ul>
           <li>May scan on request, including a Sunday test</li>
           <li>Needs an explicit confirm of a <em>specific</em> order</li>
-          <li>Playbook RELEASED is not a blanket authorize-all</li>
+          <li>Does not place during RTH while H is enabled</li>
+          <li>Does not place from <code>signals/*</code> snapshots</li>
           <li>Off switch: do not confirm</li>
         </ul>
       </div>
@@ -205,9 +206,11 @@
       <div class="card">
         <h3>After a fill</h3>
         <ul>
-          <li>Place broker STOP only (−20% of fill premium)</li>
+          <li>Place broker STOP only (−20% of fill)</li>
           <li>Do not rest a live take-profit (no OCO in MCP)</li>
-          <li>Watch +40% on a later RTH run</li>
+          <li>Watch TP on a later RTH run</li>
+          <li>Options may hold overnight with that stop</li>
+          <li>Equities flatten before 16:00 ET</li>
           <li>If already in a position or working order: no new entry</li>
         </ul>
       </div>
@@ -223,7 +226,7 @@
       <div class="card">
         <h3>Write down</h3>
         <ul>
-          <li><code>signals/*</code> — last cycle JSON</li>
+          <li><code>signals/*</code> — historical snapshots; do not place</li>
           <li><code>journal/YYYY-MM-DD.md</code> — skips and tickets</li>
           <li>Mask accounts as ••••2907</li>
           <li>H first Sunday fire: skipped, no RH calls</li>

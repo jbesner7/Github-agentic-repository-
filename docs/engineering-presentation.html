@@ -187,13 +187,13 @@
       <h1>Agentic trading system<br />Engineering report</h1>
       <div class="rule"></div>
       <p class="lead">How the build is structured: control plane, signal pipeline, fail-closed gates, and the split between supervised chat and one unsupervised Automation.</p>
-      <p class="muted">Owner: Jarrod Besner · Broker: Robinhood · Tradable account: Agentic ••••2907 · Repo: Github-agentic-repository- · As of 2026-08-30</p>
+      <p class="muted">Owner: Jarrod Besner · Broker: Robinhood · Tradable account: Agentic ••••2907 · Repo: Github-agentic-repository- · Updated 2026-08-31</p>
       <div class="chips">
         <span class="chip on">Options playbook RELEASED</span>
         <span class="chip on">Agent H Automation ON</span>
         <span class="chip">This chat still confirm-gated</span>
         <span class="chip">0 live places from this build</span>
-        <span class="chip">13 unit tests passing</span>
+        <span class="chip">pytest pipeline/tests</span>
       </div>
       <div class="foot"><span>Engineering report</span><span>1</span></div>
     </section>
@@ -337,10 +337,9 @@
           <h3>config/autonomous_permissions.json</h3>
           <ul>
             <li>Status <code>ACTIVE</code> as of 2026-08-30</li>
+            <li>Kill switch + tool allowlist only (rules live in <code>rules.json</code>)</li>
             <li>Allowed: review/place/cancel equity + options</li>
             <li>Forbidden: crypto, exercise</li>
-            <li>RTH-only scan and buy</li>
-            <li>Max one open position</li>
             <li>Automation id recorded after first fire</li>
             <li>Missing file → H must place nothing</li>
           </ul>
@@ -412,7 +411,7 @@
           </ul>
         </div>
       </div>
-      <p class="muted">RH MCP has no <code>15minute</code> interval. Closest bar is <code>10minute</code>. Rules JSON still lists 15m as the intended TF; live scans used 10m.</p>
+      <p class="muted">RH MCP has no <code>15minute</code> interval. Closest bar is <code>10minute</code>. <code>config/rules.json</code> timeframes are <code>10minute</code>, <code>hour</code>, <code>day</code>.</p>
       <div class="foot"><span>Engineering report</span><span>9</span></div>
     </section>
 

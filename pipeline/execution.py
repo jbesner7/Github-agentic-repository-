@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+from datetime import datetime
 from typing import Any
 
 from pipeline.io_util import JOURNAL, SIGNALS, append_jsonl, load_rules, read_json, utc_now_iso, write_json
+from pipeline.session import is_rth
 
 
 def load_latest_option_candidates() -> list[dict[str, Any]]:
@@ -10,6 +12,8 @@ def load_latest_option_candidates() -> list[dict[str, Any]]:
     if not path.exists():
         return []
     payload = read_json(path)
+    if payload.get("do_not_place") or payload.get("historical"):
+        return []
     return list(payload.get("candidates") or [])
 
 
@@ -18,6 +22,8 @@ def load_latest_equity_candidates() -> list[dict[str, Any]]:
     if not path.exists():
         return []
     payload = read_json(path)
+    if payload.get("do_not_place") or payload.get("historical"):
+        return []
     return list(payload.get("candidates") or [])
 
 
@@ -26,12 +32,19 @@ def can_place_live(
     explicit_confirm: bool,
     playbook_released: bool,
     playbook_kind: str = "options",
+    h_enabled: bool | None = None,
+    now: datetime | None = None,
+    h_rth_override: bool = False,
 ) -> tuple[bool, str | None]:
-    """Agent F place-gate. Never invent a confirm."""
+    """Agent F place-gate. Never invent a confirm. H owns RTH while enabled."""
     if not playbook_released:
         return False, f"{playbook_kind}_playbook_still_draft"
     if not explicit_confirm:
         return False, "missing_explicit_user_confirm"
+    if h_enabled is None:
+        h_enabled = load_rules().get("execution", {}).get("unsupervised_agent_h") == "enabled"
+    if h_enabled and is_rth(now) and not h_rth_override:
+        return False, "h_owns_rth_while_enabled"
     return True, None
 
 
@@ -125,7 +138,12 @@ def record_review(proposal: dict[str, Any], review_response: dict[str, Any] | No
         released = rules["options"]["playbook_status"] == "RELEASED"
         kind = "options"
         status = rules["options"]["playbook_status"]
-    allowed, reason = can_place_live(explicit_confirm=False, playbook_released=released, playbook_kind=kind)
+    allowed, reason = can_place_live(
+        explicit_confirm=False,
+        playbook_released=released,
+        playbook_kind=kind,
+        h_enabled=rules.get("execution", {}).get("unsupervised_agent_h") == "enabled",
+    )
     record = {
         "event": "phase3_dry_review",
         "as_of": utc_now_iso(),

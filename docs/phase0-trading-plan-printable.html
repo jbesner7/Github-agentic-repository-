@@ -166,11 +166,12 @@
     <div class="meta">
       <strong>Account:</strong> Robinhood Agentic ••••2907 only &nbsp;·&nbsp;
       <strong>Target funding:</strong> $1,500 &nbsp;·&nbsp;
-      <strong>Status:</strong> Spec locked (docs only; no live trading code yet)<br />
-      <strong>Confirms:</strong> This Cursor chat only &nbsp;·&nbsp;
-      <strong>Control:</strong> Cursor Automation toggle &nbsp;·&nbsp;
-      <strong>Journal:</strong> Markdown + JSONL
+      <strong>Status:</strong> Pipeline + playbooks RELEASED · Agent H ON · F still confirm-gated<br />
+      <strong>Confirms:</strong> This Cursor chat (F) needs a specific-order confirm; H uses the standing Automation prompt &nbsp;·&nbsp;
+      <strong>Control:</strong> Disable Agentic AI Bot to stop H &nbsp;·&nbsp;
+      <strong>Journal:</strong> Append on main (Markdown + JSONL)
     </div>
+    <p><strong>Updated 2026-08-31:</strong> Canonical numbers live in <code>config/rules.json</code>. Scan/buy is <strong>RTH only</strong>. Intraday bars are <code>10minute</code> (no <code>15minute</code>). Options may hold overnight with a broker stop; equities flatten before 16:00 ET. Do not place from <code>signals/*</code>.</p>
     <div class="badge-row">
       <span class="badge">Options priority</span>
       <span class="badge">1 contract max</span>
@@ -178,41 +179,40 @@
       <span class="badge">No crypto</span>
       <span class="badge">Index options OK</span>
       <span class="badge">Stop-first (until OCO)</span>
-      <span class="badge">Human confirm every live order</span>
+      <span class="badge">F confirm-gated · H unsupervised</span>
     </div>
 
     <!-- PAGE BLOCK: architecture -->
     <h2>1. System architecture</h2>
     <div class="diagram">┌──────────────────────────────────────────────────────────────────────────┐
-│                      CURSOR AUTOMATION TOGGLE                            │
-│                 OFF = idle     ON = Agent G loop runs                    │
+│  AGENTIC AI BOT (Agent H)   Disable = OFF                                │
+│  Schedule every 15m is OK. Each fire exits if not US RTH. Not a daemon.  │
 └──────────────────────────────────┬───────────────────────────────────────┘
                                    ▼
 ┌──────────────────────────────────────────────────────────────────────────┐
-│  G — ALWAYS-ON LOOP (orchestrator — never places orders)                 │
-│  Cadence: RTH every 15m | Extended every 30m | Overnight every 60m       │
-│  Proposals expire at next loop (replaced by fresh signals)               │
+│  G — one-shot cycle (orchestrator — never places)                        │
+│  Scan/buy: RTH only 09:30–16:00 ET. No extended / overnight / weekend.   │
 └───┬─────────┬─────────┬─────────┬─────────┬─────────┬────────────────────┘
     ▼         ▼         ▼         ▼         ▼         ▼
 ┌───────┐ ┌───────┐ ┌───────┐ ┌───────┐ ┌───────┐ ┌────────────────────────┐
 │ A     │ │ B     │ │ C     │ │ D     │ │ I     │ │ E Risk                 │
-│Scan   │ │Pattn  │ │News   │ │Struct │ │Greeks │ │ Options: SL 20–50%     │
-│lists  │ │15m/1h │ │Catal. │ │long   │ │δ γ θ  │ │          TP 30–100%+   │
-│+ opt  │ │/daily │ │       │ │call/  │ │ν ρ IV │ │          aim 1:2 R:R   │
+│Scan   │ │Pattn  │ │News   │ │Struct │ │Greeks │ │ Options: SL −20% / +40%│
+│lists  │ │10m/1h │ │Catal. │ │long   │ │δ γ θ  │ │          hold overnight│
+│+ opt  │ │/daily │ │       │ │call/  │ │ν ρ IV │ │          with stop OK  │
 │WL     │ │       │ │       │ │put    │ │from RH│ │ Equity:  +25% / −20%   │
-│no cryp│ │       │ │       │ │+ eqty │ │quotes │ │ STOP first until OCO   │
+│no cryp│ │       │ │       │ │+ eqty │ │quotes │ │          flatten close │
 └───┬───┘ └───┬───┘ └───┬───┘ └───┬───┘ └───┬───┘ └──────────┬─────────────┘
     └─────────┴────┬────┴─────────┴─────────┴────────────────┘
                    ▼
-        signals/*  +  journal/*   (Markdown daily + JSONL)
+        signals/* (snapshots; do not place)  +  journal/* on main
                    │
        ┌───────────┴───────────┐
        ▼                       ▼
 ┌──────────────────┐   ┌───────────────────────────┐
-│ F SUPERVISED     │   │ H UNSUPERVISED (Phase 5)  │
-│ review → CONFIRM │   │ auto-place after rules    │
-│ (this chat) →    │   │ designed NOW · OFF until  │
-│ place            │   │ you explicitly enable     │
+│ F SUPERVISED     │   │ H UNSUPERVISED (ON)       │
+│ review → CONFIRM │   │ review_* then place_*     │
+│ blocked in RTH   │   │ standing prompt = permission│
+│ while H enabled  │   │ Disable Automation = OFF  │
 └────────┬─────────┘   └─────────────┬─────────────┘
          └───────────┬───────────────┘
                      ▼
@@ -224,14 +224,14 @@
       <tr><th>Account</th><td>Agentic ••••2907 only. Target ~$1,500. Max <strong>1 open position</strong>. Options: <strong>1 contract max</strong>. Equity (when used): size up to full buying power for that single position.</td></tr>
       <tr><th>Universe</th><td>All Robinhood watchlists (current + future), including <strong>Options Watchlist</strong>. <strong>No crypto</strong>. Deduplicate each run. Index underlyings/options allowed.</td></tr>
       <tr><th>Priority</th><td><strong>Options first</strong> → equity fallback if no liquid option candidate.</td></tr>
-      <tr><th>Patterns</th><td>Head &amp; shoulders, inverse H&amp;S; double top, triple top; double bottom, triple bottom; ascending / descending / symmetrical triangles. Timeframes: <strong>15m / 1h / daily</strong>.</td></tr>
-      <tr><th>Options structure</th><td>Buy call or buy put only (no shorts / no credit spreads). Expiry ≤ <strong>7 DTE</strong>. Strike: ATM first, else 1 OTM. Prefer delta ~0.40–0.50 via <strong>RH-returned Greeks only</strong> (no invented numbers). Playbook is <strong>RELEASED</strong>; each live order still needs an explicit confirm in this chat. <strong>No new options entries overnight</strong>.</td></tr>
+      <tr><th>Patterns</th><td>Head &amp; shoulders, inverse H&amp;S; double top, triple top; double bottom, triple bottom; ascending / descending / symmetrical triangles. Timeframes: <strong>10m / 1h / daily</strong> (RH MCP has no <code>15minute</code>).</td></tr>
+      <tr><th>Options structure</th><td>Buy call or buy put only (no shorts / no credit spreads). Expiry ≤ <strong>7 DTE</strong>. Strike: ATM first, else 1 OTM. Prefer delta ~0.40–0.50 via <strong>RH-returned Greeks only</strong> (no invented numbers). Playbook is <strong>RELEASED</strong>; each live order from this chat still needs an explicit confirm. <strong>No new options entries overnight</strong>. Open options <strong>may be held overnight</strong> with the broker stop.</td></tr>
       <tr><th>Greeks (Agent I)</th><td>Read delta, gamma, theta, vega, rho, IV from <code>get_option_quotes</code>. Use for strike filter and journal. Never invent Greeks.</td></tr>
       <tr><th>Liquidity</th><td>Underlying volume gate (v1 target ≥ ~2M ADV where applicable). Option bid–ask under <strong>5–10% of the option’s price</strong> (prefer ≤ 5%; reject &gt; 10%). No absolute-dollar override. Reject missing / one-sided quotes.</td></tr>
       <tr><th>Options exits</th><td>Stop loss <strong>20–50%</strong> of premium. Profit target <strong>30–100%+</strong> of premium, aiming for <strong>1:2</strong> risk-to-reward. Owner-locked working pair: <strong>−20% / +40%</strong>. After fill: place broker <strong>STOP only</strong>. Monitor TP in loop until OCO exists.</td></tr>
       <tr><th>Equity exits</th><td>Take profit <strong>+25%</strong> of total trade cost. Stop loss <strong>−20%</strong> of total trade cost. Prefer broker stop; same stop-first policy until OCO.</td></tr>
-      <tr><th>Sessions / loop</th><td>RTH + extended + overnight monitoring. Cadence: RTH <strong>15m</strong> / extended <strong>30m</strong> / overnight <strong>60m</strong>. Unconfirmed proposals valid <strong>until next loop</strong> (then replaced).</td></tr>
-      <tr><th>Execution</th><td>Agent F: human confirm in this Cursor chat for every live order. Agent H: unsupervised path designed OFF until you enable.</td></tr>
+      <tr><th>Sessions / loop</th><td><strong>RTH only</strong> for scan and buy (Mon–Fri 09:30–16:00 ET). H may be scheduled every <strong>15m</strong>; each fire exits if not RTH. No extended/overnight/weekend scan. Equities flatten before 16:00 ET. Options may hold overnight with stop. Unconfirmed F proposals valid <strong>until next cycle</strong>.</td></tr>
+      <tr><th>Execution</th><td>Agent F: human confirm of a specific order; blocked during RTH while H is enabled. Agent H: unsupervised Automation <strong>ON</strong> (Agentic AI Bot). Disable to stop. Do not place from <code>signals/*</code>.</td></tr>
       <tr><th>PDT</th><td>Do <strong>not</strong> reduce day-trade frequency. Owner lock: accept risk. Owner stated PDT rule no longer exists — this plan does not independently verify that as law.</td></tr>
       <tr><th>Ops / journal</th><td>Cursor Automation toggle ON/OFF. Write trade journal + signals to this GitHub repo (Markdown + JSONL).</td></tr>
     </table>
@@ -248,7 +248,7 @@
           <li>Spread: prefer ≤ <strong>5%</strong>, reject &gt; <strong>10%</strong></li>
           <li>Broker: <strong>stop order first</strong></li>
           <li>TP monitored until OCO available</li>
-          <li>No new entries overnight</li>
+          <li>No new entries overnight; may hold with stop</li>
         </ul>
       </div>
       <div class="card">
@@ -260,6 +260,7 @@
           <li>SL: <strong>−20%</strong> of trade cost</li>
           <li>Broker: <strong>stop order first</strong></li>
           <li>TP monitored until OCO available</li>
+          <li>Flatten before 16:00 ET (no overnight hold)</li>
         </ul>
       </div>
     </div>
@@ -271,14 +272,14 @@
       </thead>
       <tbody>
         <tr><td><strong>A</strong> Scanner</td><td>All RH lists + Options Watchlist → liquidity filter (no crypto)</td><td>signals/universe</td></tr>
-        <tr><td><strong>B</strong> Patterns</td><td>Indicators + chart patterns on 15m / 1h / daily</td><td>signals/technicals</td></tr>
+        <tr><td><strong>B</strong> Patterns</td><td>Indicators + chart patterns on 10m / 1h / daily</td><td>signals/technicals</td></tr>
         <tr><td><strong>C</strong> News</td><td>News / earnings catalysts</td><td>signals/news</td></tr>
         <tr><td><strong>D</strong> Structure</td><td>Long call/put ≤7 DTE (incl. index); equity fallback</td><td>signals/option_candidates</td></tr>
         <tr><td><strong>I</strong> Greeks</td><td>RH quote Greeks recognition; delta band filter</td><td>signals/greeks</td></tr>
         <tr><td><strong>E</strong> Risk</td><td>Options SL 20–50% / TP 30–100%+ (aim 1:2; locked −20%/+40%); equity +25%/−20%; stop-first plan</td><td>signals/risk_plan</td></tr>
         <tr><td><strong>F</strong> Supervised exec</td><td>review → your confirm → place</td><td>journal/orders</td></tr>
         <tr><td><strong>G</strong> Loop</td><td>Orchestrate while Automation ON; refresh proposals each loop</td><td>journal/loop_runs</td></tr>
-        <tr><td><strong>H</strong> Unsupervised</td><td>Auto-place after rules (Phase 5; OFF until enabled)</td><td>journal/orders (tagged)</td></tr>
+        <tr><td><strong>H</strong> Unsupervised</td><td>Auto-place after rules (Agentic AI Bot ON)</td><td>journal/orders (tagged)</td></tr>
       </tbody>
     </table>
 
@@ -288,7 +289,7 @@
         ▼
    A Universe (liquid, no crypto)
         │
-        ├──────────────► B Patterns (15m / 1h / daily)
+        ├──────────────► B Patterns (10m / 1h / daily)
         ├──────────────► C News / catalysts
         │
         ▼
@@ -315,8 +316,8 @@
         <tr><td><strong>1</strong></td><td>Playbooks (chart + options RELEASED) + Greeks agent spec</td><td>Options playbook released 2026-08-30; per-order confirm still required</td></tr>
         <tr><td><strong>2</strong></td><td>Signal pipeline A–E + I (read-only)</td><td>You review signal quality</td></tr>
         <tr><td><strong>3</strong></td><td>Supervised F live</td><td>Funded ≈ $1,500; dry review first</td></tr>
-        <tr><td><strong>4</strong></td><td>Loop G behind Automation toggle</td><td>Still confirms via F; proposals refresh each loop</td></tr>
-        <tr><td><strong>5</strong></td><td>Unsupervised H</td><td>Docs now; enable only when you say</td></tr>
+        <tr><td><strong>4</strong></td><td>Loop G is a one-shot script, not a daemon</td><td>H fires are discrete; still fail-closed outside RTH</td></tr>
+        <tr><td><strong>5</strong></td><td>Unsupervised H</td><td>ON as Agentic AI Bot; re-paste prompt after edits</td></tr>
       </tbody>
     </table>
 

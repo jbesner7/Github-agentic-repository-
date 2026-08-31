@@ -33,7 +33,6 @@ INVERSE_ETF_SYMBOLS = frozenset(
         "SARK",
         "RWM",
         "TWM",
-        "TWM",
         "HDGE",
         "EFZ",
         "EPV",
