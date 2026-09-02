@@ -37,6 +37,20 @@ python3 -m pytest pipeline/tests -q
 
 `signals/*` files in git are **historical snapshots**. Do not place from them.
 
+## Printable Python source (F + H)
+
+All Python used by this chat (Agent F) and the autonomous bot (Agent H), organized by module:
+
+- Print: [`docs/agentic-python-source-printable.html`](docs/agentic-python-source-printable.html) (Print / Save as PDF)
+- Python file: [`docs/agentic_python_source_book.py`](docs/agentic_python_source_book.py)
+- PDF: [`docs/agentic-python-source.pdf`](docs/agentic-python-source.pdf)
+
+```bash
+python3 scripts/build_python_source_book.py
+```
+
+
 ## Kill switch
 
 Disable Agentic AI Bot, or delete `config/autonomous_permissions.json`.
+
