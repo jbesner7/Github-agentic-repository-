@@ -193,7 +193,10 @@ def test_pipeline_writes_equity_candidate_without_placing(tmp_path, monkeypatch)
     monkeypatch.setattr(orch, "JOURNAL", journal)
 
     prices = [6, 6, 6, 5, 4, 3, 4, 5, 6, 5, 4, 3, 4, 5, 6] + [6.2 + i * 0.05 for i in range(20)]
-    bars = [{"close": c, "high": c + 0.2, "low": c - 0.2} for c in prices]
+    bars = [
+        {"open": c, "close": c, "high": c + 0.2, "low": c - 0.2}
+        for c in prices
+    ]
     raw = {
         "watchlists": [{"id": "1", "display_name": "T"}],
         "watchlist_items_by_id": {"1": [{"object_type": "instrument", "symbol": "AAPL"}]},
