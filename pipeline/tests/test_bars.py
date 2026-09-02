@@ -125,4 +125,17 @@ def test_rules_use_live_1m_3m_5m():
     assert "15minute" not in rules["patterns"]["timeframes"]
     assert "3minute" not in hist["rh_native_intervals"]
 
+
+def test_agents_md_chat_rule_matches_h_1m_3m_5m():
+    from pathlib import Path
+
+    text = (Path(__file__).resolve().parents[2] / "AGENTS.md").read_text(encoding="utf-8")
+    assert "## Charts (F matches H)" in text
+    assert "1-minute + 3-minute + 5-minute" in text
+    assert "interval=minute" in text
+    assert "interval=5minute" in text
+    assert "aggregate_to_minutes" in text
+    assert "Do **not** use `10minute` as the primary intraday chart." in text
+    assert "Use `10minute`" not in text
+
 # hash-pad 1

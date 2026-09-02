@@ -198,7 +198,12 @@ def test_pipeline_writes_equity_candidate_without_placing(tmp_path, monkeypatch)
         "watchlists": [{"id": "1", "display_name": "T"}],
         "watchlist_items_by_id": {"1": [{"object_type": "instrument", "symbol": "AAPL"}]},
         "fundamentals_by_symbol": {"AAPL": {"average_volume": 3_000_000}},
-        "historicals_by_symbol_timeframe": {"AAPL": {"day": bars}},
+        "historicals_by_symbol_timeframe": {
+            "AAPL": {
+                tf: bars
+                for tf in ("minute", "3minute", "5minute", "hour", "day")
+            }
+        },
         "buying_power": 1500.0,
         "equity_quotes_by_symbol": {"AAPL": {"bid_price": "100.00", "ask_price": "100.10"}},
         "equity_tradability_by_symbol": {"AAPL": {"regular_hours": {"buy": True}}},
