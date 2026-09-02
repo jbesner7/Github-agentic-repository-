@@ -19,7 +19,7 @@ This repo is a gated Robinhood pipeline for **Agentic ••••2907** only. M
 
 RTH = Mon–Fri 09:30 inclusive–16:00 exclusive, `America/New_York`. No extended/overnight/weekend **scan or buy**. Equities flatten before close. Options may hold overnight with the broker stop.
 
-Robinhood MCP has no `15minute` interval and no `open=true` order filter. Use `10minute`. Working option states: `queued`, `confirmed`, `partially_filled`, `pending_cancelled`. Working equity states: `new`, `queued`, `confirmed`, `unconfirmed`, `partially_filled`.
+Robinhood MCP 1-minute bar is `interval=minute` (not `1minute`). 5-minute is `5minute`. There is **no** `3minute` (aggregate from `minute` via `pipeline.bars`) and **no** `15minute`. No `open=true` order filter. Working option states: `queued`, `confirmed`, `partially_filled`, `pending_cancelled`. Working equity states: `new`, `queued`, `confirmed`, `unconfirmed`, `partially_filled`.
 
 ## Journal
 

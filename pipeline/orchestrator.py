@@ -3,6 +3,7 @@ from __future__ import annotations
 from collections import Counter
 from typing import Any
 
+from pipeline.bars import bars_for_timeframe
 from pipeline.equity_day_trade import buying_power_from_raw, select_equity_day_trade_candidates
 from pipeline.greeks import delta_in_band, extract_greeks
 from pipeline.io_util import append_jsonl, load_rules, utc_now_iso, write_json, SIGNALS, JOURNAL
@@ -69,7 +70,7 @@ def run_pipeline(raw: dict[str, Any]) -> dict[str, Any]:
     for symbol in liq["passed_symbols"]:
         symbol_hits: list[dict[str, Any]] = []
         for tf in rules["patterns"]["timeframes"]:
-            bars = historicals.get(symbol, {}).get(tf) or []
+            bars = bars_for_timeframe(historicals.get(symbol) or {}, tf)
             symbol_hits.extend(detect_patterns(bars, timeframe=tf))
         technicals["symbols"][symbol] = {
             "pattern_hits": symbol_hits,

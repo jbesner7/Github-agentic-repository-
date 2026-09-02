@@ -21,7 +21,7 @@ Do not run two place-capable Automations. Git updates do **not** change the past
 - Max **one** open position. Options size **1** contract. Equities: whole shares up to buying power.
 - Options: long call / long put, DTE 0–7, ATM else one OTM, abs(delta) 0.40–0.50 from RH quotes only. SL **−20%** / TP **+40%** of premium. May **hold overnight** with the broker stop. No new option entries overnight or after 15:45 ET.
 - Equities: long shares only. SL **−20%** / TP **+25%** of cost. **Flatten before 16:00 ET.** No new entries after 15:45 ET.
-- Scan and buy **RTH only** (Mon–Fri 09:30–16:00 ET). Intraday bars: `10minute` (Robinhood MCP has no `15minute`).
+- Scan and buy **RTH only** (Mon–Fri 09:30–16:00 ET). Intraday graphs: live + **1m / 3m / 5m** (`minute`, aggregated 3m, `5minute`). RH has no native `3minute` or `15minute`.
 - After a fill: broker **STOP only**. No OCO. TP is watched on later RTH runs.
 
 ## H schedule
@@ -40,3 +40,5 @@ python3 -m pytest pipeline/tests -q
 ## Kill switch
 
 Disable Agentic AI Bot, or delete `config/autonomous_permissions.json`.
+
+

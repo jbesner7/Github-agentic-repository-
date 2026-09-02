@@ -3,9 +3,14 @@
 Status: **ACTIVE for signal detection heuristics** (refine anytime).
 
 ## Timeframes
-- 10-minute (Robinhood MCP has no 15-minute bars)
-- 1-hour
-- Daily
+- **Live quote** (`get_equity_quotes`)
+- **1-minute** — Robinhood `interval=minute` (not `1minute`)
+- **3-minute** — not a Robinhood interval; aggregate 1-minute bars with `pipeline.bars.aggregate_to_minutes(..., 3)`
+- **5-minute** — Robinhood `interval=5minute`
+- **1-hour** — Robinhood `interval=hour`
+- **Daily** — Robinhood `interval=day`
+
+Robinhood MCP has no `3minute` and no `15minute`. Do not pass those strings to `get_equity_historicals`.
 
 ## Patterns
 1. Head and shoulders (bearish)

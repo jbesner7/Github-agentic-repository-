@@ -27,13 +27,15 @@ def test_working_option_and_equity_states():
     assert not has_working_orders([{"state": "rejected"}], [{"state": "filled"}])
 
 
-def test_rules_json_matches_working_states_and_10minute():
+def test_rules_json_matches_working_states_and_intraday_graphs():
     rules = load_rules()
     assert set(rules["orders"]["option_working_states"]) == set(OPTION_WORKING_STATES)
     assert set(rules["orders"]["equity_working_states"]) == set(EQUITY_WORKING_STATES)
-    assert rules["patterns"]["timeframes"] == ["10minute", "hour", "day"]
-    assert rules["historicals"]["intraday_interval"] == "10minute"
+    assert rules["patterns"]["timeframes"] == ["minute", "3minute", "5minute", "hour", "day"]
+    assert rules["historicals"]["intraday_interval"] == "minute"
+    assert rules["historicals"]["live"] == "get_equity_quotes"
     assert "15minute" not in rules["patterns"]["timeframes"]
+    assert "3minute" not in rules["historicals"]["rh_native_intervals"]
     assert rules["options"]["may_hold_overnight_with_stop"] is True
     assert rules["options"]["flatten_at_close"] is False
     assert rules["options"]["overnight_lock_confirmed"] == "2026-08-31"
