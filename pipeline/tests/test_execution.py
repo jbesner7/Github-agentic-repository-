@@ -54,6 +54,36 @@ def test_place_blocked_while_h_owns_rth():
     assert reason == "h_owns_rth_while_enabled"
 
 
+def test_place_blocked_before_0945_for_options_even_if_h_disabled():
+    monday_0930 = datetime(2026, 8, 31, 9, 30, tzinfo=ET)
+    monday_0944 = datetime(2026, 8, 31, 9, 44, 59, tzinfo=ET)
+    monday_0945 = datetime(2026, 8, 31, 9, 45, tzinfo=ET)
+    blocked, reason = can_place_live(
+        explicit_confirm=True, playbook_released=True, h_enabled=False, now=monday_0930
+    )
+    assert not blocked and reason == "no_new_option_entries_before_0945"
+    blocked2, reason2 = can_place_live(
+        explicit_confirm=True, playbook_released=True, h_enabled=False, now=monday_0944
+    )
+    assert not blocked2 and reason2 == "no_new_option_entries_before_0945"
+    ok, ok_reason = can_place_live(
+        explicit_confirm=True, playbook_released=True, h_enabled=False, now=monday_0945
+    )
+    assert ok and ok_reason is None
+
+
+def test_equity_place_allowed_at_open_if_h_disabled():
+    monday_0930 = datetime(2026, 8, 31, 9, 30, tzinfo=ET)
+    ok, reason = can_place_live(
+        explicit_confirm=True,
+        playbook_released=True,
+        playbook_kind="equity",
+        h_enabled=False,
+        now=monday_0930,
+    )
+    assert ok and reason is None
+
+
 def test_place_allowed_during_rth_if_h_disabled():
     ok, reason = can_place_live(
         explicit_confirm=True, playbook_released=True, h_enabled=False, now=MONDAY_RTH

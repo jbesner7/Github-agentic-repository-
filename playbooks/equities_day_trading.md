@@ -4,7 +4,7 @@
 
 Live `place_*` from **this Cursor chat (Agent F)** still requires an explicit confirm of a **specific** order. This release is not a blanket authorize-all.
 
-Autonomous placing is Agent H, options first, then this playbook as the equity path. Disable the Automation to turn H OFF.
+This playbook is **Agent F only**. Agent H is **options-only** (`equity_fallback: false`) and must never open shares. F may use this path after a specific confirm, and only when H is disabled or F has an explicit RTH override. Disable the Automation to turn H OFF.
 
 ## Locked numbers (copied, not new)
 

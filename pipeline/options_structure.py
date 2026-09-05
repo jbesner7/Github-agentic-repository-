@@ -69,27 +69,37 @@ def strikes_bracket_spot(spot: float, instruments: list[dict[str, Any]], *, opti
     return min(strikes) <= spot <= max(strikes)
 
 
+def _atm_sort_key(row: dict[str, Any], spot: float, option_type: str) -> tuple[float, float]:
+    strike = _strike(row)
+    distance = abs(strike - spot)
+    ot = option_type.strip().lower()
+    # Tie: lower strike for calls, higher strike for puts.
+    if ot in ("put", "p"):
+        return (distance, -strike)
+    return (distance, strike)
+
+
 def rank_atm_then_one_otm(
     spot: float,
     instruments: list[dict[str, Any]],
     *,
     option_type: str,
 ) -> list[dict[str, Any]]:
-    """ATM is the nearest strike (no 1% cutoff). Then one OTM if it is a different contract."""
+    """ATM is the nearest strike (no 1% cutoff). Then exactly one listed strike OTM from ATM."""
     typed = _typed_instruments(instruments, option_type)
     if not typed or spot <= 0:
         return []
-    typed_sorted = sorted(typed, key=lambda row: abs(_strike(row) - spot))
+    typed_sorted = sorted(typed, key=lambda row: _atm_sort_key(row, spot, option_type))
     atm = typed_sorted[0]
     ranked: list[dict[str, Any]] = [{"selection": "atm", "instrument": atm}]
-
-    if option_type.strip().lower() in ("call", "c"):
-        otm = sorted((row for row in typed if _strike(row) > spot), key=_strike)
+    atm_strike = _strike(atm)
+    ot = option_type.strip().lower()
+    if ot in ("call", "c"):
+        farther = sorted((row for row in typed if _strike(row) > atm_strike), key=_strike)
     else:
-        otm = sorted((row for row in typed if _strike(row) < spot), key=_strike, reverse=True)
-
-    if otm and not _same_instrument(otm[0], atm):
-        ranked.append({"selection": "one_otm", "instrument": otm[0]})
+        farther = sorted((row for row in typed if _strike(row) < atm_strike), key=_strike, reverse=True)
+    if farther and not _same_instrument(farther[0], atm):
+        ranked.append({"selection": "one_otm", "instrument": farther[0]})
     return ranked
 
 
@@ -116,7 +126,7 @@ def filter_expirations(
     expiration_dates: list[str],
     *,
     max_dte: int,
-    min_dte: int = 0,
+    min_dte: int = 2,
     as_of: date | None = None,
 ) -> list[str]:
     as_of = as_of or today_et()
@@ -126,3 +136,31 @@ def filter_expirations(
         if min_dte <= days <= max_dte:
             out.append(exp)
     return sorted(out)
+
+
+def rank_expirations(
+    expiration_dates: list[str],
+    *,
+    overnight_holding_enabled: bool,
+    as_of: date | None = None,
+    same_day_min_dte: int = 2,
+    same_day_max_dte: int = 3,
+    overnight_min_dte: int = 4,
+    overnight_max_dte: int = 7,
+    hard_min_dte: int = 2,
+    hard_max_dte: int = 7,
+) -> list[str]:
+    """Deterministic expiration group. Ascending DTE inside the one permitted group."""
+    as_of = as_of or today_et()
+    if overnight_holding_enabled:
+        lo, hi = overnight_min_dte, overnight_max_dte
+    else:
+        lo, hi = same_day_min_dte, same_day_max_dte
+    lo = max(lo, hard_min_dte)
+    hi = min(hi, hard_max_dte)
+    ranked: list[tuple[int, str]] = []
+    for exp in expiration_dates:
+        days = dte(exp, as_of=as_of)
+        if lo <= days <= hi:
+            ranked.append((days, exp))
+    return [exp for _, exp in sorted(ranked)]

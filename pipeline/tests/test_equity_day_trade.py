@@ -12,7 +12,14 @@ from pipeline.equity_day_trade import (
 )
 from pipeline.execution import build_equity_entry_proposal, can_place_live
 from pipeline.risk import equity_risk_plan
-from pipeline.session import ET, entries_open, flatten_window, is_rth, session_gate
+from pipeline.session import (
+    ET,
+    entries_open,
+    flatten_window,
+    is_rth,
+    option_entries_open,
+    session_gate,
+)
 
 
 def test_session_rth_and_1545_cutoff():
@@ -26,14 +33,23 @@ def test_session_rth_and_1545_cutoff():
     assert not is_rth(sunday_noon)
     assert is_rth(monday_open)
     assert is_rth(monday_morning)
+    assert entries_open(monday_open)
+    assert not option_entries_open(monday_open)
     assert entries_open(monday_morning)
+    assert option_entries_open(monday_morning)
     assert is_rth(monday_1545)
     assert not entries_open(monday_1545)
+    assert not option_entries_open(monday_1545)
     assert flatten_window(monday_1545)
     assert not is_rth(monday_close)
     assert not is_rth(monday_pre)
     gate = session_gate(monday_1545)
     assert gate["reason"] == "no_new_entries_after_1545"
+    assert gate["option_reason"] == "no_new_entries_after_1545"
+    open_gate = session_gate(monday_open)
+    assert open_gate["entries_open"] is True
+    assert open_gate["option_entries_open"] is False
+    assert open_gate["option_reason"] == "no_new_option_entries_before_0945"
 
 
 def test_whole_share_size_uses_floor_and_buying_power_cap():
@@ -221,6 +237,9 @@ def test_pipeline_writes_equity_candidate_without_placing(tmp_path, monkeypatch)
     assert summary["equity_candidate_count"] == 1
     payload = json.loads((signals / "equity_candidates.json").read_text())
     assert payload["do_not_place"] is True
+    assert payload["h_entry_ready"] is False
+    assert payload["agent_h_may_use"] is False
+    assert summary["h_entry_ready"] is False
     cand = payload["candidates"][0]
     assert cand["symbol"] == "AAPL"
     assert cand["side"] == "buy"
@@ -275,7 +294,7 @@ def test_option_candidate_uses_mid_and_falls_back_to_one_otm(tmp_path, monkeypat
 
     orch, signals, journal = _pipeline_dirs(tmp_path, monkeypatch)
     bars = _double_bottom_bars()
-    exp = (today_et() + timedelta(days=4)).isoformat()
+    exp = (today_et() + timedelta(days=3)).isoformat()
     raw = {
         "watchlists": [{"id": "1", "display_name": "T"}],
         "watchlist_items_by_id": {"1": [{"object_type": "instrument", "symbol": "AAPL"}]},
@@ -319,7 +338,50 @@ def test_option_candidate_uses_mid_and_falls_back_to_one_otm(tmp_path, monkeypat
     assert cand["premium_source"] == "mid"
     assert cand["cash_debit"] == pytest.approx(102.5)
     assert payload["do_not_place"] is True
+    assert payload["h_entry_ready"] is False
+    assert "hour_confirm" in payload["h_still_requires"]
     assert (journal / f"{today_et().isoformat()}.md").exists()
+
+
+def test_inverse_etf_never_becomes_option_candidate(tmp_path, monkeypatch):
+    import json
+    from datetime import timedelta
+
+    from pipeline.session import today_et
+
+    orch, signals, _journal = _pipeline_dirs(tmp_path, monkeypatch)
+    bars = _double_bottom_bars()
+    exp = (today_et() + timedelta(days=3)).isoformat()
+    raw = {
+        "watchlists": [{"id": "1", "display_name": "T"}],
+        "watchlist_items_by_id": {"1": [{"object_type": "instrument", "symbol": "SQQQ"}]},
+        "fundamentals_by_symbol": {
+            "SQQQ": {"average_volume": 20_000_000, "name": "ProShares UltraPro Short QQQ"}
+        },
+        "historicals_by_symbol_timeframe": {"SQQQ": {"day": bars}},
+        "buying_power": 1500.0,
+        "spots_by_symbol": {"SQQQ": 10.0},
+        "option_chains_by_symbol": {"SQQQ": {"expiration_dates": [exp]}},
+        "option_instruments_by_symbol_exp": {
+            f"SQQQ|{exp}": [
+                {"id": "atm", "type": "call", "strike_price": "10"},
+                {"id": "otm", "type": "call", "strike_price": "11"},
+            ]
+        },
+        "option_quotes_by_id": {
+            "atm": {"bid_price": "1.00", "ask_price": "1.05", "delta": "0.45"},
+        },
+        "portfolio": {"start_of_day_equity": "1500.00", "total_value": "1512"},
+    }
+    summary = orch.run_pipeline(raw)
+    assert summary["option_candidate_count"] == 0
+    assert summary["equity_candidate_count"] == 0
+    assert "SQQQ" not in summary["eligible_equities"]
+    assert summary["bod_nlv"] == 1500.0
+    assert summary["bod_nlv_field"] == "start_of_day_equity"
+    universe = json.loads((signals / "universe.json").read_text())
+    reasons = {row["symbol"]: row["reason"] for row in universe["liquidity"]["rejected"]}
+    assert reasons["SQQQ"] == "inverse_etf"
 
 
 def test_option_candidate_rejects_debit_above_buying_power(tmp_path, monkeypatch):
@@ -330,7 +392,7 @@ def test_option_candidate_rejects_debit_above_buying_power(tmp_path, monkeypatch
 
     orch, signals, _journal = _pipeline_dirs(tmp_path, monkeypatch)
     bars = _double_bottom_bars()
-    exp = (today_et() + timedelta(days=4)).isoformat()
+    exp = (today_et() + timedelta(days=3)).isoformat()
     raw = {
         "watchlists": [{"id": "1", "display_name": "T"}],
         "watchlist_items_by_id": {"1": [{"object_type": "instrument", "symbol": "AAPL"}]},
@@ -365,7 +427,7 @@ def test_incomplete_option_page_is_rejected(tmp_path, monkeypatch):
 
     orch, signals, _journal = _pipeline_dirs(tmp_path, monkeypatch)
     bars = _double_bottom_bars()
-    exp = (today_et() + timedelta(days=4)).isoformat()
+    exp = (today_et() + timedelta(days=3)).isoformat()
     raw = {
         "watchlists": [{"id": "1", "display_name": "T"}],
         "watchlist_items_by_id": {"1": [{"object_type": "instrument", "symbol": "AAPL"}]},
