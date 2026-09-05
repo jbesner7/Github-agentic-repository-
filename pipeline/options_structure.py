@@ -126,7 +126,7 @@ def filter_expirations(
     expiration_dates: list[str],
     *,
     max_dte: int,
-    min_dte: int = 0,
+    min_dte: int = 2,
     as_of: date | None = None,
 ) -> list[str]:
     as_of = as_of or today_et()

@@ -15,9 +15,17 @@ from pipeline.options_structure import (
     strikes_bracket_spot,
 )
 from pipeline.patterns import collect_pattern_hits
+from pipeline.quotes import extract_bod_nlv
 from pipeline.risk import equity_risk_plan, options_risk_plan
 from pipeline.session import today_et
 from pipeline.universe import apply_liquidity_filter, extract_watchlist_symbols, option_quote_liquid
+
+PHASE2_SNAPSHOT_NOTE = (
+    "Pipeline snapshot. Daily-pattern screen only. Not H-entry-ready: "
+    "does not confirm hour alignment, 10m breakout/retest, live trigger, "
+    "IV, volume/OI, quote age, event blackout, BOD NLV, or dual fee ceilings. "
+    "Re-quote live. Never place from this file. Agent H must ignore equity_candidates."
+)
 
 
 def dominant_bias(pattern_hits: list[dict[str, Any]]) -> str | None:
@@ -38,7 +46,8 @@ def _snapshot(payload: dict[str, Any]) -> dict[str, Any]:
     return {
         **payload,
         "do_not_place": True,
-        "snapshot_note": "Pipeline snapshot. Re-quote live. Never place from this file.",
+        "h_entry_ready": False,
+        "snapshot_note": PHASE2_SNAPSHOT_NOTE,
     }
 
 
@@ -309,6 +318,25 @@ def run_pipeline(raw: dict[str, Any]) -> dict[str, Any]:
                 "candidates": option_candidates,
                 "equity_fallbacks": equity_fallbacks,
                 "max_contracts": rules["options"]["max_contracts"],
+                "phase2_checks": [
+                    "daily_pattern",
+                    "expiration_group",
+                    "atm_otm",
+                    "signed_delta",
+                    "spread",
+                    "buying_power",
+                ],
+                "h_still_requires": [
+                    "hour_confirm",
+                    "10m_breakout_retest",
+                    "live_trigger",
+                    "iv",
+                    "volume_oi",
+                    "quote_age",
+                    "event_blackout",
+                    "bod_nlv",
+                    "dual_fee_ceilings",
+                ],
             }
         ),
     )
@@ -341,6 +369,8 @@ def run_pipeline(raw: dict[str, Any]) -> dict[str, Any]:
                 "side": "long_only",
                 "no_shorting": True,
                 "priority": "options_first",
+                "agent_h_may_use": False,
+                "agent_h_equity_fallback": False,
                 "candidates": equity_candidates,
                 "rejected": equity_rejects,
                 "option_fallback_notes": equity_fallbacks,
@@ -385,15 +415,19 @@ def run_pipeline(raw: dict[str, Any]) -> dict[str, Any]:
         ),
     )
 
+    bod_nlv, bod_field = extract_bod_nlv(raw.get("portfolio"))
     summary = {
         "as_of": as_of,
         "phase": 2,
         "places_orders": False,
+        "h_entry_ready": False,
         "eligible_equities": liq["passed_symbols"],
         "option_candidate_count": len(option_candidates),
         "equity_candidate_count": len(equity_candidates),
         "equity_fallback_count": len(equity_fallbacks),
         "risk_plan_count": len(risk_plans),
+        "bod_nlv": bod_nlv,
+        "bod_nlv_field": bod_field,
         "open_questions": rules.get("open_questions", []),
     }
     write_json(SIGNALS / "phase2_summary.json", _snapshot(summary))

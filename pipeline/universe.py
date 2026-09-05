@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import Any
 
+from pipeline.equity_day_trade import is_inverse_etf
+
 
 CRYPTO_OBJECT_TYPES = {"currency_pair", "tokenized_stock"}
 EQUITY_OBJECT_TYPES = {"instrument"}
@@ -98,6 +100,9 @@ def apply_liquidity_filter(
 
     for symbol in symbols:
         fund = fundamentals_by_symbol.get(symbol) or {}
+        if is_inverse_etf(symbol, fund):
+            rejected.append({"symbol": symbol, "reason": "inverse_etf"})
+            continue
         # RH fundamentals field names can vary; accept common keys only if present.
         avg_vol = None
         for key in (

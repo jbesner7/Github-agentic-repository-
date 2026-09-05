@@ -4,7 +4,7 @@ This repo is a gated Robinhood pipeline for **Agentic ••••2907** only. M
 
 ## Roles
 
-- **F (this chat):** supervised. `place_*` only after an explicit confirm of a **specific** order. If H is enabled, do not place during RTH. Re-quote live. Never place from `signals/*`. F may still use the equities playbook after a specific confirm. Option tickets follow the same cancel-confirm, stop/TP conflict, pagination, signed-delta, dual fee, and quote-freshness rules as H.
+- **F (this chat):** supervised. `place_*` only after an explicit confirm of a **specific** order. If H is enabled, do not place during RTH. Re-quote live. Never place from `signals/*`. F may still use the equities playbook after a specific confirm. `pipeline/execution.py` enforces confirm, playbook release, RTH, the **15:45** ceiling, **09:45** for options, and H-owns-RTH. Fee, signed-delta, quote-freshness, BOD NLV, pagination, and cancel-confirm are **live F obligations** on the same numbers as H — they are not automated in `can_place_live`.
 - **H (Automation):** unsupervised. Canonical prompt: `playbooks/agent_h_autonomous.PROMPT.md` (`schema_version` **2026-09-05.2**). Re-paste after every prompt change. One Automation only (`9af478e7-a454-11f1-a7d1-d6b4613131ce`). **Options only** — no equity fallback. Set the Automation scheduler to **maximum concurrent runs = 1**.
 
 ## Source of truth
@@ -19,7 +19,7 @@ This repo is a gated Robinhood pipeline for **Agentic ••••2907** only. M
 
 RTH = Mon–Fri 09:30 inclusive–16:00 exclusive, `America/New_York`. No extended/overnight/weekend **scan or buy**. Equities flatten before close (F only).
 
-Agent H new entries: never before **09:45 ET**. Practical 10m+retest window is about **13:10–15:45 ET**. Monitor from 09:30. Hard DTE range **2–7** (no 0–1 DTE; owner-only re-enable on `main`). While overnight is disabled, H evaluates **2–3 DTE only**. Recalculate **current DTE** every run. Expiration day: begin flatten **15:30**, absolute **15:45**. DTE 1–3: begin flatten **15:40**, flat by **15:45**. Overnight holding is **off** until a live GTC option stop is accepted and verified — this MCP documents `stop_market` as GFD-only. The stop is not guaranteed risk.
+Agent H and F option entries: never before **09:45 ET**. Practical H 10m+retest window is about **13:10–15:45 ET**. Equity day trades (F only) may start at 09:30 if H is disabled. Monitor from 09:30. Hard DTE range **2–7** (no 0–1 DTE; owner-only re-enable on `main`). While overnight is disabled, H evaluates **2–3 DTE only**. Recalculate **current DTE** every run. Expiration day: begin flatten **15:30**, absolute **15:45**. DTE 1–3: begin flatten **15:40**, flat by **15:45**. Overnight holding is **off** until a live GTC option stop is accepted and verified — this MCP documents `stop_market` as GFD-only. The stop is not guaranteed risk.
 
 Prefer a broker **beginning-of-day NLV**. Midday first-fire equity is `first_fire_baseline_nlv` only and cannot authorize a new H entry. If genuine BOD NLV cannot be established: exits/protection only.
 

@@ -91,6 +91,20 @@ def test_rules_json_matches_working_states_and_10minute():
     assert rules["agent_h"]["scheduler_must_enforce_max_concurrent_runs"] == 1
     assert rules["agent_h"]["apply_both_fee_ceilings_on_every_trade"] is True
     assert rules["agent_h"]["bod_nlv_unavailable_means_no_new_entry"] is True
+    assert rules["priority_does_not_authorize_agent_h_equity"] is True
+    assert rules["agent_h"]["session_start_required_for_new_entry"] == [
+        "et_trading_date",
+        "first_valid_rth_timestamp_et",
+        "account",
+        "bod_nlv",
+        "bod_nlv_field",
+        "daily_loss_limit_usd",
+    ]
+    assert rules["agent_h"]["session_start_diagnostic_only_fields"] == ["first_fire_baseline_nlv"]
+    assert (
+        rules["agent_h"]["forced_liquidation"]["leftover_4_to_7_dte_while_overnight_disabled"]
+        == "treat_as_dte_1_to_3_begin_1540"
+    )
     assert rules["agent_h"]["protective_stop"]["time_in_force"] == "gtc"
     assert rules["agent_h"]["cancel_lifecycle"]["never_assume_cancel_means_zero_fill"] is True
     assert rules["agent_h"]["entry_order"]["cancel_confirm_before_replacement"] is True

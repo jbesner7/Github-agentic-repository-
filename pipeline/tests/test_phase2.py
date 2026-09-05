@@ -37,6 +37,19 @@ def test_liquidity_volume_gate():
     assert out["rejected"][0]["symbol"] == "BBB"
 
 
+def test_liquidity_rejects_inverse_etfs_before_volume():
+    fund = {
+        "AAA": {"average_volume": 3_000_000},
+        "SQQQ": {"average_volume": 20_000_000, "name": "ProShares UltraPro Short QQQ"},
+        "XYZ": {"average_volume": 5_000_000, "description": "Leveraged inverse daily"},
+    }
+    out = apply_liquidity_filter(["AAA", "SQQQ", "XYZ"], fund, min_average_volume=2_000_000)
+    assert out["passed_symbols"] == ["AAA"]
+    reasons = {row["symbol"]: row["reason"] for row in out["rejected"]}
+    assert reasons["SQQQ"] == "inverse_etf"
+    assert reasons["XYZ"] == "inverse_etf"
+
+
 def test_option_spread_gate():
     preferred, reason, pref_m = option_quote_liquid(
         {"bid_price": "1.00", "ask_price": "1.05"},
@@ -152,6 +165,12 @@ def test_atm_pick_and_dte():
     assert pick["instrument"]["id"] == "1"
     exps = filter_expirations(["2099-01-01", "2026-09-02"], max_dte=7, as_of=date(2026, 8, 30))
     assert exps == ["2026-09-02"]
+    default_min = filter_expirations(
+        ["2026-08-30", "2026-08-31", "2026-09-01", "2026-09-02"],
+        max_dte=7,
+        as_of=date(2026, 8, 30),
+    )
+    assert default_min == ["2026-09-01", "2026-09-02"]
     locked = filter_expirations(
         ["2026-08-30", "2026-08-31", "2026-09-02"],
         min_dte=2,

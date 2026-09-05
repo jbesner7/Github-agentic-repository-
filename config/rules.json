@@ -15,6 +15,8 @@
     "dedupe_symbols": true
   },
   "priority": ["options", "equity"],
+  "priority_owner": "phase2_and_agent_f",
+  "priority_does_not_authorize_agent_h_equity": true,
   "patterns": {
     "timeframes": ["10minute", "hour", "day"],
     "types": [
@@ -186,6 +188,17 @@
       "bod_nlv_field",
       "first_fire_baseline_nlv",
       "daily_loss_limit_usd"
+    ],
+    "session_start_required_for_new_entry": [
+      "et_trading_date",
+      "first_valid_rth_timestamp_et",
+      "account",
+      "bod_nlv",
+      "bod_nlv_field",
+      "daily_loss_limit_usd"
+    ],
+    "session_start_diagnostic_only_fields": [
+      "first_fire_baseline_nlv"
     ],
     "session_start_nlv_account_mask": "••••2907",
     "session_start_write_atomic": true,
@@ -465,6 +478,7 @@
     "forced_liquidation": {
       "dte_0_begin": "15:30",
       "dte_1_to_3_begin": "15:40",
+      "leftover_4_to_7_dte_while_overnight_disabled": "treat_as_dte_1_to_3_begin_1540",
       "cancel_and_confirm_protective_stop_first": true,
       "initial_limit": "live_bid",
       "requote_and_replace_once_after_seconds": 15,
