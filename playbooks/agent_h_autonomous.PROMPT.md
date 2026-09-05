@@ -92,7 +92,12 @@ Cancels: `cancel_option_order` only for **your** open option orders on •••
 - Risk uses **both** definitions on the **limit** (not mid):
   - `debit = option_limit_price × 100` = maximum possible loss (full debit)
   - `planned_loss = debit × 0.20` (**excludes fees**)
-  - **0.5% gate:** `planned_loss + estimated_entry_and_exit_fees` ≤ **0.5% of current NLV**. Prefer fee figures from `review_option_order` (entry) and the same estimate for exit. If reliable fee estimates are **unavailable**: require `planned_loss` ≤ **0.49% of current NLV** (small buffer) and do not invent fees.
+  - **0.5% gate (after `review_option_order`):**
+    - `entry_fee` = the review’s disclosed entry fee for this 1-contract ticket (sum fee fields if several; do not invent).
+    - If that fee is **missing or unreadable**: do not invent a fee. Require `planned_loss` ≤ **0.49% of current NLV**.
+    - If the review **explicitly reports $0.00**: accept zero as the fee, and still require `planned_loss` ≤ **0.49% of current NLV**.
+    - If the review reports a **positive** `entry_fee`: `estimated_exit_fee = 2 × entry_fee`, `estimated_round_trip_fees = 3 × entry_fee`. Require `planned_loss + estimated_round_trip_fees` ≤ **0.5% of current NLV**. **Do not** also apply the 0.49% ceiling.
+  - After a trade is fully closed, daily-loss and losing-trade math use **actual net realized P&L after fees and regulatory charges**, never these estimated fees.
   - `debit` ≤ **2.5% of current NLV**
   - If **one contract** exceeds either cap: **skip**. Do not size down below 1. Do not buy 0.
   - Never call the −20% stop “guaranteed risk.” Gaps can take the full debit. Overnight, the stop cannot execute while options are closed — full debit is possible overnight loss.
@@ -187,7 +192,7 @@ Fetch:
 - Start at the **rounded midpoint**: nearest tick. On exact half-tick, round **toward the bid** (passive).
 - **Never exceed the current ask.** If rounded mid > ask, use the ask.
 - Record `max_acceptable_debit` = that first limit, also capped so `limit × 100` ≤ 2.5% of current NLV and the fee-aware 0.5% planned-loss gate in §0 passes. **Never chase above it. No additional chase after the one replacement.**
-- Buying-power test uses the **actual limit**, not the mid: `required_cash = option_limit_price × 100`. Re-read `get_portfolio` **immediately before** `review_*` and again before `place_*`. If `required_cash` > buying power or either current-NLV cap fails: skip. After `review_option_order`, add disclosed fees into `planned_loss + estimated_entry_and_exit_fees` and re-check the 0.5% gate (or the 0.49% buffer if fees are still missing).
+- Buying-power test uses the **actual limit**, not the mid: `required_cash = option_limit_price × 100`. Re-read `get_portfolio` **immediately before** `review_*` and again before `place_*`. If `required_cash` > buying power or the 2.5% debit cap fails: skip. After `review_option_order`, apply the §0 fee rule (`3 ×` positive entry fee, or the 0.49% ceiling if fee is missing, unreadable, or explicitly $0.00). If a replacement review returns a new fee, re-run that same rule on the new review. Do not place if the gate fails.
 - `type=limit`, `time_in_force=gfd`, `market_hours=regular_hours`.
 - Always `review_option_order` then `place_option_order` with the **same** params. New `ref_id` UUID per logical ticket. If `order_checks` block: **do not place**.
 - **Pending-entry policy:** poll `get_option_orders` until filled, partially filled, cancelled, or timeout.

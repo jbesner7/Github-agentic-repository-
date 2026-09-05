@@ -67,7 +67,10 @@ def test_rules_json_matches_working_states_and_10minute():
     assert rules["agent_h"]["patterns"]["retest_tolerance_pct"] == 0.002
     assert rules["agent_h"]["patterns"]["live_trigger_beyond_breakout_pct"] == 0.001
     assert rules["agent_h"]["patterns"]["volume_statistic"] == "median"
-    assert rules["agent_h"]["risk_gate_if_fees_unavailable"] == "planned_loss <= 0.49% current NLV"
+    assert rules["agent_h"]["estimated_round_trip_fees"] == "3 * entry_fee_from_review"
+    assert rules["agent_h"]["risk_gate_if_fee_missing_unreadable_or_explicit_zero"] == "planned_loss <= 0.49% current NLV"
+    assert rules["agent_h"]["do_not_apply_049_ceiling_when_positive_fee_included"] is True
+    assert rules["agent_h"]["closed_trade_uses_actual_net_pnl_not_estimated_fees"] is True
     assert rules["agent_h"]["allow_0dte"] is False
     assert rules["universe"]["include_index_options"] is False
     assert rules["options"]["min_dte"] == 2
