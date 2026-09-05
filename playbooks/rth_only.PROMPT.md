@@ -3,10 +3,10 @@
 Do **not** paste this file into an Automation.
 
 Canonical prompt: `playbooks/agent_h_autonomous.PROMPT.md`.
-Canonical rules: `config/rules.json`.
+Canonical rules: `config/rules.json` → `agent_h` (`schema_version` 2026-09-05.2).
 
 RTH = Mon–Fri 09:30 inclusive–16:00 exclusive, `America/New_York`.
 No extended, overnight, or weekend **scan or buy**.
-Agent H: no new option entry before 09:45 ET. Recalculate current DTE every run. Expiration day: target 15:30 ET, absolute 15:45 ET. Current DTE ≤ 3 flatten by 15:45 ET.
-Current DTE ≥ 4 longs **may be held overnight** with the broker stop (never through earnings/binary; stop is not guaranteed). Equities flatten before 16:00 ET (F only; H has no equity fallback).
-Agent H charts: daily → 1-hour → completed 10-minute → live quote. No 1m / 3m / 5m.
+Agent H: no new option entry before 09:45 ET. Practical 10m+retest window is about 13:10–15:45 ET. Recalculate current DTE every run. Expiration day: begin 15:30 ET, absolute 15:45 ET. DTE 1–3: begin 15:40 ET, flat by 15:45 ET.
+Overnight holding is **disabled** until a live GTC option stop is accepted and verified (MCP documents `stop_market` as GFD-only). Flatten every open option by 15:45 ET. Equities flatten before 16:00 ET (F only; H has no equity fallback).
+Agent H charts: daily → 1-hour → completed 10-minute → live quote. Daily neckline governs the 10m breakout. No 1m / 3m / 5m.

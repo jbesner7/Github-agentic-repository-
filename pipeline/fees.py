@@ -112,7 +112,7 @@ def _quoted(entry_fee: float, source: str) -> dict[str, Any]:
         "entry_fee": entry_fee,
         "journal": source,
         "source": source,
-        "apply_049_ceiling": False,
+        "apply_049_ceiling": True,
         "estimated_exit_fee": 2.0 * entry_fee,
         "estimated_round_trip_fees": 3.0 * entry_fee,
     }
@@ -314,14 +314,17 @@ def fee_aware_planned_loss_ok(
     current_nlv: float,
     classification: dict[str, Any],
 ) -> bool:
-    """True if the fee-aware planned-loss gate passes. Other risk checks are separate."""
+    """Both ceilings apply on every trade. Missing fees count as $0 in the 0.50% sum."""
     if current_nlv <= 0 or planned_loss < 0:
         return False
-    status = classification.get("fee_status")
-    entry_fee = classification.get("entry_fee")
-    if status == "quoted" and isinstance(entry_fee, (int, float)) and entry_fee > 0:
-        return (
-            planned_loss + (3.0 * float(entry_fee))
-            <= PLANNED_LOSS_CEILING_WITH_QUOTED_FEE * current_nlv
-        )
-    return planned_loss <= PLANNED_LOSS_CEILING_IF_FEE_UNAVAILABLE_OR_ZERO * current_nlv
+    if planned_loss > PLANNED_LOSS_CEILING_IF_FEE_UNAVAILABLE_OR_ZERO * current_nlv + 1e-12:
+        return False
+    round_trip = classification.get("estimated_round_trip_fees")
+    if not isinstance(round_trip, (int, float)):
+        round_trip = 0.0
+    if float(round_trip) < 0:
+        return False
+    return (
+        planned_loss + float(round_trip)
+        <= PLANNED_LOSS_CEILING_WITH_QUOTED_FEE * current_nlv + 1e-12
+    )

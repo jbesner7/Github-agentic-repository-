@@ -6,8 +6,11 @@ from pipeline.options_structure import (
     filter_expirations,
     pick_atm_or_one_otm,
     rank_atm_then_one_otm,
+    rank_expirations,
     strikes_bracket_spot,
 )
+from pipeline.patterns import rank_daily_setups
+from pipeline.quotes import executable_underlying_price, extract_bod_nlv
 from pipeline.patterns import collect_pattern_hits, detect_patterns
 from pipeline.risk import equity_risk_plan, options_risk_plan
 from pipeline.session import today_et
@@ -92,10 +95,16 @@ def test_greeks_no_invention():
     pack = extract_greeks(q)
     assert pack["greeks"]["delta"] == 0.45
     assert "theta" in pack["missing_fields"]
-    ok, _ = delta_in_band(0.45, lo=0.4, hi=0.5)
+    ok, _ = delta_in_band(0.45, option_type="call", lo=0.4, hi=0.5)
     assert ok
-    bad, reason = delta_in_band(0.9, lo=0.4, hi=0.5)
+    bad, reason = delta_in_band(0.9, option_type="call", lo=0.4, hi=0.5)
     assert not bad and reason is not None
+    put_ok, _ = delta_in_band(-0.45, option_type="put", lo=0.4, hi=0.5)
+    assert put_ok
+    inverted, inv_reason = delta_in_band(0.45, option_type="put", lo=0.4, hi=0.5)
+    assert not inverted and inv_reason is not None
+    abs_call, abs_reason = delta_in_band(-0.45, option_type="call", lo=0.4, hi=0.5)
+    assert not abs_call and abs_reason is not None
 
 
 def test_options_risk_math():
@@ -189,6 +198,74 @@ def test_today_et_uses_new_york_calendar_not_utc():
     assert today_et(utc_after_midnight).isoformat() == "2026-08-31"
     et_evening = datetime(2026, 8, 31, 22, 0, tzinfo=ZoneInfo("America/New_York"))
     assert today_et(et_evening).isoformat() == "2026-08-31"
+
+
+def test_atm_tie_and_otm_are_measured_from_atm():
+    instruments = [
+        {"id": "low", "type": "call", "strike_price": "100"},
+        {"id": "high", "type": "call", "strike_price": "101"},
+        {"id": "higher", "type": "call", "strike_price": "102"},
+    ]
+    call_ranked = rank_atm_then_one_otm(100.5, instruments, option_type="call")
+    assert call_ranked[0]["instrument"]["id"] == "low"
+    assert call_ranked[1]["instrument"]["id"] == "high"
+
+    puts = [
+        {"id": "low", "option_type": "put", "strike": "100"},
+        {"id": "high", "option_type": "put", "strike": "101"},
+        {"id": "higher", "option_type": "put", "strike": "102"},
+    ]
+    put_ranked = rank_atm_then_one_otm(100.5, puts, option_type="put")
+    assert put_ranked[0]["instrument"]["id"] == "high"
+    assert put_ranked[1]["instrument"]["id"] == "low"
+
+    call_above_spot = rank_atm_then_one_otm(100.6, instruments, option_type="call")
+    assert call_above_spot[0]["instrument"]["id"] == "high"
+    assert call_above_spot[1]["instrument"]["id"] == "higher"
+
+
+def test_expiration_rank_uses_same_day_group_when_overnight_off():
+    dates = ["2026-09-07", "2026-09-08", "2026-09-09", "2026-09-11"]
+    as_of = date(2026, 9, 5)
+    same_day = rank_expirations(dates, overnight_holding_enabled=False, as_of=as_of)
+    assert same_day == ["2026-09-07", "2026-09-08"]
+    overnight = rank_expirations(dates, overnight_holding_enabled=True, as_of=as_of)
+    assert overnight == ["2026-09-09", "2026-09-11"]
+
+
+def test_underlying_quote_and_bod_nlv_helpers():
+    now = datetime(2026, 9, 4, 17, 30, tzinfo=timezone.utc)
+    fresh = {
+        "bid_price": "10.00",
+        "ask_price": "10.10",
+        "last_trade_price": "10.04",
+        "updated_at": "2026-09-04T17:29:58Z",
+    }
+    price, reason = executable_underlying_price(fresh, now=now)
+    assert reason is None
+    assert price == 10.04
+    outside = dict(fresh, last_trade_price="10.50")
+    mid, mid_reason = executable_underlying_price(outside, now=now)
+    assert mid_reason is None
+    assert mid == 10.05
+    stale, stale_reason = executable_underlying_price(
+        dict(fresh, updated_at="2026-09-04T17:29:50Z"), now=now
+    )
+    assert stale is None and stale_reason == "underlying_quote_stale"
+    amount, field = extract_bod_nlv({"start_of_day_equity": "1500.00", "total_value": "1512"})
+    assert amount == 1500.0 and field == "start_of_day_equity"
+    missing, missing_field = extract_bod_nlv({"total_value": "1512"})
+    assert missing is None and missing_field is None
+
+
+def test_daily_setup_rank_is_deterministic():
+    hits = [
+        {"pattern": "ascending_triangle", "timeframe": "day", "bias": "bullish", "indices": [20, 40], "prominence": 2.0},
+        {"pattern": "double_bottom", "timeframe": "day", "bias": "bullish", "indices": [10, 40], "prominence": 1.0},
+        {"pattern": "symmetrical_triangle", "timeframe": "day", "bias": "neutral", "indices": [30, 50], "prominence": 9.0},
+    ]
+    ranked = rank_daily_setups(hits)
+    assert [row["pattern"] for row in ranked] == ["double_bottom", "ascending_triangle"]
 
 
 def test_intraday_patterns_ignored_without_daily_hit():

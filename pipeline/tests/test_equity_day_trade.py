@@ -275,7 +275,7 @@ def test_option_candidate_uses_mid_and_falls_back_to_one_otm(tmp_path, monkeypat
 
     orch, signals, journal = _pipeline_dirs(tmp_path, monkeypatch)
     bars = _double_bottom_bars()
-    exp = (today_et() + timedelta(days=4)).isoformat()
+    exp = (today_et() + timedelta(days=3)).isoformat()
     raw = {
         "watchlists": [{"id": "1", "display_name": "T"}],
         "watchlist_items_by_id": {"1": [{"object_type": "instrument", "symbol": "AAPL"}]},
@@ -330,7 +330,7 @@ def test_option_candidate_rejects_debit_above_buying_power(tmp_path, monkeypatch
 
     orch, signals, _journal = _pipeline_dirs(tmp_path, monkeypatch)
     bars = _double_bottom_bars()
-    exp = (today_et() + timedelta(days=4)).isoformat()
+    exp = (today_et() + timedelta(days=3)).isoformat()
     raw = {
         "watchlists": [{"id": "1", "display_name": "T"}],
         "watchlist_items_by_id": {"1": [{"object_type": "instrument", "symbol": "AAPL"}]},
@@ -365,7 +365,7 @@ def test_incomplete_option_page_is_rejected(tmp_path, monkeypatch):
 
     orch, signals, _journal = _pipeline_dirs(tmp_path, monkeypatch)
     bars = _double_bottom_bars()
-    exp = (today_et() + timedelta(days=4)).isoformat()
+    exp = (today_et() + timedelta(days=3)).isoformat()
     raw = {
         "watchlists": [{"id": "1", "display_name": "T"}],
         "watchlist_items_by_id": {"1": [{"object_type": "instrument", "symbol": "AAPL"}]},

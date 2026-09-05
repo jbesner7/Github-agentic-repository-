@@ -12,7 +12,7 @@ def test_positive_total_fee_is_used_alone():
     assert out["entry_fee"] == 0.65
     assert out["journal"] == "total_fee"
     assert out["estimated_round_trip_fees"] == out["entry_fee"] * 3
-    assert out["apply_049_ceiling"] is False
+    assert out["apply_049_ceiling"] is True
 
 
 def test_zero_total_plus_positive_component_is_fee_conflict():
@@ -54,20 +54,28 @@ def test_missing_total_sums_non_overlapping_components():
     assert out["fee_status"] == "quoted"
     assert out["entry_fee"] == 0.68
     assert out["journal"].startswith("components:")
-    assert out["apply_049_ceiling"] is False
+    assert out["apply_049_ceiling"] is True
 
 
-def test_do_not_apply_049_ceiling_when_positive_fee_is_included():
+def test_both_fee_ceilings_apply_on_every_trade():
     out = classify_review_fees({"total_fee": 0.03})
-    # 7.40 exceeds 0.49% of $1,500 but 7.40 + 3*0.03 = 7.49 still fits 0.50%.
+    # 7.40 exceeds 0.49% of $1,500 even though 7.40 + 3*0.03 still fits 0.50%.
     assert out["fee_status"] == "quoted"
-    assert fee_aware_planned_loss_ok(
-        planned_loss=7.40, current_nlv=NLV, classification=out
-    )
+    assert out["apply_049_ceiling"] is True
     assert 7.40 > CEILING_049
     assert 7.40 + 0.09 <= CEILING_050
     assert not fee_aware_planned_loss_ok(
-        planned_loss=7.42, current_nlv=NLV, classification=out
+        planned_loss=7.40, current_nlv=NLV, classification=out
+    )
+    assert fee_aware_planned_loss_ok(
+        planned_loss=CEILING_049, current_nlv=NLV, classification=out
+    )
+    expensive = classify_review_fees({"total_fee": 1.00})
+    assert not fee_aware_planned_loss_ok(
+        planned_loss=CEILING_049, current_nlv=NLV, classification=expensive
+    )
+    assert fee_aware_planned_loss_ok(
+        planned_loss=4.50, current_nlv=NLV, classification=expensive
     )
 
 
