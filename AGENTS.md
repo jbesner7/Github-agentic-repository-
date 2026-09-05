@@ -23,6 +23,8 @@ Agent H new entries: **09:45–15:45 ET** only. Monitor from 09:30. New entries 
 
 H graphs: **daily + 1-hour + 10-minute** only. Do not use 1m/3m/5m for Agent H. No index options at launch.
 
+H fee gate: prefer a valid **positive** `total_fee`. If `total_fee` is `$0.00` and any component is `> 0`, journal `fee_conflict`, do not trust the zero total, do not estimate, and apply `planned_loss ≤ 0.49%` of current NLV. If every disclosed component is also `$0.00` or absent, accept zero and still apply that 0.49% ceiling.
+
 Robinhood MCP has no `open=true` order filter. Working option states: `queued`, `confirmed`, `partially_filled`, `pending_cancelled`. Working equity states: `new`, `queued`, `confirmed`, `unconfirmed`, `partially_filled`.
 
 ## Journal

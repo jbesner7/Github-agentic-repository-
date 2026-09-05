@@ -164,12 +164,23 @@
     "estimated_exit_fee": "2 * entry_fee_from_review",
     "estimated_round_trip_fees": "3 * entry_fee_from_review",
     "entry_fee_source_hierarchy": [
-      "valid_total_fee_only",
+      "valid_positive_total_fee_only",
+      "zero_total_plus_positive_component_is_fee_conflict",
+      "zero_total_and_zero_or_absent_components_is_explicit_zero",
       "else_sum_non_overlapping_components",
       "never_double_count_subtotal_plus_parts",
       "ambiguous_duplicated_negative_or_unreadable_means_unavailable"
     ],
     "journal_entry_fee_source": true,
+    "journal_fee_conflict": true,
+    "fee_status_values": ["quoted", "explicit_zero", "ambiguous", "unavailable"],
+    "zero_total_plus_positive_component": {
+      "fee_status": "ambiguous",
+      "journal": "fee_conflict",
+      "do_not_sum_or_select_estimate": true,
+      "risk_gate": "planned_loss <= 0.49% current NLV",
+      "continue_only_if_other_risk_checks_pass": true
+    },
     "risk_gate_if_fee_missing_unreadable_or_explicit_zero": "planned_loss <= 0.49% current NLV",
     "do_not_apply_049_ceiling_when_positive_fee_included": true,
     "closed_trade_uses_actual_net_pnl_not_estimated_fees": true,

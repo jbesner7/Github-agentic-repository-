@@ -35,10 +35,10 @@ Agent H mandate: **long call or long put only** on liquid optionable equities an
   - Any leftover equity, option, working entry, or working protective order blocks a new entry
 - Cash caps (both must pass on the limit; skip if one contract fails either):
   - Planned loss = debit × 20% **excluding fees**
-  - `entry_fee` from review: use valid `total_fee` only when present; otherwise sum non-overlapping components (commission / regulatory / contract). Never double-count a subtotal plus its parts. Ambiguous, duplicated, negative, or unreadable → fee unavailable
-  - Journal which field or components produced `entry_fee`
+  - `entry_fee` from review: use valid **positive** `total_fee` only when present. If `total_fee` is $0.00 and any component is > 0: journal `fee_conflict`, no estimate, 0.49% ceiling. If `total_fee` is $0.00 and every component is $0.00 or absent: accept zero, still 0.49% ceiling. Otherwise sum non-overlapping components. Never double-count. Ambiguous, duplicated, negative, or unreadable → fee unavailable
+  - Journal which field or components produced `entry_fee` (`fee_conflict` / `fee_unavailable` / `fee_explicit_zero` when those apply)
   - If `entry_fee` is **positive**: `estimated_round_trip_fees = 3 × entry_fee`; require `planned_loss + estimated_round_trip_fees` ≤ **0.5% of current NLV** (no 0.49% ceiling)
-  - If the fee is unavailable or **explicitly $0.00**: `planned_loss` ≤ **0.49% of current NLV**
+  - If the fee is unavailable, `fee_conflict`, or **explicitly $0.00**: `planned_loss` ≤ **0.49% of current NLV**. Continue only if all other risk checks also pass. Do not sum or select a fee on `fee_conflict`.
   - After close: daily loss and losing-trade flags use **actual net realized P&L**, not estimated fees
   - Full debit = `option_limit_price × 100` ≤ **2.5% of current NLV**
   - Losing trades and daily realized loss use **net P&L after all fees and regulatory charges**

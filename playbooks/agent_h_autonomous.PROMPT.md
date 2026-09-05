@@ -94,11 +94,13 @@ Cancels: `cancel_option_order` only for **your** open option orders on •••
   - `planned_loss = debit × 0.20` (**excludes fees**)
   - **0.5% gate (after `review_option_order`):** parse `entry_fee` with this hierarchy only:
     - **Valid** means present, numeric, finite, and ≥ 0. Negative, duplicated, ambiguous, or unreadable fields → treat the fee as **unavailable**.
-    - If a valid `total_fee` exists: `entry_fee = total_fee`. Do **not** add commission, regulatory, contract, or other component fees on top of it.
-    - Else: sum disclosed **non-overlapping** components only (e.g. commission, regulatory, contract). Never add a subtotal and its parts. If you cannot tell whether fields overlap: unavailable.
-    - Journal which field or component list produced `entry_fee` (or `fee_unavailable` / `fee_explicit_zero`).
-    - If `entry_fee` is **unavailable**: require `planned_loss` ≤ **0.49% of current NLV**. Do not invent a fee.
-    - If `entry_fee` is **explicitly $0.00** (valid zero from `total_fee` or from a clean component sum): accept zero, and still require `planned_loss` ≤ **0.49% of current NLV**.
+    - If a valid **positive** `total_fee` exists: `entry_fee = total_fee`. Do **not** add commission, regulatory, contract, or other component fees on top of it.
+    - If `total_fee == 0` **and** any non-overlapping component (commission, regulatory, contract, etc.) is **> 0**: `fee_status = ambiguous`. Do **not** sum or select a fee estimate. Journal `fee_conflict`. Treat as unavailable.
+    - If `total_fee` is **$0.00** and every disclosed component is also **$0.00 or absent**: accept `entry_fee = 0` (`fee_explicit_zero`).
+    - Else if `total_fee` is absent: sum disclosed **non-overlapping** components only. Never add a subtotal and its parts. If you cannot tell whether fields overlap: unavailable.
+    - Journal which field or component list produced `entry_fee` (or `fee_unavailable` / `fee_explicit_zero` / `fee_conflict`).
+    - If `entry_fee` is **unavailable** (including `fee_conflict`): require `planned_loss` ≤ **0.49% of current NLV**. Do not invent a fee. Continue only if **all other** risk checks also pass.
+    - If `entry_fee` is **explicitly $0.00**: accept zero, and still require `planned_loss` ≤ **0.49% of current NLV**.
     - If `entry_fee` is **positive**: `estimated_exit_fee = 2 × entry_fee`, `estimated_round_trip_fees = 3 × entry_fee`. Require `planned_loss + estimated_round_trip_fees` ≤ **0.5% of current NLV**. **Do not** also apply the 0.49% ceiling.
   - After a trade is fully closed, daily-loss and losing-trade math use **actual net realized P&L after fees and regulatory charges**, never these estimated fees.
   - `debit` ≤ **2.5% of current NLV**
@@ -195,7 +197,7 @@ Fetch:
 - Start at the **rounded midpoint**: nearest tick. On exact half-tick, round **toward the bid** (passive).
 - **Never exceed the current ask.** If rounded mid > ask, use the ask.
 - Record `max_acceptable_debit` = that first limit, also capped so `limit × 100` ≤ 2.5% of current NLV and the fee-aware 0.5% planned-loss gate in §0 passes. **Never chase above it. No additional chase after the one replacement.**
-- Buying-power test uses the **actual limit**, not the mid: `required_cash = option_limit_price × 100`. Re-read `get_portfolio` **immediately before** `review_*` and again before `place_*`. If `required_cash` > buying power or the 2.5% debit cap fails: skip. After `review_option_order`, apply the §0 fee hierarchy (`total_fee` first, else non-overlapping components; `3 ×` if positive; 0.49% ceiling if unavailable or explicit $0.00). If a replacement review returns a new fee blob, re-run that same hierarchy. Journal the source. Do not place if the gate fails.
+- Buying-power test uses the **actual limit**, not the mid: `required_cash = option_limit_price × 100`. Re-read `get_portfolio` **immediately before** `review_*` and again before `place_*`. If `required_cash` > buying power or the 2.5% debit cap fails: skip. After `review_option_order`, apply the §0 fee hierarchy (`total_fee` first unless it is $0.00 against positive components → `fee_conflict`; else non-overlapping components; `3 ×` if positive; 0.49% ceiling if unavailable, `fee_conflict`, or explicit $0.00). If a replacement review returns a new fee blob, re-run that same hierarchy. Journal the source. Do not place if the gate fails.
 - `type=limit`, `time_in_force=gfd`, `market_hours=regular_hours`.
 - Always `review_option_order` then `place_option_order` with the **same** params. New `ref_id` UUID per logical ticket. If `order_checks` block: **do not place**.
 - **Pending-entry policy:** poll `get_option_orders` until filled, partially filled, cancelled, or timeout.
@@ -223,7 +225,7 @@ Fetch:
 - If already flat: do nothing.
 
 **9. Journal.** Mask accounts. Do not force-push. **Append on `main`.** Do not open a new PR. Do not call `open_git_pr`.
-- `journal/YYYY-MM-DD.md` — ET time, skipped reasons, `lock_files`, lease, session-start NLV, counters, candidates rejected, orders, `protection_failed` if any.
+- `journal/YYYY-MM-DD.md` — ET time, skipped reasons, `lock_files`, lease, session-start NLV, counters, candidates rejected, orders, `protection_failed` if any, `fee_conflict` / `fee_unavailable` / `fee_explicit_zero` when the review fee blob requires it.
 - `journal/orders.jsonl` — one JSON object per review/place/cancel.
 - `journal/h_session.json` — today’s session-start record only (see §0). Do not rewrite it after the first valid RTH fire.
 - If git push fails: still **do not** place extra orders to “retry the day.”
