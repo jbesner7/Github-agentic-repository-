@@ -126,11 +126,22 @@
     "allow_1dte": false,
     "include_index_options": false,
     "intraday_timeframes": ["10minute", "hour", "day"],
+    "forbidden_timeframes": ["1minute", "3minute", "5minute", "15minute"],
+    "chart_hierarchy": [
+      "daily_setup",
+      "hour_confirmation",
+      "completed_10minute_trigger",
+      "live_quote",
+      "option_review"
+    ],
     "chart_roles": {
-      "day": "pattern_setup_and_primary_direction",
-      "hour": "confirmation",
-      "10minute": "entry_trigger"
+      "day": "major_trend_support_resistance_and_chart_pattern",
+      "hour": "confirm_direction_reject_conflict_with_broader_intraday_trend",
+      "10minute": "confirm_breakout_volume_retest_and_entry_trigger",
+      "live_quote": "validate_underlying_trigger_and_price_option_immediately_before_order"
     },
+    "no_1m_3m_autonomous_noise": true,
+    "no_5m_stateless_inconsistency": true,
     "require_daily_and_hour_alignment": true,
     "require_breakout_and_retest": true,
     "require_underlying_price_trigger": true,

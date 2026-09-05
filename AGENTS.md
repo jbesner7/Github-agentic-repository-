@@ -21,7 +21,7 @@ RTH = Mon–Fri 09:30 inclusive–16:00 exclusive, `America/New_York`. No extend
 
 Agent H new entries: **09:45–15:45 ET** only. Monitor from 09:30. New entries **2–7 DTE** (no 0–1 DTE; owner-only re-enable on `main`). Recalculate **current DTE** every run. Expiration day: target **15:30**, absolute **15:45**. Current DTE **≤ 3** flatten by **15:45 ET**. Current DTE **≥ 4** may hold overnight with the broker stop, never through earnings/binary events. The stop is not guaranteed risk. Session-start NLV lives in `journal/h_session.json`.
 
-H graphs: **daily + 1-hour + 10-minute** only. Do not use 1m/3m/5m for Agent H. No index options at launch.
+H graphs on the underlying, in this order only: **daily setup → 1-hour confirmation → completed 10-minute trigger → live quote → option review**. Do not use 1m or 3m (noise) or 5m (unnecessary; makes stateless runs inconsistent). No index options at launch.
 
 H fee gate: prefer a valid **positive** `total_fee`. If `total_fee` is `$0.00` and any component is `> 0`, journal `fee_conflict`, do not trust the zero total, do not estimate, and apply `planned_loss ≤ 0.49%` of current NLV. If every disclosed component is also `$0.00` or absent, accept zero and still apply that 0.49% ceiling.
 
