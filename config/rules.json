@@ -31,6 +31,7 @@
   },
   "options": {
     "structures_allowed": ["long_call", "long_put"],
+    "min_dte": 2,
     "max_dte": 7,
     "strike": {
       "prefer": "atm",
@@ -97,10 +98,105 @@
     "note": "Owner-side H schedule. Each fire is discrete and exits if not RTH. Not a daemon.",
     "scan_and_entry_session": "regular_hours_only",
     "rth": {"timezone": "America/New_York", "start": "09:30", "end": "16:00"},
+    "no_new_entries_before": "09:45",
     "no_new_entries_after": "15:45",
+    "same_day_expiry_flatten_by": "15:30",
     "flatten_equity_before_close": true,
     "options_may_hold_overnight_with_stop": true,
     "proposal_ttl": "until_next_loop"
+  },
+  "agent_h": {
+    "mandate": "long_call_or_long_put_only",
+    "equity_fallback": false,
+    "automation_id": "9af478e7-a454-11f1-a7d1-d6b4613131ce",
+    "lease_path": "journal/h_lease.json",
+    "lease_ttl_minutes": 12,
+    "monitor_from": "09:30",
+    "no_new_entries_before": "09:45",
+    "no_new_entries_after": "15:45",
+    "same_day_expiry_flatten_by": "15:30",
+    "never_rely_on_auto_exercise": true,
+    "min_dte": 2,
+    "max_dte": 7,
+    "allow_0dte": false,
+    "allow_1dte": false,
+    "intraday_timeframes": ["minute", "3minute", "5minute"],
+    "require_daily_and_one_intraday_alignment": true,
+    "require_breakout_and_retest": true,
+    "require_underlying_price_trigger": true,
+    "max_open_positions": 1,
+    "max_new_entries_per_day": 2,
+    "stop_after_losing_trades": 2,
+    "cooldown_after_exit_minutes": 30,
+    "no_reenter_stopped_underlying_same_day": true,
+    "nlv_field": "get_portfolio.total_value",
+    "max_planned_loss_pct_of_nlv": 0.005,
+    "max_debit_pct_of_nlv": 0.025,
+    "both_nlv_limits_must_pass": true,
+    "planned_loss_definition": "OWNER_DRAFT: stop_cash = option_limit_price * 100 * stop_loss_pct_of_cash",
+    "max_daily_realized_loss_pct_of_nlv": 0.01,
+    "losing_trade_definition": "OWNER_DRAFT: any closed option trade today with realized pnl < 0",
+    "option_quote": {
+      "require_bid_and_ask": true,
+      "require_positive_bid_ask_sizes": true,
+      "prefer_spread_pct": 0.05,
+      "max_spread_pct": 0.1,
+      "min_volume": 100,
+      "min_open_interest": 200,
+      "max_quote_age_seconds": 15,
+      "reject_missing_greeks_iv_oi_volume_or_timestamp": true
+    },
+    "iv": {
+      "reject_if_missing": true,
+      "reject_if_absolute_iv_gte": 1.5,
+      "reject_if_gt_atm_iv_multiple": 1.25,
+      "note": "OWNER_DRAFT"
+    },
+    "event_gate": {
+      "skip_earnings_prior_amc_through_next_two_sessions": true,
+      "skip_halts_mergers_splits_binary": true,
+      "fail_closed_if_calendar_unclear": true,
+      "note": "OWNER_DRAFT window"
+    },
+    "patterns": {
+      "min_candles": 30,
+      "pivot_order": 3,
+      "double_triple_variance_pct": 0.015,
+      "head_shoulders_shoulder_variance_pct": 0.025,
+      "triangle_window": 40,
+      "triangle_min_bars": 20,
+      "triangle_flat_slope_frac": 0.15,
+      "breakout_volume_multiple": 1.2,
+      "retest_tolerance_pct": 0.0015,
+      "underlying_trigger_pct": 0.0015,
+      "no_entry_before_breakout_and_retest": true,
+      "note": "OWNER_DRAFT: volume multiple, retest %, trigger %"
+    },
+    "entry_order": {
+      "start": "rounded_midpoint",
+      "half_tick_rounds_toward_bid": true,
+      "never_exceed_ask": true,
+      "tick_source": "instrument.min_ticks",
+      "buying_power_uses_limit_not_mid": true,
+      "required_cash": "option_limit_price * 100",
+      "recheck_buying_power_immediately_before_place": true,
+      "replacement_count": 1,
+      "replacement_increment_ticks": 1,
+      "replacement_timeout_seconds": 45,
+      "pending_timeout_seconds": 90,
+      "cancel_unfilled_on_partial": true,
+      "wait_for_remainder_after_partial": false,
+      "protection_failed_action": "immediate_sell_to_close_then_journal_protection_failed",
+      "note": "OWNER_DRAFT: 45s / +1 tick / 90s timeout"
+    },
+    "take_profit": {
+      "trigger": "live_bid_gte_140pct_of_average_fill_premium",
+      "not_mark_or_last": true,
+      "re_quote_before_review": true,
+      "limit_price": "live_bid",
+      "slippage_floor": "not_more_than_1_tick_below_live_bid",
+      "note": "OWNER_DRAFT slippage floor"
+    }
   },
   "git": {
     "work_on": "main",
@@ -127,5 +223,18 @@
       "regulatory_note": "Owner stated PDT rule no longer exists. Pipeline does not independently verify securities law; this is an operational lock only."
     }
   },
-  "open_questions": []
+  "open_questions": [
+    "planned_loss_is_stop_cash_or_full_debit",
+    "confirm_0.5pct_and_2.5pct_at_1500_nlv",
+    "min_option_volume_and_open_interest",
+    "quote_max_age_seconds",
+    "entry_replace_timeout_and_tick_increment",
+    "iv_rule_formula",
+    "earnings_blackout_window",
+    "keep_overnight_hold_for_2_to_7_dte",
+    "losing_trade_definition",
+    "tp_slippage_floor",
+    "h_charts_1m3m5m_vs_10m",
+    "leftover_equity_blocks_new_option"
+  ]
 }

@@ -27,7 +27,8 @@
       "Any account that is not Agentic.",
       "Crypto.",
       "Short options, credit spreads, multi-leg, exercise.",
-      "Short stock or inverse ETFs."
+      "Short stock or inverse ETFs.",
+      "Agent H equity fallback or any share order."
     ]
   },
   "account": {
@@ -38,15 +39,15 @@
   "allowed_place_tools": [
     "review_option_order",
     "place_option_order",
-    "review_equity_order",
-    "place_equity_order",
-    "cancel_option_order",
-    "cancel_equity_order"
+    "cancel_option_order"
   ],
   "forbidden_place_tools": [
     "place_crypto_order",
     "preview_crypto_order",
     "exercise_option",
-    "cancel_option_exercise"
+    "cancel_option_exercise",
+    "review_equity_order",
+    "place_equity_order",
+    "cancel_equity_order"
   ]
 }

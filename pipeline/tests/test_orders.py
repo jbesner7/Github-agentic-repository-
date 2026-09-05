@@ -43,6 +43,17 @@ def test_rules_json_matches_working_states_and_10minute():
     assert rules["git"]["work_on"] == "main"
     assert rules["git"]["open_pull_request"] is False
     assert rules["git"]["create_feature_branch"] is False
+    assert rules["agent_h"]["equity_fallback"] is False
+    assert rules["agent_h"]["min_dte"] == 2
+    assert rules["agent_h"]["max_dte"] == 7
+    assert rules["agent_h"]["allow_0dte"] is False
+    assert rules["agent_h"]["allow_1dte"] is False
+    assert rules["agent_h"]["no_new_entries_before"] == "09:45"
+    assert rules["agent_h"]["same_day_expiry_flatten_by"] == "15:30"
+    assert rules["agent_h"]["max_new_entries_per_day"] == 2
+    assert rules["agent_h"]["max_planned_loss_pct_of_nlv"] == 0.005
+    assert rules["agent_h"]["max_debit_pct_of_nlv"] == 0.025
+    assert rules["options"]["min_dte"] == 2
 
 
 def test_permissions_is_kill_switch_not_a_rules_copy():
