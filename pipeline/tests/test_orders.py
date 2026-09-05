@@ -58,6 +58,25 @@ def test_rules_json_matches_working_states_and_10minute():
     assert rules["agent_h"]["option_quote"]["min_open_interest"] == 500
     assert rules["agent_h"]["option_quote"]["max_quote_age_seconds"] == 5
     assert rules["agent_h"]["intraday_timeframes"] == ["10minute", "hour", "day"]
+    assert rules["agent_h"]["forbidden_timeframes"] == [
+        "1minute",
+        "3minute",
+        "5minute",
+        "15minute",
+    ]
+    assert rules["agent_h"]["chart_hierarchy"] == [
+        "daily_setup",
+        "hour_confirmation",
+        "completed_10minute_trigger",
+        "live_quote",
+        "option_review",
+    ]
+    assert rules["agent_h"]["chart_roles"]["day"] == "major_trend_support_resistance_and_chart_pattern"
+    assert rules["agent_h"]["chart_roles"]["hour"] == "confirm_direction_reject_conflict_with_broader_intraday_trend"
+    assert rules["agent_h"]["chart_roles"]["10minute"] == "confirm_breakout_volume_retest_and_entry_trigger"
+    assert rules["agent_h"]["chart_roles"]["live_quote"] == "validate_underlying_trigger_and_price_option_immediately_before_order"
+    assert rules["agent_h"]["no_1m_3m_autonomous_noise"] is True
+    assert rules["agent_h"]["no_5m_stateless_inconsistency"] is True
     assert rules["agent_h"]["include_index_options"] is False
     assert rules["agent_h"]["overnight"]["evaluate"] == "current_dte_each_run"
     assert rules["agent_h"]["overnight"]["current_dte_lte_3_flatten_by"] == "15:45"

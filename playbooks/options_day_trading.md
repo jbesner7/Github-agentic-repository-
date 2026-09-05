@@ -42,7 +42,12 @@ Agent H mandate: **long call or long put only** on liquid optionable equities an
   - After close: daily loss and losing-trade flags use **actual net realized P&L**, not estimated fees
   - Full debit = `option_limit_price × 100` ≤ **2.5% of current NLV**
   - Losing trades and daily realized loss use **net P&L after all fees and regulatory charges**
-- H graphs: **daily** (setup + direction) + **1-hour** (confirmation) + **10-minute** (entry trigger). Do **not** use 1m/3m/5m for Agent H
+- H graphs on the underlying stock or ETF, in this order only: **daily setup → 1-hour confirmation → completed 10-minute trigger → live quote → option review**
+  - Daily: major trend, support/resistance, and chart pattern
+  - 1-hour: confirm direction; reject trades that conflict with the broader intraday trend
+  - 10-minute: confirm breakout, volume, retest, and entry trigger
+  - Live quote: validate the underlying trigger and price the option immediately before ordering
+- Do **not** use 1-minute or 3-minute charts (too much noise for an autonomous system). Do **not** use a 5-minute chart (unnecessary here; can make stateless runs inconsistent)
 - 10m trigger: ≥20 **completed current-session** 10m bars (skip — do not mix prior session); breakout close ≥ **0.10%** beyond level; volume ≥ **1.5× median** of prior 20 completed 10m; retest within **0.20%** then close in breakout direction; live last ≥ **0.10%** beyond breakout before review
 - Earnings blackout: no entry from the start of the regular session immediately preceding the scheduled release through the end of the second full regular session after. BMO/AMC/intraday. Fail closed if date/time missing, conflicting, or unclear. Also block investor-day, FDA, merger-vote, halt, split, and similar binary events when identified
 - Entry: tick-rounded midpoint, never above ask, one replacement (+1 tick / 30s), cancel at 60s, re-quote before replace and before place, never chase above the original max debit

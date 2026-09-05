@@ -3,9 +3,12 @@
 Status: **ACTIVE for signal detection heuristics** (refine anytime).
 
 ## Timeframes
-- 10-minute (Robinhood MCP has no 15-minute bars)
-- 1-hour
-- Daily
+- Daily: major trend, support/resistance, and chart pattern
+- 1-hour: confirm direction; reject conflict with the broader intraday trend
+- 10-minute: confirm breakout, volume, retest, and entry trigger (Robinhood MCP has no 15-minute bars)
+- Live quote: validate the underlying trigger and price the option immediately before ordering
+
+Agent H hierarchy (do not skip): **daily setup → 1-hour confirmation → completed 10-minute trigger → live quote → option review**. Do not use 1-minute or 3-minute (noise). Do not use 5-minute (unnecessary; can make stateless H runs inconsistent).
 
 ## Patterns
 1. Head and shoulders (bearish)

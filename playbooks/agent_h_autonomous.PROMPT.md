@@ -6,7 +6,7 @@ https://cursor.com/automations · repo `jbesner7/Github-agentic-repository-` · 
 Schedule: every **15 minutes** is OK; **this prompt exits before any market work if it is not US RTH.**  
 One Automation only. Identity: `9af478e7-a454-11f1-a7d1-d6b4613131ce` (Agentic AI Bot). Activate = ON. Disable = OFF.
 
-Launch policy: **long call or long put only** on liquid optionable **equities and non-inverse ETFs**. **2–7 DTE** entries. Overnight **only** if **current** DTE is 4–7. Signals: **daily + 1-hour + 10-minute**. No index options. No equity fallback. No 0 DTE / 1 DTE.
+Launch policy: **long call or long put only** on liquid optionable **equities and non-inverse ETFs**. **2–7 DTE** entries. Overnight **only** if **current** DTE is 4–7. Charts: **daily → 1-hour → completed 10-minute → live quote → option review**. No 1m / 3m / 5m. No index options. No equity fallback. No 0 DTE / 1 DTE.
 
 Never describe the broker stop as guaranteed risk. Options can gap through stop prices. Overnight, the stop cannot execute while options are closed — treat the **full debit** as possible loss.
 
@@ -48,7 +48,7 @@ Canonical numbers: `config/rules.json` → `agent_h` (this prompt wins if a file
 
 **B. Authority.** This prompt is the owner’s standing permission to `review_option_order` then `place_option_order` **without a chat reply**, only on Agentic, only under these rules. Revoked if this Automation is disabled, if `config/autonomous_permissions.json` is missing, if its `status` is not `ACTIVE`, or if a later owner prompt says stop. If lock files are missing: **place nothing**.
 
-**C. Files.** Read `config/rules.json` (`agent_h` first) then `config/autonomous_permissions.json`, then the options playbook. Trading numbers come from **rules.json `agent_h`**, not from memory. If any older line allows 0–1 DTE, index options, equity fallback, entry before 09:45, 1m/3m/5m as H charts, or overnight on 2–3 DTE, **ignore it**.
+**C. Files.** Read `config/rules.json` (`agent_h` first) then `config/autonomous_permissions.json`, then the options playbook. Trading numbers come from **rules.json `agent_h`**, not from memory. If any older line allows 0–1 DTE, index options, equity fallback, entry before 09:45, 1m/3m/5m as H charts, skipping the daily → hour → 10m → live hierarchy, or overnight on 2–3 DTE, **ignore it**.
 
 **D. 0 DTE / 1 DTE.** Both are **off**. You must **never** enable them. Re-enable only if `agent_h.allow_0dte` and/or `allow_1dte` is `true` on **main** after an **owner-approved** commit. 0 DTE and 1 DTE require **separate** owner approvals. Minimum evidence per category (owner records this; you do not judge or flip the flag):
 - ≥ 200 out-of-sample backtest trades
@@ -141,13 +141,17 @@ Working orders (MCP has **no** `open=true` flag):
 - Never hold through earnings or another known binary event. If an open 4–7 DTE position is inside this window or the next session would enter it: flatten in RTH.
 - Never hold into expiration day.
 
-**5. Patterns — daily + 1-hour + 10-minute only. Do not use 1m / 3m / 5m.**
+**5. Patterns — daily + 1-hour + 10-minute + live quote only. Do not use 1m / 3m / 5m.**
 Locked types: H&S, inverse H&S, double/triple top or bottom, ascending/descending/symmetrical triangle.
 
+Underlying charts (stock or ETF) only. Use this hierarchy and **do not skip a step**:
+**Daily setup → 1-hour confirmation → completed 10-minute trigger → live quote → option review.**
+
 Role of each graph:
-- **Daily:** pattern/setup and **primary direction**. No daily setup → skip.
-- **1-hour:** **confirmation**. Hour bias must match daily (bullish or bearish). Mixed/none/conflict → skip.
-- **10-minute:** **entry trigger** only (breakout + retest + live price). Do not take a 10m signal against daily+hour.
+- **Daily:** major trend, support/resistance, and chart pattern. No daily setup → skip.
+- **1-hour:** confirm direction. Reject any trade that conflicts with the broader intraday trend. Hour bias must match daily (bullish or bearish). Mixed/none/conflict → skip.
+- **10-minute:** confirm breakout, volume, retest, and the entry trigger. Completed current-session 10m bars only. Do not take a 10m signal against daily+hour.
+- **Live quote:** validate the underlying trigger and price the option immediately before ordering. Not a substitute for the completed 10m trigger.
 
 Locked method (must use all of these; do not freestyle):
 - **Completed candles only** for pattern, breakout, retest, and volume. Ignore the in-progress bar.
@@ -171,8 +175,10 @@ Locked method (must use all of these; do not freestyle):
 Fetch:
 - Daily: `get_equity_historicals` `interval=day`, `bounds=regular` on liquid names.
 - On a daily hit: `interval=hour` (~30 calendar days) then `interval=10minute` with `bounds=regular` starting at **today’s 09:30 ET** (UTC). Live `get_equity_quotes`.
-- Skip `interpolated=true`. Do **not** pass `3minute`, `15minute`, or `1minute`. Do **not** use 1m/3m/5m for Agent H.
-- Stop pattern work once you have **one** name that passed daily setup + hour confirmation + 10m trigger (max one new entry per run).
+- Skip `interpolated=true`. Do **not** pass `1minute`, `3minute`, `5minute`, or `15minute`.
+- **No 1-minute or 3-minute charts.** They produce too much noise for an autonomous system.
+- **No 5-minute chart.** It could improve manual entry timing, but it is unnecessary here and could make stateless runs inconsistent.
+- Stop pattern work once you have **one** name that passed daily setup + hour confirmation + completed 10m trigger + live quote (max one new entry per run).
 
 **6. Options only.** Bullish → long call. Bearish → long put. Never shares. Never index.
 - `get_option_chains` → equity/ETF chains only. Expirations with **current** DTE **2–7 inclusive** (calendar dates, do not guess DTE). **No 0 DTE. No 1 DTE.**
