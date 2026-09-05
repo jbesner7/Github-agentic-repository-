@@ -43,6 +43,55 @@ def test_rules_json_matches_working_states_and_10minute():
     assert rules["git"]["work_on"] == "main"
     assert rules["git"]["open_pull_request"] is False
     assert rules["git"]["create_feature_branch"] is False
+    assert rules["agent_h"]["equity_fallback"] is False
+    assert rules["agent_h"]["min_dte"] == 2
+    assert rules["agent_h"]["max_dte"] == 7
+    assert rules["agent_h"]["allow_0dte"] is False
+    assert rules["agent_h"]["allow_1dte"] is False
+    assert rules["agent_h"]["no_new_entries_before"] == "09:45"
+    assert rules["agent_h"]["same_day_expiry_target_flatten_by"] == "15:30"
+    assert rules["agent_h"]["same_day_expiry_absolute_deadline"] == "15:45"
+    assert rules["agent_h"]["max_new_entries_per_day"] == 2
+    assert rules["agent_h"]["max_planned_loss_pct_of_current_nlv"] == 0.005
+    assert rules["agent_h"]["max_debit_pct_of_current_nlv"] == 0.025
+    assert rules["agent_h"]["max_daily_realized_loss_pct_of_session_start_nlv"] == 0.01
+    assert rules["agent_h"]["option_quote"]["min_open_interest"] == 500
+    assert rules["agent_h"]["option_quote"]["max_quote_age_seconds"] == 5
+    assert rules["agent_h"]["intraday_timeframes"] == ["10minute", "hour", "day"]
+    assert rules["agent_h"]["include_index_options"] is False
+    assert rules["agent_h"]["overnight"]["evaluate"] == "current_dte_each_run"
+    assert rules["agent_h"]["overnight"]["current_dte_lte_3_flatten_by"] == "15:45"
+    assert rules["agent_h"]["overnight"]["current_dte_gte_4_overnight_with_stop"] is True
+    assert rules["agent_h"]["overnight"]["expiration_day_absolute_deadline"] == "15:45"
+    assert rules["agent_h"]["patterns"]["breakout_volume_multiple_of_median"] == 1.5
+    assert rules["agent_h"]["patterns"]["retest_tolerance_pct"] == 0.002
+    assert rules["agent_h"]["patterns"]["live_trigger_beyond_breakout_pct"] == 0.001
+    assert rules["agent_h"]["patterns"]["volume_statistic"] == "median"
+    assert rules["agent_h"]["estimated_round_trip_fees"] == "3 * entry_fee_from_review"
+    assert rules["agent_h"]["entry_fee_source_hierarchy"][0] == "valid_positive_total_fee_only"
+    assert rules["agent_h"]["entry_fee_source_hierarchy"][1] == "zero_total_plus_positive_component_is_fee_conflict"
+    assert rules["agent_h"]["entry_fee_source_hierarchy"][2] == "zero_total_and_zero_or_absent_components_is_explicit_zero"
+    assert rules["agent_h"]["journal_fee_conflict"] is True
+    assert rules["agent_h"]["journal_entry_fee_source"] is True
+    assert rules["agent_h"]["fee_status_values"] == [
+        "quoted",
+        "explicit_zero",
+        "ambiguous",
+        "unavailable",
+    ]
+    assert rules["agent_h"]["zero_total_plus_positive_component"] == {
+        "fee_status": "ambiguous",
+        "journal": "fee_conflict",
+        "do_not_sum_or_select_estimate": True,
+        "risk_gate": "planned_loss <= 0.49% current NLV",
+        "continue_only_if_other_risk_checks_pass": True,
+    }
+    assert rules["agent_h"]["risk_gate_if_fee_missing_unreadable_or_explicit_zero"] == "planned_loss <= 0.49% current NLV"
+    assert rules["agent_h"]["do_not_apply_049_ceiling_when_positive_fee_included"] is True
+    assert rules["agent_h"]["closed_trade_uses_actual_net_pnl_not_estimated_fees"] is True
+    assert rules["agent_h"]["allow_0dte"] is False
+    assert rules["universe"]["include_index_options"] is False
+    assert rules["options"]["min_dte"] == 2
 
 
 def test_permissions_is_kill_switch_not_a_rules_copy():
