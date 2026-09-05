@@ -1,7 +1,16 @@
+from datetime import date, datetime, timezone
+from zoneinfo import ZoneInfo
+
 from pipeline.greeks import delta_in_band, extract_greeks
-from pipeline.options_structure import filter_expirations, pick_atm_or_one_otm
-from pipeline.patterns import detect_patterns
+from pipeline.options_structure import (
+    filter_expirations,
+    pick_atm_or_one_otm,
+    rank_atm_then_one_otm,
+    strikes_bracket_spot,
+)
+from pipeline.patterns import collect_pattern_hits, detect_patterns
 from pipeline.risk import equity_risk_plan, options_risk_plan
+from pipeline.session import today_et
 from pipeline.universe import apply_liquidity_filter, extract_watchlist_symbols, option_quote_liquid
 
 
@@ -35,12 +44,19 @@ def test_option_spread_gate():
     assert pref_m["spread_quality"] == "preferred"
 
     acceptable, reason_ok, acc_m = option_quote_liquid(
-        {"bid_price": "1.00", "ask_price": "1.08"},
+        {"bid": "1.00", "ask": "1.08"},
         max_spread_pct_of_price=0.1,
         preferred_spread_pct_of_price=0.05,
     )
     assert acceptable and reason_ok is None
     assert acc_m["spread_quality"] == "acceptable"
+
+    missing, missing_reason, _ = option_quote_liquid(
+        {},
+        max_spread_pct_of_price=0.1,
+        preferred_spread_pct_of_price=0.05,
+    )
+    assert not missing and missing_reason == "missing_bid_ask"
 
     bad, reason2, _ = option_quote_liquid(
         {"bid_price": "1.00", "ask_price": "1.50"},
@@ -125,5 +141,61 @@ def test_atm_pick_and_dte():
     pick = pick_atm_or_one_otm(100.0, instruments, option_type="call")
     assert pick["selection"] == "atm"
     assert pick["instrument"]["id"] == "1"
-    exps = filter_expirations(["2099-01-01", "2026-09-02"], max_dte=7, as_of=__import__("datetime").date(2026, 8, 30))
+    exps = filter_expirations(["2099-01-01", "2026-09-02"], max_dte=7, as_of=date(2026, 8, 30))
     assert exps == ["2026-09-02"]
+    locked = filter_expirations(
+        ["2026-08-30", "2026-08-31", "2026-09-02"],
+        min_dte=2,
+        max_dte=7,
+        as_of=date(2026, 8, 30),
+    )
+    assert locked == ["2026-09-02"]
+
+
+def test_atm_is_nearest_strike_even_when_more_than_one_percent_away():
+    instruments = [
+        {"id": "itm", "type": "call", "strike_price": "5.0"},
+        {"id": "otm", "type": "call", "strike_price": "5.5"},
+    ]
+    ranked = rank_atm_then_one_otm(5.10, instruments, option_type="call")
+    assert ranked[0]["selection"] == "atm"
+    assert ranked[0]["instrument"]["id"] == "itm"
+    assert ranked[1]["selection"] == "one_otm"
+    assert ranked[1]["instrument"]["id"] == "otm"
+    pick = pick_atm_or_one_otm(5.10, instruments, option_type="call")
+    assert pick["instrument"]["id"] == "itm"
+
+
+def test_put_atm_then_distinct_one_otm():
+    instruments = [
+        {"id": "otm", "option_type": "put", "strike": "18.0"},
+        {"id": "atm", "option_type": "put", "strike": "18.5"},
+    ]
+    ranked = rank_atm_then_one_otm(18.30, instruments, option_type="put")
+    assert ranked[0]["instrument"]["id"] == "atm"
+    assert ranked[1]["instrument"]["id"] == "otm"
+
+
+def test_strikes_must_bracket_spot_for_atm_page():
+    only_low = [{"id": "1", "type": "call", "strike_price": "100"}]
+    assert not strikes_bracket_spot(200.0, only_low, option_type="call")
+    assert strikes_bracket_spot(100.0, only_low, option_type="call")
+    bracketed = only_low + [{"id": "2", "type": "call", "strike_price": "210"}]
+    assert strikes_bracket_spot(200.0, bracketed, option_type="call")
+
+
+def test_today_et_uses_new_york_calendar_not_utc():
+    utc_after_midnight = datetime(2026, 9, 1, 2, 0, tzinfo=timezone.utc)
+    assert today_et(utc_after_midnight).isoformat() == "2026-08-31"
+    et_evening = datetime(2026, 8, 31, 22, 0, tzinfo=ZoneInfo("America/New_York"))
+    assert today_et(et_evening).isoformat() == "2026-08-31"
+
+
+def test_intraday_patterns_ignored_without_daily_hit():
+    prices = [6, 6, 6, 5, 4, 3, 4, 5, 6, 5, 4, 3, 4, 5, 6] + [6.2 + i * 0.05 for i in range(20)]
+    bars = [{"close": c, "high": c + 0.2, "low": c - 0.2} for c in prices]
+    hits = collect_pattern_hits({"10minute": bars}, ["10minute", "hour", "day"])
+    assert hits == []
+    daily_first = collect_pattern_hits({"day": bars, "10minute": bars}, ["10minute", "hour", "day"])
+    assert any(h["timeframe"] == "day" for h in daily_first)
+    assert any(h["timeframe"] == "10minute" for h in daily_first)

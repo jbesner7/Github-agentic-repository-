@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, time
+from datetime import date, datetime, time
 from zoneinfo import ZoneInfo
 from typing import Any
 
@@ -16,6 +16,11 @@ def now_et(now: datetime | None = None) -> datetime:
     if now.tzinfo is None:
         return now.replace(tzinfo=ET)
     return now.astimezone(ET)
+
+
+def today_et(now: datetime | None = None) -> date:
+    """Calendar date in America/New_York. Do not use UTC date.today() for DTE or journals."""
+    return now_et(now).date()
 
 
 def is_weekday(now: datetime | None = None) -> bool:

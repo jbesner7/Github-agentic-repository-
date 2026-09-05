@@ -29,11 +29,21 @@ def test_place_blocked_without_confirm():
     assert reason == "missing_explicit_user_confirm"
 
 
-def test_place_allowed_only_with_confirm_and_release_outside_rth():
+def test_place_blocked_outside_rth_even_with_confirm():
     ok, reason = can_place_live(
         explicit_confirm=True, playbook_released=True, h_enabled=True, now=SUNDAY
     )
-    assert ok and reason is None
+    assert not ok
+    assert reason == "outside_rth"
+
+
+def test_place_blocked_after_1545_even_if_h_disabled():
+    monday_1545 = datetime(2026, 8, 31, 15, 45, tzinfo=ET)
+    ok, reason = can_place_live(
+        explicit_confirm=True, playbook_released=True, h_enabled=False, now=monday_1545
+    )
+    assert not ok
+    assert reason == "no_new_entries_after_1545"
 
 
 def test_place_blocked_while_h_owns_rth():

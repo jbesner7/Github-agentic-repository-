@@ -1,6 +1,8 @@
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
+import pytest
+
 from pipeline.equity_day_trade import (
     equity_quote_ok,
     is_inverse_etf,
@@ -49,6 +51,8 @@ def test_no_shorting_skips_bearish_and_inverse_etfs():
     assert is_inverse_etf("SQQQ") is True
     assert is_inverse_etf("SPY") is False
     assert is_inverse_etf("XYZ", {"description": "ProShares UltraShort Inverse"}) is True
+    assert is_inverse_etf("QID", {"name": "ProShares UltraShort QQQ"}) is True
+    assert is_inverse_etf("BIL", {"description": "SPDR Bloomberg 1-3 Month T-Bill Ultra Short Duration"}) is False
 
     cands, rejected = select_equity_day_trade_candidates(
         symbols=["SQQQ", "AMD", "AAPL"],
@@ -145,12 +149,20 @@ def test_equity_place_gate_and_proposal_is_buy_only():
         now=sunday,
     )
     assert not ok2 and reason2 == "missing_explicit_user_confirm"
-    ok3, reason3 = can_place_live(
+    sunday_blocked, sunday_reason = can_place_live(
         explicit_confirm=True,
         playbook_released=True,
         playbook_kind="equity",
         h_enabled=False,
         now=sunday,
+    )
+    assert not sunday_blocked and sunday_reason == "outside_rth"
+    ok3, reason3 = can_place_live(
+        explicit_confirm=True,
+        playbook_released=True,
+        playbook_kind="equity",
+        h_enabled=False,
+        now=monday,
     )
     assert ok3 and reason3 is None
     blocked, blocked_reason = can_place_live(
@@ -208,9 +220,169 @@ def test_pipeline_writes_equity_candidate_without_placing(tmp_path, monkeypatch)
     assert summary["option_candidate_count"] == 0
     assert summary["equity_candidate_count"] == 1
     payload = json.loads((signals / "equity_candidates.json").read_text())
+    assert payload["do_not_place"] is True
     cand = payload["candidates"][0]
     assert cand["symbol"] == "AAPL"
     assert cand["side"] == "buy"
     assert cand["structure"] == "long_shares"
     assert cand["quantity"] == 14
     assert cand["playbook_status"] == "RELEASED"
+
+
+def _double_bottom_bars():
+    prices = [6, 6, 6, 5, 4, 3, 4, 5, 6, 5, 4, 3, 4, 5, 6] + [6.2 + i * 0.05 for i in range(20)]
+    return [{"close": c, "high": c + 0.2, "low": c - 0.2} for c in prices]
+
+
+def _pipeline_dirs(tmp_path, monkeypatch):
+    import pipeline.orchestrator as orch
+
+    signals = tmp_path / "signals"
+    journal = tmp_path / "journal"
+    signals.mkdir()
+    journal.mkdir()
+    monkeypatch.setattr(orch, "SIGNALS", signals)
+    monkeypatch.setattr(orch, "JOURNAL", journal)
+    return orch, signals, journal
+
+
+def test_intraday_only_bars_do_not_create_equity_bias(tmp_path, monkeypatch):
+    import json
+
+    orch, signals, _journal = _pipeline_dirs(tmp_path, monkeypatch)
+    bars = _double_bottom_bars()
+    raw = {
+        "watchlists": [{"id": "1", "display_name": "T"}],
+        "watchlist_items_by_id": {"1": [{"object_type": "instrument", "symbol": "AAPL"}]},
+        "fundamentals_by_symbol": {"AAPL": {"average_volume": 3_000_000}},
+        "historicals_by_symbol_timeframe": {"AAPL": {"10minute": bars}},
+        "buying_power": 1500.0,
+        "equity_quotes_by_symbol": {"AAPL": {"bid_price": "100.00", "ask_price": "100.10"}},
+        "equity_tradability_by_symbol": {"AAPL": {"regular_hours": {"buy": True}}},
+    }
+    summary = orch.run_pipeline(raw)
+    assert summary["equity_candidate_count"] == 0
+    payload = json.loads((signals / "equity_candidates.json").read_text())
+    reasons = {row["symbol"]: row["reason"] for row in payload["rejected"]}
+    assert reasons["AAPL"] == "equity_long_only_requires_bullish"
+
+
+def test_option_candidate_uses_mid_and_falls_back_to_one_otm(tmp_path, monkeypatch):
+    import json
+    from datetime import timedelta
+
+    from pipeline.session import today_et
+
+    orch, signals, journal = _pipeline_dirs(tmp_path, monkeypatch)
+    bars = _double_bottom_bars()
+    exp = (today_et() + timedelta(days=4)).isoformat()
+    raw = {
+        "watchlists": [{"id": "1", "display_name": "T"}],
+        "watchlist_items_by_id": {"1": [{"object_type": "instrument", "symbol": "AAPL"}]},
+        "fundamentals_by_symbol": {"AAPL": {"average_volume": 3_000_000}},
+        "historicals_by_symbol_timeframe": {"AAPL": {"day": bars}},
+        "buying_power": 1500.0,
+        "spots_by_symbol": {"AAPL": 100.0},
+        "option_chains_by_symbol": {"AAPL": {"expiration_dates": [exp]}},
+        "option_instruments_by_symbol_exp": {
+            f"AAPL|{exp}": [
+                {"id": "atm", "type": "call", "strike_price": "100"},
+                {"id": "otm", "type": "call", "strike_price": "105"},
+                {"id": "itm", "type": "call", "strike_price": "95"},
+            ]
+        },
+        "option_quotes_by_id": {
+            "atm": {
+                "bid_price": "2.00",
+                "ask_price": "2.10",
+                "delta": "0.55",
+                "mark_price": "9.99",
+            },
+            "otm": {
+                "bid_price": "1.00",
+                "ask_price": "1.05",
+                "delta": "0.45",
+                "mark_price": "9.99",
+            },
+        },
+        "equity_quotes_by_symbol": {"AAPL": {"bid_price": "100.00", "ask_price": "100.10"}},
+        "equity_tradability_by_symbol": {"AAPL": {"regular_hours": {"buy": True}}},
+    }
+    summary = orch.run_pipeline(raw)
+    assert summary["option_candidate_count"] == 1
+    assert summary["equity_candidate_count"] == 0
+    payload = json.loads((signals / "option_candidates.json").read_text())
+    cand = payload["candidates"][0]
+    assert cand["option_id"] == "otm"
+    assert cand["selection"] == "one_otm"
+    assert cand["premium_mark"] == pytest.approx(1.025)
+    assert cand["premium_source"] == "mid"
+    assert cand["cash_debit"] == pytest.approx(102.5)
+    assert payload["do_not_place"] is True
+    assert (journal / f"{today_et().isoformat()}.md").exists()
+
+
+def test_option_candidate_rejects_debit_above_buying_power(tmp_path, monkeypatch):
+    import json
+    from datetime import timedelta
+
+    from pipeline.session import today_et
+
+    orch, signals, _journal = _pipeline_dirs(tmp_path, monkeypatch)
+    bars = _double_bottom_bars()
+    exp = (today_et() + timedelta(days=4)).isoformat()
+    raw = {
+        "watchlists": [{"id": "1", "display_name": "T"}],
+        "watchlist_items_by_id": {"1": [{"object_type": "instrument", "symbol": "AAPL"}]},
+        "fundamentals_by_symbol": {"AAPL": {"average_volume": 3_000_000}},
+        "historicals_by_symbol_timeframe": {"AAPL": {"day": bars}},
+        "buying_power": 1500.0,
+        "spots_by_symbol": {"AAPL": 100.0},
+        "option_chains_by_symbol": {"AAPL": {"expiration_dates": [exp]}},
+        "option_instruments_by_symbol_exp": {
+            f"AAPL|{exp}": [
+                {"id": "atm", "type": "call", "strike_price": "100"},
+            ]
+        },
+        "option_quotes_by_id": {
+            "atm": {"bid_price": "19.50", "ask_price": "20.50", "delta": "0.45"},
+        },
+        "equity_quotes_by_symbol": {"AAPL": {"bid_price": "100.00", "ask_price": "100.10"}},
+        "equity_tradability_by_symbol": {"AAPL": {"regular_hours": {"buy": True}}},
+    }
+    summary = orch.run_pipeline(raw)
+    assert summary["option_candidate_count"] == 0
+    payload = json.loads((signals / "option_candidates.json").read_text())
+    reasons = {row["symbol"]: row["reason"] for row in payload["equity_fallbacks"]}
+    assert reasons["AAPL"] == "exceeds_buying_power"
+
+
+def test_incomplete_option_page_is_rejected(tmp_path, monkeypatch):
+    import json
+    from datetime import timedelta
+
+    from pipeline.session import today_et
+
+    orch, signals, _journal = _pipeline_dirs(tmp_path, monkeypatch)
+    bars = _double_bottom_bars()
+    exp = (today_et() + timedelta(days=4)).isoformat()
+    raw = {
+        "watchlists": [{"id": "1", "display_name": "T"}],
+        "watchlist_items_by_id": {"1": [{"object_type": "instrument", "symbol": "AAPL"}]},
+        "fundamentals_by_symbol": {"AAPL": {"average_volume": 3_000_000}},
+        "historicals_by_symbol_timeframe": {"AAPL": {"day": bars}},
+        "buying_power": 1500.0,
+        "spots_by_symbol": {"AAPL": 200.0},
+        "option_chains_by_symbol": {"AAPL": {"expiration_dates": [exp]}},
+        "option_instruments_by_symbol_exp": {
+            f"AAPL|{exp}": [{"id": "far", "type": "call", "strike_price": "100"}]
+        },
+        "option_quotes_by_id": {
+            "far": {"bid_price": "1.00", "ask_price": "1.05", "delta": "0.45"},
+        },
+    }
+    summary = orch.run_pipeline(raw)
+    assert summary["option_candidate_count"] == 0
+    payload = json.loads((signals / "option_candidates.json").read_text())
+    reasons = {row["symbol"]: row["reason"] for row in payload["equity_fallbacks"]}
+    assert reasons["AAPL"] == "option_chain_incomplete_atm_not_in_page"
