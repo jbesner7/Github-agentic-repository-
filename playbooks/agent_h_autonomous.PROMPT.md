@@ -182,7 +182,7 @@ Fetch:
 
 **6. Options only.** Bullish → long call. Bearish → long put. Never shares. Never index.
 - `get_option_chains` → equity/ETF chains only. Expirations with **current** DTE **2–7 inclusive** (calendar dates, do not guess DTE). **No 0 DTE. No 1 DTE.**
-- `get_option_instruments`: ATM preferred, else **one** OTM. Page until ATM is in the set. Reject `underlying_type=index`.
+- `get_option_instruments`: ATM = **nearest strike** (not a 1% band). If that contract fails spread, delta, IV, or buying power, try **exactly one** OTM. Page until strikes **bracket** spot; if they do not, reject `option_chain_incomplete_atm_not_in_page`. Reject `underlying_type=index`.
 - `get_option_quotes`. Use RH `delta` / gamma / theta / vega / rho / IV / OI / volume / bid / ask / sizes / `updated_at` only. **Never invent Greeks or prices.**
 - Reject if **any** of these are missing, nonnumeric, or non-positive where required: bid, ask, bid_size, ask_size, delta, IV, open interest, volume, `updated_at`.
 - Bid size ≥ **1** and ask size ≥ **1**.

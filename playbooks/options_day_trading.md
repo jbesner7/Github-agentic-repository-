@@ -12,7 +12,7 @@ Agent H mandate: **long call or long put only** on liquid optionable equities an
 
 - Long call or long put only (no shorts)
 - New entries: DTE **2–7** inclusive. **No 0 DTE. No 1 DTE.** Owner only may re-enable, separately per DTE, via a commit on `main` after the evidence bar in `config/rules.json` `agent_h.dte_reenable`. H must never flip those flags
-- Strike: ATM preferred, else 1 OTM
+- Strike: ATM = nearest strike (no 1% band). If ATM fails spread, delta, IV, or buying power, try exactly one OTM. Page until strikes bracket spot.
 - Delta band: abs(delta) 0.40–0.50 from Robinhood quotes only
 - Max 1 contract
 - Liquidity: valid bid and ask, bid size ≥ 1, ask size ≥ 1, spread prefer ≤ 5%, reject > 10%. Volume ≥ **100**. Open interest ≥ **500**. Quote age ≤ **5 seconds** at review and again immediately before place. Reject missing/stale/nonnumeric Greeks, IV, OI, volume, or timestamp
