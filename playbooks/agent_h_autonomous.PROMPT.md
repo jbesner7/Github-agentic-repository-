@@ -1,10 +1,12 @@
 # Agent H — paste the block under the line into the Cursor Automation
 
-Re-paste this file into Agentic AI Bot after every prompt change. Git updates do not change the stored Automation prompt.
+**Copy everything below the `---` line. Paste it as the entire Agentic AI Bot prompt.** Git updates do not change the stored Automation prompt — re-paste after this change.
 
 https://cursor.com/automations · repo `jbesner7/Github-agentic-repository-` · Robinhood MCP on  
 Schedule: every **15 minutes** is OK; **this prompt exits before any market work if it is not US RTH.**  
 One Automation only. Activate = ON. Disable = OFF.
+
+Intraday graphs (this revision): **live quote + 1-minute + 3-minute + 5-minute**. 1m/5m are native Robinhood. 3m is aggregated from 1m. Do not pass `3minute` or `15minute` to RH.
 
 ---
 
@@ -63,8 +65,14 @@ Working orders (MCP has **no** `open=true` flag and **no** `get_advanced_orders`
 
 **4. Patterns (cheap first).** Locked types: H&S, inverse H&S, double/triple top or bottom, ascending/descending/symmetrical triangle.
 - Daily `get_equity_historicals` (`interval=day`, `bounds=regular`) on liquid names only.
-- Pull 10m and 1h (`10minute`, `hour`) **only** on names with a daily hit. Robinhood MCP has no `15minute`.
+- On daily hits, pull **live + 1m + 3m + 5m + hour**. Do **not** use `10minute` as the primary intraday graph anymore.
+- **Live:** `get_equity_quotes`. Optional `get_equity_price_book` if bid/ask is missing or one-sided.
+- **1-minute:** `get_equity_historicals` `interval=minute` (**not** `1minute`), `bounds=regular`. `start_time` = 09:30 ET of the prior trading day, UTC. Skip `interpolated=true` bars.
+- **5-minute:** same tool, `interval=5minute`, `start_time` ≈ five RTH sessions back.
+- **3-minute:** Robinhood **rejects** `interval=3minute`. Fetch `minute`, then `from pipeline.bars import aggregate_to_minutes; three = aggregate_to_minutes(minute_bars, 3)`. Never invent a 3-minute feed.
+- **Hour:** `interval=hour`, `start_time` ≈ 30 calendar days.
 - Need a clear **bullish** or **bearish** bias. No bias → skip.
+- For the one actionable name, paste compact ASCII graphs (`pipeline.charts.ascii_chart`) of **1m, 3m, and 5m** into the journal. Do not commit binary chart files.
 - Stop pattern work once you have **one** actionable bias name (max one new entry per run).
 
 **5. Options first.** Bullish → long call. Bearish → long put.
@@ -119,3 +127,4 @@ No live RH quote, no passing spread, no RH delta in band, no buying power, missi
 ## Kill switch
 
 Automation disabled · permissions file gone or not ACTIVE · owner says stop · outside RTH → **place nothing**.
+

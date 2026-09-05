@@ -45,7 +45,7 @@ Last verified Agentic buying power (2026-08-30): **$1,500**. Re-read `get_portfo
 
 Locked types: H&S, inverse H&S, double/triple top or bottom, ascending/descending/symmetrical triangle.
 
-- Daily first. 10-minute + hourly **only** on daily hits (Robinhood MCP has no `15minute`)
+- Daily first. Then live quote + **1-minute, 3-minute, 5-minute** (+ hour) **only** on daily hits. 1m = RH `interval=minute`. 5m = `5minute`. 3m is **not** an RH interval — aggregate from 1m. No `15minute`.
 - Need a **strict majority bullish** bias
 - Tie, mixed, neutral, or bearish → skip this playbook
 

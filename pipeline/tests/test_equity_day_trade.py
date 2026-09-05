@@ -193,12 +193,20 @@ def test_pipeline_writes_equity_candidate_without_placing(tmp_path, monkeypatch)
     monkeypatch.setattr(orch, "JOURNAL", journal)
 
     prices = [6, 6, 6, 5, 4, 3, 4, 5, 6, 5, 4, 3, 4, 5, 6] + [6.2 + i * 0.05 for i in range(20)]
-    bars = [{"close": c, "high": c + 0.2, "low": c - 0.2} for c in prices]
+    bars = [
+        {"open": c, "close": c, "high": c + 0.2, "low": c - 0.2}
+        for c in prices
+    ]
     raw = {
         "watchlists": [{"id": "1", "display_name": "T"}],
         "watchlist_items_by_id": {"1": [{"object_type": "instrument", "symbol": "AAPL"}]},
         "fundamentals_by_symbol": {"AAPL": {"average_volume": 3_000_000}},
-        "historicals_by_symbol_timeframe": {"AAPL": {"day": bars}},
+        "historicals_by_symbol_timeframe": {
+            "AAPL": {
+                tf: bars
+                for tf in ("minute", "3minute", "5minute", "hour", "day")
+            }
+        },
         "buying_power": 1500.0,
         "equity_quotes_by_symbol": {"AAPL": {"bid_price": "100.00", "ask_price": "100.10"}},
         "equity_tradability_by_symbol": {"AAPL": {"regular_hours": {"buy": True}}},

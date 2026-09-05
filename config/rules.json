@@ -16,7 +16,7 @@
   },
   "priority": ["options", "equity"],
   "patterns": {
-    "timeframes": ["10minute", "hour", "day"],
+    "timeframes": ["minute", "3minute", "5minute", "hour", "day"],
     "types": [
       "head_and_shoulders",
       "inverse_head_and_shoulders",
@@ -89,8 +89,20 @@
     "note": "RH MCP has no open=true filter and no get_advanced_orders tool on this connection. Query these states."
   },
   "historicals": {
-    "intraday_interval": "10minute",
-    "note": "Robinhood MCP has no 15minute interval."
+    "live": "get_equity_quotes",
+    "intraday_interval": "minute",
+    "rh_native_intervals": ["minute", "5minute", "10minute", "30minute", "hour", "day"],
+    "synthetic_intervals": {
+      "3minute": {"source": "minute", "aggregate_minutes": 3, "helper": "pipeline.bars.aggregate_to_minutes"}
+    },
+    "lookback": {
+      "minute": "2_rth_sessions",
+      "5minute": "5_rth_sessions",
+      "hour": "30_calendar_days",
+      "day": "from_2026-05-01"
+    },
+    "note": "Robinhood 1-minute bar is interval=minute (not 1minute). No native 3minute — aggregate from minute. No 15minute."
+
   },
   "loop": {
     "rth_minutes": 15,
