@@ -260,12 +260,51 @@ def test_underlying_quote_and_bod_nlv_helpers():
 
 def test_daily_setup_rank_is_deterministic():
     hits = [
-        {"pattern": "ascending_triangle", "timeframe": "day", "bias": "bullish", "indices": [20, 40], "prominence": 2.0},
-        {"pattern": "double_bottom", "timeframe": "day", "bias": "bullish", "indices": [10, 40], "prominence": 1.0},
-        {"pattern": "symmetrical_triangle", "timeframe": "day", "bias": "neutral", "indices": [30, 50], "prominence": 9.0},
+        {
+            "pattern": "ascending_triangle",
+            "timeframe": "day",
+            "bias": "bullish",
+            "indices": [20, 80],
+            "last_pivot": 80,
+            "prominence": 9.0,
+        },
+        {
+            "pattern": "head_and_shoulders",
+            "timeframe": "day",
+            "bias": "bearish",
+            "indices": [10, 20, 30],
+            "last_pivot": 30,
+            "prominence": 0.02,
+        },
+        {
+            "pattern": "double_bottom",
+            "timeframe": "day",
+            "bias": "bullish",
+            "indices": [10, 40],
+            "last_pivot": 40,
+            "prominence": 1.0,
+        },
+        {
+            "pattern": "symmetrical_triangle",
+            "timeframe": "day",
+            "bias": "neutral",
+            "indices": [30, 50],
+            "prominence": 9.0,
+        },
     ]
     ranked = rank_daily_setups(hits)
-    assert [row["pattern"] for row in ranked] == ["double_bottom", "ascending_triangle"]
+    assert [row["pattern"] for row in ranked] == [
+        "head_and_shoulders",
+        "double_bottom",
+        "ascending_triangle",
+    ]
+
+
+def test_double_rejects_span_beyond_max_duration():
+    prices = [5.0] * 3 + [3.0] + [5.0] * 70 + [3.0] + [5.0] * 6
+    bars = [{"close": c, "high": c + 0.2, "low": c - 0.2} for c in prices]
+    hits = detect_patterns(bars, timeframe="day")
+    assert "double_bottom" not in {h["pattern"] for h in hits}
 
 
 def test_intraday_patterns_ignored_without_daily_hit():

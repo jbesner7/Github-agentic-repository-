@@ -381,8 +381,8 @@
       "daily_neckline_governs_10m_breakout": true,
       "intraday_neckline_does_not_replace_daily": true,
       "overlapping_rank": [
-        "most_recent_last_pivot",
         "hs_then_double_triple_then_triangle",
+        "most_recent_last_pivot",
         "larger_prominence",
         "fixed_type_order"
       ],

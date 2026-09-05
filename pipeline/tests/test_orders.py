@@ -98,6 +98,7 @@ def test_rules_json_matches_working_states_and_10minute():
     assert rules["agent_h"]["take_profit"]["cancel_unfilled_replacement_seconds_after_initial_tp"] == 30
     assert rules["agent_h"]["forced_liquidation"]["dte_1_to_3_begin"] == "15:40"
     assert rules["agent_h"]["patterns"]["daily_neckline_governs_10m_breakout"] is True
+    assert rules["agent_h"]["patterns"]["overlapping_rank"][0] == "hs_then_double_triple_then_triangle"
     assert rules["agent_h"]["patterns"]["earliest_practical_entry_after_retest_et"] == "13:10"
     assert rules["agent_h"]["expiration_selection"]["same_day_group_dte"] == [2, 3]
     assert rules["options"]["strike"]["put_delta_min"] == -0.5

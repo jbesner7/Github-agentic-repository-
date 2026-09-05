@@ -34,6 +34,16 @@ PATTERN_PRIORITY = (
     "ascending_triangle",
     "descending_triangle",
 )
+PATTERN_FAMILY = {
+    "inverse_head_and_shoulders": 0,
+    "head_and_shoulders": 0,
+    "double_bottom": 1,
+    "double_top": 1,
+    "triple_bottom": 1,
+    "triple_top": 1,
+    "ascending_triangle": 2,
+    "descending_triangle": 2,
+}
 
 HEAD_PROMINENCE_PCT = 0.015
 MIN_PIVOT_SEPARATION_BARS = 3
@@ -66,6 +76,27 @@ def _count_line_touches(prices: np.ndarray, slope: float, intercept: float, *, t
     return touches
 
 
+def _last_touch_offset(prices: np.ndarray, slope: float, intercept: float, *, tol_pct: float) -> int | None:
+    last: int | None = None
+    for i, price in enumerate(prices):
+        fitted = intercept + slope * float(i)
+        base = max(abs(fitted), abs(float(price)), 1e-9)
+        if abs(float(price) - fitted) / base <= tol_pct:
+            last = i
+    return last
+
+
+def _span_ok(indices: list[int], *, max_span: int) -> bool:
+    return (max(indices) - min(indices)) <= max_span
+
+
+def _last_pivot(hit: dict[str, Any]) -> int:
+    if hit.get("last_pivot") is not None:
+        return int(hit["last_pivot"])
+    indices = hit.get("indices") or [0]
+    return int(max(indices))
+
+
 def rank_daily_setups(hits: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """One deterministic winner among overlapping daily setups. Neutral triangles never rank."""
     daily = [
@@ -75,10 +106,12 @@ def rank_daily_setups(hits: list[dict[str, Any]]) -> list[dict[str, Any]]:
     ]
     priority = {name: i for i, name in enumerate(PATTERN_PRIORITY)}
 
-    def sort_key(hit: dict[str, Any]) -> tuple[int, int, float]:
-        last_idx = max(hit.get("indices") or [0])
+    def sort_key(hit: dict[str, Any]) -> tuple[int, int, float, int]:
+        name = str(hit.get("pattern"))
+        family = PATTERN_FAMILY.get(name, 99)
         prominence = float(hit.get("prominence") or 0.0)
-        return (-last_idx, priority.get(str(hit.get("pattern")), 99), -prominence)
+        # Family first so a triangle window-end cannot leapfrog H&S or double/triple.
+        return (family, -_last_pivot(hit), -prominence, priority.get(name, 99))
 
     return sorted(daily, key=sort_key)
 
@@ -96,31 +129,49 @@ def detect_patterns(ohlc: list[dict[str, Any]], *, timeframe: str) -> list[dict[
     lows = np.array([float(b.get("low", b["close"])) for b in ohlc], dtype=float)
     peaks, troughs = _local_extrema(closes, order=3)
     hits: list[dict[str, Any]] = []
+    max_span = _max_pattern_bars(timeframe)
 
     # Double / triple tops
     if len(peaks) >= 2:
         p1, p2 = peaks[-2], peaks[-1]
-        if _nearly_equal(closes[p1], closes[p2]):
+        if (
+            _nearly_equal(closes[p1], closes[p2])
+            and _pivots_separated([p1, p2])
+            and _span_ok([p1, p2], max_span=max_span)
+        ):
             neck = float(closes[p1:p2].min()) if p2 > p1 else float(closes[p2])
+            prominence = abs(float(closes[p2]) - neck) / max(abs(neck), 1e-9)
             hits.append(
                 {
                     "pattern": "double_top",
                     "timeframe": timeframe,
                     "indices": [p1, p2],
+                    "last_pivot": p2,
                     "prices": [float(closes[p1]), float(closes[p2])],
                     "neckline": neck,
+                    "prominence": prominence,
                     "bias": "bearish",
                 }
             )
     if len(peaks) >= 3:
         p1, p2, p3 = peaks[-3], peaks[-2], peaks[-1]
-        if _nearly_equal(closes[p1], closes[p2]) and _nearly_equal(closes[p2], closes[p3]):
+        if (
+            _nearly_equal(closes[p1], closes[p2])
+            and _nearly_equal(closes[p2], closes[p3])
+            and _pivots_separated([p1, p2, p3])
+            and _span_ok([p1, p3], max_span=max_span)
+        ):
+            neck = float(closes[p1:p3].min())
+            prominence = abs(float(closes[p3]) - neck) / max(abs(neck), 1e-9)
             hits.append(
                 {
                     "pattern": "triple_top",
                     "timeframe": timeframe,
                     "indices": [p1, p2, p3],
+                    "last_pivot": p3,
                     "prices": [float(closes[p1]), float(closes[p2]), float(closes[p3])],
+                    "neckline": neck,
+                    "prominence": prominence,
                     "bias": "bearish",
                 }
             )
@@ -128,33 +179,49 @@ def detect_patterns(ohlc: list[dict[str, Any]], *, timeframe: str) -> list[dict[
     # Double / triple bottoms
     if len(troughs) >= 2:
         t1, t2 = troughs[-2], troughs[-1]
-        if _nearly_equal(closes[t1], closes[t2]):
+        if (
+            _nearly_equal(closes[t1], closes[t2])
+            and _pivots_separated([t1, t2])
+            and _span_ok([t1, t2], max_span=max_span)
+        ):
             neck = float(closes[t1:t2].max()) if t2 > t1 else float(closes[t2])
+            prominence = abs(neck - float(closes[t2])) / max(abs(neck), 1e-9)
             hits.append(
                 {
                     "pattern": "double_bottom",
                     "timeframe": timeframe,
                     "indices": [t1, t2],
+                    "last_pivot": t2,
                     "prices": [float(closes[t1]), float(closes[t2])],
                     "neckline": neck,
+                    "prominence": prominence,
                     "bias": "bullish",
                 }
             )
     if len(troughs) >= 3:
         t1, t2, t3 = troughs[-3], troughs[-2], troughs[-1]
-        if _nearly_equal(closes[t1], closes[t2]) and _nearly_equal(closes[t2], closes[t3]):
+        if (
+            _nearly_equal(closes[t1], closes[t2])
+            and _nearly_equal(closes[t2], closes[t3])
+            and _pivots_separated([t1, t2, t3])
+            and _span_ok([t1, t3], max_span=max_span)
+        ):
+            neck = float(closes[t1:t3].max())
+            prominence = abs(neck - float(closes[t3])) / max(abs(neck), 1e-9)
             hits.append(
                 {
                     "pattern": "triple_bottom",
                     "timeframe": timeframe,
                     "indices": [t1, t2, t3],
+                    "last_pivot": t3,
                     "prices": [float(closes[t1]), float(closes[t2]), float(closes[t3])],
+                    "neckline": neck,
+                    "prominence": prominence,
                     "bias": "bullish",
                 }
             )
 
     # Head and shoulders / inverse: time-ordered LS → head → RS, intervening opposite pivots.
-    max_span = _max_pattern_bars(timeframe)
     if len(peaks) >= 3:
         l, h, r = peaks[-3], peaks[-2], peaks[-1]
         left_troughs = [t for t in troughs if l < t < h]
@@ -179,6 +246,7 @@ def detect_patterns(ohlc: list[dict[str, Any]], *, timeframe: str) -> list[dict[
                     "pattern": "head_and_shoulders",
                     "timeframe": timeframe,
                     "indices": [l, h, r],
+                    "last_pivot": r,
                     "prices": [float(closes[l]), float(closes[h]), float(closes[r])],
                     "neckline": neck,
                     "prominence": float(min(head_vs_left, head_vs_right)),
@@ -209,6 +277,7 @@ def detect_patterns(ohlc: list[dict[str, Any]], *, timeframe: str) -> list[dict[
                     "pattern": "inverse_head_and_shoulders",
                     "timeframe": timeframe,
                     "indices": [l, h, r],
+                    "last_pivot": r,
                     "prices": [float(closes[l]), float(closes[h]), float(closes[r])],
                     "neckline": neck,
                     "prominence": float(min(head_vs_left, head_vs_right)),
@@ -240,9 +309,14 @@ def detect_patterns(ohlc: list[dict[str, Any]], *, timeframe: str) -> list[dict[
             and low_touches >= TRIANGLE_MIN_TOUCHES_PER_SIDE
         )
         start_idx = len(closes) - window
+        high_last = _last_touch_offset(seg_high, high_slope, float(high_fit[1]), tol_pct=TRIANGLE_TOUCH_PCT)
+        low_last = _last_touch_offset(seg_low, low_slope, float(low_fit[1]), tol_pct=TRIANGLE_TOUCH_PCT)
+        touch_offsets = [idx for idx in (high_last, low_last) if idx is not None]
+        last_pivot = start_idx + max(touch_offsets) if touch_offsets else start_idx
         triangle_meta = {
             "timeframe": timeframe,
-            "indices": [start_idx, len(closes) - 1],
+            "indices": [start_idx, last_pivot],
+            "last_pivot": last_pivot,
             "high_slope": high_slope,
             "low_slope": low_slope,
             "high_touches": high_touches,
@@ -266,9 +340,11 @@ def collect_pattern_hits(
     """Daily first. 10-minute / hour only on names with a daily pattern hit."""
     daily_bars = list(historicals_for_symbol.get("day") or historicals_for_symbol.get("daily") or [])
     daily_hits = detect_patterns(daily_bars, timeframe="day")
-    hits = list(daily_hits)
-    if not daily_hits:
-        return hits
+    ranked = rank_daily_setups(daily_hits)
+    if not ranked:
+        return []
+    winner = ranked[0]
+    hits = [winner]
     for tf in timeframes:
         if tf in ("day", "daily"):
             continue

@@ -21,11 +21,13 @@ from pipeline.universe import apply_liquidity_filter, extract_watchlist_symbols,
 
 
 def dominant_bias(pattern_hits: list[dict[str, Any]]) -> str | None:
+    for hit in pattern_hits:
+        if hit.get("timeframe") in ("day", "daily") and hit.get("bias") in ("bullish", "bearish"):
+            return str(hit["bias"])
     biases = [p.get("bias") for p in pattern_hits if p.get("bias") in ("bullish", "bearish")]
     if not biases:
         return None
     counts = Counter(biases)
-    # Require strict majority
     top, n = counts.most_common(1)[0]
     if n > len(biases) / 2:
         return top

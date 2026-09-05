@@ -15,7 +15,6 @@ BOD_NLV_FIELD_CANDIDATES = (
     "beginning_of_day_portfolio_value",
     "last_core_portfolio_equity",
     "last_core_equity",
-    "overnight_equity",
 )
 
 
