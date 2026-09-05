@@ -4,7 +4,13 @@ from datetime import datetime
 from typing import Any
 
 from pipeline.io_util import JOURNAL, SIGNALS, append_jsonl, load_rules, read_json, utc_now_iso, write_json
-from pipeline.session import is_rth
+from pipeline.session import (
+    NO_NEW_OPTION_ENTRIES_BEFORE,
+    entries_open,
+    is_rth,
+    now_et,
+    option_entries_open,
+)
 
 
 def load_latest_option_candidates() -> list[dict[str, Any]]:
@@ -41,9 +47,17 @@ def can_place_live(
         return False, f"{playbook_kind}_playbook_still_draft"
     if not explicit_confirm:
         return False, "missing_explicit_user_confirm"
+    if not is_rth(now):
+        return False, "outside_rth"
+    if playbook_kind == "options" and not option_entries_open(now):
+        if now_et(now).time() < NO_NEW_OPTION_ENTRIES_BEFORE:
+            return False, "no_new_option_entries_before_0945"
+        return False, "no_new_entries_after_1545"
+    if not entries_open(now):
+        return False, "no_new_entries_after_1545"
     if h_enabled is None:
         h_enabled = load_rules().get("execution", {}).get("unsupervised_agent_h") == "enabled"
-    if h_enabled and is_rth(now) and not h_rth_override:
+    if h_enabled and not h_rth_override:
         return False, "h_owns_rth_while_enabled"
     return True, None
 

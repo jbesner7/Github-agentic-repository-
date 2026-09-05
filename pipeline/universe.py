@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import Any
 
+from pipeline.equity_day_trade import is_inverse_etf
+
 
 CRYPTO_OBJECT_TYPES = {"currency_pair", "tokenized_stock"}
 EQUITY_OBJECT_TYPES = {"instrument"}
@@ -98,6 +100,9 @@ def apply_liquidity_filter(
 
     for symbol in symbols:
         fund = fundamentals_by_symbol.get(symbol) or {}
+        if is_inverse_etf(symbol, fund):
+            rejected.append({"symbol": symbol, "reason": "inverse_etf"})
+            continue
         # RH fundamentals field names can vary; accept common keys only if present.
         avg_vol = None
         for key in (
@@ -146,11 +151,22 @@ def option_quote_liquid(
     Spread is measured as (ask − bid) / mid. Prefer ≤ 5% of price; reject above 10%.
     There is no absolute-dollar override.
     """
-    try:
-        bid = float(quote.get("bid_price") or 0)
-        ask = float(quote.get("ask_price") or 0)
-    except (TypeError, ValueError):
-        return False, "invalid_bid_ask", {}
+    if not quote:
+        return False, "missing_bid_ask", {}
+
+    def _px(*keys: str) -> float | None:
+        for key in keys:
+            if key in quote and quote[key] not in (None, ""):
+                try:
+                    return float(quote[key])
+                except (TypeError, ValueError):
+                    continue
+        return None
+
+    bid = _px("bid_price", "bid", "bid_last")
+    ask = _px("ask_price", "ask", "ask_last")
+    if bid is None or ask is None:
+        return False, "missing_bid_ask", {"bid": bid, "ask": ask}
 
     if reject_one_sided and (bid <= 0 or ask <= 0):
         return False, "one_sided_or_missing_quote", {"bid": bid, "ask": ask}

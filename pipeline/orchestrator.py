@@ -9,24 +9,67 @@ from pipeline.io_util import append_jsonl, load_rules, utc_now_iso, write_json, 
 from pipeline.news import build_news_signal
 from pipeline.options_structure import (
     choose_structure_from_bias,
-    filter_expirations,
-    pick_atm_or_one_otm,
+    instrument_id,
+    rank_atm_then_one_otm,
+    rank_expirations,
+    strikes_bracket_spot,
 )
-from pipeline.patterns import detect_patterns
+from pipeline.patterns import collect_pattern_hits
+from pipeline.quotes import extract_bod_nlv
 from pipeline.risk import equity_risk_plan, options_risk_plan
+from pipeline.session import today_et
 from pipeline.universe import apply_liquidity_filter, extract_watchlist_symbols, option_quote_liquid
+
+PHASE2_SNAPSHOT_NOTE = (
+    "Pipeline snapshot. Daily-pattern screen only. Not H-entry-ready: "
+    "does not confirm hour alignment, 10m breakout/retest, live trigger, "
+    "IV, volume/OI, quote age, event blackout, BOD NLV, or dual fee ceilings. "
+    "Re-quote live. Never place from this file. Agent H must ignore equity_candidates."
+)
 
 
 def dominant_bias(pattern_hits: list[dict[str, Any]]) -> str | None:
+    for hit in pattern_hits:
+        if hit.get("timeframe") in ("day", "daily") and hit.get("bias") in ("bullish", "bearish"):
+            return str(hit["bias"])
     biases = [p.get("bias") for p in pattern_hits if p.get("bias") in ("bullish", "bearish")]
     if not biases:
         return None
     counts = Counter(biases)
-    # Require strict majority
     top, n = counts.most_common(1)[0]
     if n > len(biases) / 2:
         return top
     return None
+
+
+def _snapshot(payload: dict[str, Any]) -> dict[str, Any]:
+    return {
+        **payload,
+        "do_not_place": True,
+        "h_entry_ready": False,
+        "snapshot_note": PHASE2_SNAPSHOT_NOTE,
+    }
+
+
+def _option_premium(quote: dict[str, Any], liq_metrics: dict[str, Any]) -> tuple[float | None, str | None]:
+    """Playbook premium is bid/ask mid. Do not require mark_price."""
+    mid = liq_metrics.get("mid")
+    if mid not in (None, ""):
+        try:
+            value = float(mid)
+            if value > 0:
+                return value, "mid"
+        except (TypeError, ValueError):
+            pass
+    for key in ("mark_price", "adjusted_mark_price"):
+        if quote.get(key) not in (None, ""):
+            try:
+                value = float(quote[key])
+                if value > 0:
+                    return value, key
+            except (TypeError, ValueError):
+                continue
+    return None, None
 
 
 def run_pipeline(raw: dict[str, Any]) -> dict[str, Any]:
@@ -61,21 +104,21 @@ def run_pipeline(raw: dict[str, Any]) -> dict[str, Any]:
         "index_symbols": universe_extract["index_symbols"],
         "eligible_equities": liq["passed_symbols"],
     }
-    write_json(SIGNALS / "universe.json", universe_signal)
+    write_json(SIGNALS / "universe.json", _snapshot(universe_signal))
 
     # --- Agent B ---
     technicals: dict[str, Any] = {"agent": "B_patterns", "as_of": as_of, "symbols": {}}
     historicals = raw.get("historicals_by_symbol_timeframe", {})
     for symbol in liq["passed_symbols"]:
-        symbol_hits: list[dict[str, Any]] = []
-        for tf in rules["patterns"]["timeframes"]:
-            bars = historicals.get(symbol, {}).get(tf) or []
-            symbol_hits.extend(detect_patterns(bars, timeframe=tf))
+        symbol_hits = collect_pattern_hits(
+            historicals.get(symbol) or {},
+            list(rules["patterns"]["timeframes"]),
+        )
         technicals["symbols"][symbol] = {
             "pattern_hits": symbol_hits,
             "dominant_bias": dominant_bias(symbol_hits),
         }
-    write_json(SIGNALS / "technicals.json", technicals)
+    write_json(SIGNALS / "technicals.json", _snapshot(technicals))
 
     # --- Agent C ---
     news_signal = {"agent": "C_news", "as_of": as_of, "symbols": {}}
@@ -87,7 +130,7 @@ def run_pipeline(raw: dict[str, Any]) -> dict[str, Any]:
             news_raw.get(symbol) or [],
             earnings_raw.get(symbol),
         )
-    write_json(SIGNALS / "news.json", news_signal)
+    write_json(SIGNALS / "news.json", _snapshot(news_signal))
 
     # --- Agents D + I ---
     option_candidates: list[dict[str, Any]] = []
@@ -97,6 +140,17 @@ def run_pipeline(raw: dict[str, Any]) -> dict[str, Any]:
     chains = raw.get("option_chains_by_symbol", {})
     instruments_by_key = raw.get("option_instruments_by_symbol_exp", {})
     quotes_by_id = raw.get("option_quotes_by_id", {})
+    quotes_by_id = {str(k): v for k, v in quotes_by_id.items()}
+    buying_power = buying_power_from_raw(raw)
+    delta_lo = float(rules["options"]["strike"]["delta_min"])
+    delta_hi = float(rules["options"]["strike"]["delta_max"])
+    max_spread = float(rules["liquidity"]["option_max_spread_pct_of_price"])
+    pref_spread = float(rules["liquidity"]["option_preferred_spread_pct_of_price"])
+    reject_one_sided = bool(rules["liquidity"]["reject_one_sided_quotes"])
+    multiplier = 100.0
+    min_dte = int(rules["options"].get("min_dte", 0))
+    max_dte = int(rules["options"]["max_dte"])
+    overnight_holding = bool(rules["agent_h"].get("overnight_holding_enabled", False))
 
     for symbol in liq["passed_symbols"]:
         bias = technicals["symbols"].get(symbol, {}).get("dominant_bias")
@@ -113,96 +167,182 @@ def run_pipeline(raw: dict[str, Any]) -> dict[str, Any]:
             continue
 
         chain = chains.get(symbol) or {}
-        expirations = filter_expirations(chain.get("expiration_dates") or [], max_dte=int(rules["options"]["max_dte"]))
+        expirations = rank_expirations(
+            chain.get("expiration_dates") or [],
+            overnight_holding_enabled=overnight_holding,
+            hard_min_dte=min_dte,
+            hard_max_dte=max_dte,
+        )
         if not expirations:
             equity_fallbacks.append({"symbol": symbol, "reason": "no_expiration_within_max_dte", "bias": bias})
             continue
 
-        exp = expirations[0]
         option_type = "call" if structure == "long_call" else "put"
-        instruments = instruments_by_key.get(f"{symbol}|{exp}") or instruments_by_key.get(symbol) or []
-        pick = pick_atm_or_one_otm(float(spot), instruments, option_type=option_type)
-        if not pick:
-            equity_fallbacks.append({"symbol": symbol, "reason": "no_instrument_match", "bias": bias})
-            continue
+        passed: dict[str, Any] | None = None
+        last_reject: dict[str, Any] | None = None
+        for exp in expirations:
+            instruments = instruments_by_key.get(f"{symbol}|{exp}") or instruments_by_key.get(symbol) or []
+            if not strikes_bracket_spot(float(spot), instruments, option_type=option_type):
+                last_reject = {
+                    "symbol": symbol,
+                    "reason": "option_chain_incomplete_atm_not_in_page",
+                    "bias": bias,
+                    "expiration": exp,
+                }
+                continue
 
-        inst = pick["instrument"]
-        oid = inst["id"]
-        quote = quotes_by_id.get(oid) or {}
-        ok_liq, liq_reason, liq_metrics = option_quote_liquid(
-            quote,
-            max_spread_pct_of_price=float(rules["liquidity"]["option_max_spread_pct_of_price"]),
-            preferred_spread_pct_of_price=float(rules["liquidity"]["option_preferred_spread_pct_of_price"]),
-            reject_one_sided=bool(rules["liquidity"]["reject_one_sided_quotes"]),
-        )
-        gpack = extract_greeks(quote)
-        greeks_rows.append(
-            {
-                "symbol": symbol,
-                "option_id": oid,
-                "expiration": exp,
-                "type": option_type,
-                "strike": inst.get("strike_price"),
-                **gpack,
-                "liquidity": {"ok": ok_liq, "reason": liq_reason, **liq_metrics},
-            }
-        )
-        delta = gpack["greeks"].get("delta")
-        ok_delta, delta_reason = delta_in_band(
-            delta,
-            lo=float(rules["options"]["strike"]["delta_min"]),
-            hi=float(rules["options"]["strike"]["delta_max"]),
-        )
-        if not ok_liq:
-            equity_fallbacks.append(
-                {"symbol": symbol, "reason": f"option_illiquid:{liq_reason}", "bias": bias, "option_id": oid}
-            )
-            continue
-        if not ok_delta:
-            equity_fallbacks.append(
-                {"symbol": symbol, "reason": f"greeks_filter:{delta_reason}", "bias": bias, "option_id": oid}
-            )
-            continue
+            ranked = rank_atm_then_one_otm(float(spot), instruments, option_type=option_type)
+            if not ranked:
+                last_reject = {"symbol": symbol, "reason": "no_instrument_match", "bias": bias, "expiration": exp}
+                continue
 
-        mark = quote.get("mark_price") or quote.get("adjusted_mark_price")
-        try:
-            premium = float(mark)
-        except (TypeError, ValueError):
-            equity_fallbacks.append({"symbol": symbol, "reason": "missing_mark_price", "option_id": oid})
-            continue
+            for pick in ranked:
+                inst = pick["instrument"]
+                oid = instrument_id(inst)
+                if not oid:
+                    last_reject = {"symbol": symbol, "reason": "missing_option_id", "bias": bias, "expiration": exp}
+                    continue
+                quote = quotes_by_id.get(oid) or quotes_by_id.get(str(inst.get("id"))) or {}
+                ok_liq, liq_reason, liq_metrics = option_quote_liquid(
+                    quote,
+                    max_spread_pct_of_price=max_spread,
+                    preferred_spread_pct_of_price=pref_spread,
+                    reject_one_sided=reject_one_sided,
+                )
+                gpack = extract_greeks(quote)
+                greeks_rows.append(
+                    {
+                        "symbol": symbol,
+                        "option_id": oid,
+                        "expiration": exp,
+                        "type": option_type,
+                        "strike": inst.get("strike_price", inst.get("strike")),
+                        "selection": pick["selection"],
+                        **gpack,
+                        "liquidity": {"ok": ok_liq, "reason": liq_reason, **liq_metrics},
+                    }
+                )
+                if not ok_liq:
+                    last_reject = {
+                        "symbol": symbol,
+                        "reason": f"option_illiquid:{liq_reason}",
+                        "bias": bias,
+                        "option_id": oid,
+                        "selection": pick["selection"],
+                        "expiration": exp,
+                    }
+                    continue
+                ok_delta, delta_reason = delta_in_band(
+                    gpack["greeks"].get("delta"),
+                    option_type=option_type,
+                    lo=delta_lo,
+                    hi=delta_hi,
+                )
+                if not ok_delta:
+                    last_reject = {
+                        "symbol": symbol,
+                        "reason": f"greeks_filter:{delta_reason}",
+                        "bias": bias,
+                        "option_id": oid,
+                        "selection": pick["selection"],
+                        "expiration": exp,
+                    }
+                    continue
+                premium, premium_source = _option_premium(quote, liq_metrics)
+                if premium is None:
+                    last_reject = {
+                        "symbol": symbol,
+                        "reason": "missing_bid_ask_mid",
+                        "bias": bias,
+                        "option_id": oid,
+                        "selection": pick["selection"],
+                        "expiration": exp,
+                    }
+                    continue
+                cash = premium * multiplier
+                if buying_power is None:
+                    last_reject = {
+                        "symbol": symbol,
+                        "reason": "missing_buying_power",
+                        "bias": bias,
+                        "option_id": oid,
+                        "selection": pick["selection"],
+                        "expiration": exp,
+                    }
+                    continue
+                if cash > buying_power + 1e-9:
+                    last_reject = {
+                        "symbol": symbol,
+                        "reason": "exceeds_buying_power",
+                        "bias": bias,
+                        "option_id": oid,
+                        "selection": pick["selection"],
+                        "expiration": exp,
+                        "cash_debit": cash,
+                        "buying_power": buying_power,
+                    }
+                    continue
+                passed = {
+                    "symbol": symbol,
+                    "structure": structure,
+                    "bias": bias,
+                    "expiration": exp,
+                    "option_type": option_type,
+                    "strike": inst.get("strike_price", inst.get("strike")),
+                    "option_id": oid,
+                    "selection": pick["selection"],
+                    "premium_mark": premium,
+                    "premium_source": premium_source,
+                    "greeks": gpack["greeks"],
+                    "liquidity": liq_metrics,
+                    "contracts": 1,
+                    "cash_debit": cash,
+                    "playbook_status": rules["options"]["playbook_status"],
+                }
+                break
+            if passed is not None:
+                break
 
-        option_candidates.append(
-            {
-                "symbol": symbol,
-                "structure": structure,
-                "bias": bias,
-                "expiration": exp,
-                "option_type": option_type,
-                "strike": inst.get("strike_price"),
-                "option_id": oid,
-                "selection": pick["selection"],
-                "premium_mark": premium,
-                "greeks": gpack["greeks"],
-                "liquidity": liq_metrics,
-                "contracts": 1,
-                "playbook_status": rules["options"]["playbook_status"],
-            }
-        )
+        if passed is None:
+            equity_fallbacks.append(last_reject or {"symbol": symbol, "reason": "no_instrument_match", "bias": bias})
+            continue
+        option_candidates.append(passed)
 
     write_json(
         SIGNALS / "option_candidates.json",
-        {
-            "agent": "D_option_structure",
-            "as_of": as_of,
-            "mode": "read_only",
-            "candidates": option_candidates,
-            "equity_fallbacks": equity_fallbacks,
-            "max_contracts": rules["options"]["max_contracts"],
-        },
+        _snapshot(
+            {
+                "agent": "D_option_structure",
+                "as_of": as_of,
+                "mode": "read_only",
+                "candidates": option_candidates,
+                "equity_fallbacks": equity_fallbacks,
+                "max_contracts": rules["options"]["max_contracts"],
+                "phase2_checks": [
+                    "daily_pattern",
+                    "expiration_group",
+                    "atm_otm",
+                    "signed_delta",
+                    "spread",
+                    "buying_power",
+                ],
+                "h_still_requires": [
+                    "hour_confirm",
+                    "10m_breakout_retest",
+                    "live_trigger",
+                    "iv",
+                    "volume_oi",
+                    "quote_age",
+                    "event_blackout",
+                    "bod_nlv",
+                    "dual_fee_ceilings",
+                ],
+            }
+        ),
     )
     write_json(
         SIGNALS / "greeks.json",
-        {"agent": "I_greeks", "as_of": as_of, "source": "robinhood_get_option_quotes", "rows": greeks_rows},
+        _snapshot({"agent": "I_greeks", "as_of": as_of, "source": "robinhood_get_option_quotes", "rows": greeks_rows}),
     )
 
     equity_candidates, equity_rejects = select_equity_day_trade_candidates(
@@ -212,26 +352,30 @@ def run_pipeline(raw: dict[str, Any]) -> dict[str, Any]:
         quotes_by_symbol=raw.get("equity_quotes_by_symbol") or {},
         tradability_by_symbol=raw.get("equity_tradability_by_symbol") or {},
         fundamentals_by_symbol=raw.get("fundamentals_by_symbol") or {},
-        buying_power=buying_power_from_raw(raw),
+        buying_power=buying_power,
         playbook_status=str(rules["risk"]["equity"]["playbook_status"]),
         take_profit_pct=float(rules["risk"]["equity"]["take_profit_pct_of_cost"]),
         stop_loss_pct=float(rules["risk"]["equity"]["stop_loss_pct_of_cost"]),
     )
     write_json(
         SIGNALS / "equity_candidates.json",
-        {
-            "agent": "D_equity_day_trade",
-            "as_of": as_of,
-            "mode": "read_only",
-            "playbook_status": rules["risk"]["equity"]["playbook_status"],
-            "playbook_path": rules["risk"]["equity"]["playbook_path"],
-            "side": "long_only",
-            "no_shorting": True,
-            "priority": "options_first",
-            "candidates": equity_candidates,
-            "rejected": equity_rejects,
-            "option_fallback_notes": equity_fallbacks,
-        },
+        _snapshot(
+            {
+                "agent": "D_equity_day_trade",
+                "as_of": as_of,
+                "mode": "read_only",
+                "playbook_status": rules["risk"]["equity"]["playbook_status"],
+                "playbook_path": rules["risk"]["equity"]["playbook_path"],
+                "side": "long_only",
+                "no_shorting": True,
+                "priority": "options_first",
+                "agent_h_may_use": False,
+                "agent_h_equity_fallback": False,
+                "candidates": equity_candidates,
+                "rejected": equity_rejects,
+                "option_fallback_notes": equity_fallbacks,
+            }
+        ),
     )
 
     # --- Agent E ---
@@ -259,39 +403,45 @@ def run_pipeline(raw: dict[str, Any]) -> dict[str, Any]:
 
     write_json(
         SIGNALS / "risk_plan.json",
-        {
-            "agent": "E_risk",
-            "as_of": as_of,
-            "mode": "read_only",
-            "max_open_positions": rules["risk"]["max_open_positions"],
-            "plans": risk_plans,
-            "notes": "Stop-first until OCO; TP monitored in loop. Phase 2 does not place orders.",
-        },
+        _snapshot(
+            {
+                "agent": "E_risk",
+                "as_of": as_of,
+                "mode": "read_only",
+                "max_open_positions": rules["risk"]["max_open_positions"],
+                "plans": risk_plans,
+                "notes": "Stop-first until OCO; TP monitored in loop. Phase 2 does not place orders.",
+            }
+        ),
     )
 
+    bod_nlv, bod_field = extract_bod_nlv(raw.get("portfolio"))
     summary = {
         "as_of": as_of,
         "phase": 2,
         "places_orders": False,
+        "h_entry_ready": False,
         "eligible_equities": liq["passed_symbols"],
         "option_candidate_count": len(option_candidates),
         "equity_candidate_count": len(equity_candidates),
         "equity_fallback_count": len(equity_fallbacks),
         "risk_plan_count": len(risk_plans),
+        "bod_nlv": bod_nlv,
+        "bod_nlv_field": bod_field,
         "open_questions": rules.get("open_questions", []),
     }
-    write_json(SIGNALS / "phase2_summary.json", summary)
+    write_json(SIGNALS / "phase2_summary.json", _snapshot(summary))
     append_jsonl(
         JOURNAL / "loop_runs.jsonl",
         {"event": "phase2_cycle", "mode": "read_only", **summary},
     )
+    journal_day = today_et().isoformat()
     append_jsonl(
-        JOURNAL / f"{as_of[:10]}.md.jsonl",
-        {"type": "markdown_seed", "text": f"# {as_of[:10]} Phase 2 cycle\n\n- options candidates: {len(option_candidates)}\n- eligible equities: {len(liq['passed_symbols'])}\n"},
+        JOURNAL / f"{journal_day}.md.jsonl",
+        {"type": "markdown_seed", "text": f"# {journal_day} Phase 2 cycle\n\n- options candidates: {len(option_candidates)}\n- eligible equities: {len(liq['passed_symbols'])}\n"},
     )
-    # Human-readable daily markdown journal
-    md_path = JOURNAL / f"{as_of[:10]}.md"
-    prev = md_path.read_text(encoding="utf-8") if md_path.exists() else f"# Trading journal {as_of[:10]}\n\n"
+    md_path = JOURNAL / f"{journal_day}.md"
+    prev = md_path.read_text(encoding="utf-8") if md_path.exists() else f"# Trading journal {journal_day}\n\n"
     prev += f"\n## Phase 2 read-only cycle ({as_of})\n"
     prev += f"- Eligible equities: {', '.join(liq['passed_symbols']) or '(none)'}\n"
     prev += f"- Option candidates: {len(option_candidates)}\n"
