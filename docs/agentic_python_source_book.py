@@ -7,7 +7,7 @@ Agent H (autonomous Agentic bot) share this Python pipeline.
 Live place_* is Robinhood MCP, not a side effect of this code.
 H's standing prompt is playbooks/agent_h_autonomous.PROMPT.md (not Python).
 
-Generated: 2026-09-02T08:37:57+00:00
+Generated: 2026-09-05T23:42:32+00:00
 Print companion: docs/agentic-python-source-printable.html
 """
 
@@ -72,18 +72,19 @@ def read_json(path: Path) -> Any:
 # pipeline/session.py
 # Part: 1 · Shared
 # Used by: F + H
-# RTH clock: 09:30–16:00 ET, no new entries after 15:45
+# RTH clock; option entries 09:45–15:45; equity entries to 15:45
 # ========================================================================
 
 from __future__ import annotations
 
-from datetime import datetime, time
+from datetime import date, datetime, time
 from zoneinfo import ZoneInfo
 from typing import Any
 
 ET = ZoneInfo("America/New_York")
 RTH_START = time(9, 30)
 RTH_END = time(16, 0)
+NO_NEW_OPTION_ENTRIES_BEFORE = time(9, 45)
 NO_NEW_ENTRIES_AFTER = time(15, 45)
 
 
@@ -93,6 +94,11 @@ def now_et(now: datetime | None = None) -> datetime:
     if now.tzinfo is None:
         return now.replace(tzinfo=ET)
     return now.astimezone(ET)
+
+
+def today_et(now: datetime | None = None) -> date:
+    """Calendar date in America/New_York. Do not use UTC date.today() for DTE or journals."""
+    return now_et(now).date()
 
 
 def is_weekday(now: datetime | None = None) -> bool:
@@ -109,11 +115,19 @@ def is_rth(now: datetime | None = None) -> bool:
 
 
 def entries_open(now: datetime | None = None) -> bool:
-    """New entries only in RTH before 15:45 ET."""
+    """Equity / generic new entries: RTH before 15:45 ET."""
     dt = now_et(now)
     if not is_rth(dt):
         return False
     return dt.time() < NO_NEW_ENTRIES_AFTER
+
+
+def option_entries_open(now: datetime | None = None) -> bool:
+    """New option entries: RTH from 09:45 inclusive through 15:45 exclusive ET."""
+    dt = now_et(now)
+    if not entries_open(dt):
+        return False
+    return dt.time() >= NO_NEW_OPTION_ENTRIES_BEFORE
 
 
 def flatten_window(now: datetime | None = None) -> bool:
@@ -128,18 +142,28 @@ def session_gate(now: datetime | None = None) -> dict[str, Any]:
     dt = now_et(now)
     rth = is_rth(dt)
     open_for_entry = entries_open(dt)
+    option_open = option_entries_open(dt)
     reason = None
     if not rth:
         reason = "outside_rth"
     elif not open_for_entry:
         reason = "no_new_entries_after_1545"
+    option_reason = None
+    if not rth:
+        option_reason = "outside_rth"
+    elif dt.time() < NO_NEW_OPTION_ENTRIES_BEFORE:
+        option_reason = "no_new_option_entries_before_0945"
+    elif not open_for_entry:
+        option_reason = "no_new_entries_after_1545"
     return {
         "timezone": "America/New_York",
         "now_et": dt.isoformat(),
         "is_rth": rth,
         "entries_open": open_for_entry,
+        "option_entries_open": option_open,
         "flatten_window": flatten_window(dt),
         "reason": reason,
+        "option_reason": option_reason,
     }
 
 # ========================================================================
@@ -195,15 +219,465 @@ def has_working_orders(
     return bool(working_orders(option_orders, equity_orders))
 
 # ========================================================================
-# pipeline/universe.py
-# Part: 2 · Agent A
+# pipeline/quotes.py
+# Part: 1 · Shared
 # Used by: F + H
-# Watchlist extract, crypto drop, ADV ≥ 2,000,000, option quote liquidity
+# 5s underlying executable price; BOD NLV field extract
+# ========================================================================
+
+from __future__ import annotations
+
+from datetime import datetime, timedelta, timezone
+from typing import Any
+
+
+UNDERLYING_MAX_AGE_SECONDS = 5
+BOD_NLV_FIELD_CANDIDATES = (
+    "start_of_day_equity",
+    "beginning_of_day_equity",
+    "bod_equity",
+    "bod_nlv",
+    "equity_start_of_day",
+    "start_of_day_portfolio_value",
+    "beginning_of_day_portfolio_value",
+    "last_core_portfolio_equity",
+    "last_core_equity",
+)
+
+
+def _parse_ts(value: Any) -> datetime | None:
+    if value in (None, ""):
+        return None
+    if isinstance(value, datetime):
+        if value.tzinfo is None:
+            return value.replace(tzinfo=timezone.utc)
+        return value
+    text = str(value).strip()
+    if not text:
+        return None
+    if text.endswith("Z"):
+        text = text[:-1] + "+00:00"
+    try:
+        parsed = datetime.fromisoformat(text)
+    except ValueError:
+        return None
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=timezone.utc)
+    return parsed
+
+
+def _positive_money(value: Any) -> float | None:
+    if value in (None, ""):
+        return None
+    try:
+        amount = float(str(value).replace("$", "").replace(",", ""))
+    except (TypeError, ValueError):
+        return None
+    if amount != amount or amount <= 0:
+        return None
+    return amount
+
+
+def executable_underlying_price(
+    quote: dict[str, Any] | None,
+    *,
+    now: datetime | None = None,
+    max_age_seconds: int = UNDERLYING_MAX_AGE_SECONDS,
+) -> tuple[float | None, str | None]:
+    """Regular-session executable price for the live breakout trigger."""
+    if not isinstance(quote, dict):
+        return None, "underlying_quote_missing"
+    bid = _positive_money(quote.get("bid_price", quote.get("bid")))
+    ask = _positive_money(quote.get("ask_price", quote.get("ask")))
+    if bid is None or ask is None:
+        return None, "underlying_bid_ask_missing"
+    if bid > ask:
+        return None, "underlying_bid_above_ask"
+    ts = _parse_ts(
+        quote.get("updated_at")
+        or quote.get("updated_at_utc")
+        or quote.get("ask_time")
+        or quote.get("bid_time")
+        or quote.get("last_trade_time")
+    )
+    now = now or datetime.now(timezone.utc)
+    if ts is None:
+        return None, "underlying_quote_timestamp_missing"
+    if now - ts > timedelta(seconds=max_age_seconds):
+        return None, "underlying_quote_stale"
+    last = _positive_money(quote.get("last_trade_price", quote.get("last_price", quote.get("last"))))
+    if last is not None and bid <= last <= ask:
+        return last, None
+    return (bid + ask) / 2.0, None
+
+
+def extract_bod_nlv(portfolio: dict[str, Any] | None) -> tuple[float | None, str | None]:
+    """Return a broker beginning-of-day NLV if a known field is present. Never invent it."""
+    if not isinstance(portfolio, dict):
+        return None, None
+    mappings = [portfolio]
+    nested = portfolio.get("equity")
+    if isinstance(nested, dict):
+        mappings.append(nested)
+    for mapping in mappings:
+        for key in BOD_NLV_FIELD_CANDIDATES:
+            if key in mapping:
+                amount = _positive_money(mapping.get(key))
+                if amount is None:
+                    return None, key
+                return amount, key
+    return None, None
+
+# ========================================================================
+# pipeline/fees.py
+# Part: 1 · Shared
+# Used by: F + H
+# Dual fee ceilings: 0.49% planned loss and 0.50% with fees
 # ========================================================================
 
 from __future__ import annotations
 
 from typing import Any
+
+# Named leaf fees. Do not include totals or group subtotals here.
+COMPONENT_KEYS = frozenset(
+    {
+        "commission",
+        "commissions",
+        "regulatory_fee",
+        "regulatory_fees",
+        "regulatory",
+        "sec_fee",
+        "sec_fees",
+        "taf_fee",
+        "taf_fees",
+        "option_regulatory_fee",
+        "orf",
+        "orf_fee",
+        "contract_fee",
+        "contract_fees",
+        "per_contract_fee",
+        "exchange_fee",
+        "exchange_fees",
+        "clearing_fee",
+        "clearing_fees",
+    }
+)
+
+# Group keys that likely already include one or more COMPONENT_KEYS.
+COMPONENT_FAMILIES: tuple[frozenset[str], ...] = (
+    frozenset({"commission", "commissions"}),
+    frozenset(
+        {
+            "regulatory_fee",
+            "regulatory_fees",
+            "regulatory",
+            "sec_fee",
+            "sec_fees",
+            "taf_fee",
+            "taf_fees",
+            "option_regulatory_fee",
+            "orf",
+            "orf_fee",
+        }
+    ),
+    frozenset({"contract_fee", "contract_fees", "per_contract_fee"}),
+    frozenset({"exchange_fee", "exchange_fees"}),
+    frozenset({"clearing_fee", "clearing_fees"}),
+)
+
+# Alternate totals / rolled-up fees that must not be added to their parts.
+SUBTOTAL_KEYS = frozenset(
+    {"fee", "estimated_fee", "estimated_fees", "fee_total", "fees_total"}
+)
+
+PLANNED_LOSS_CEILING_WITH_QUOTED_FEE = 0.005
+PLANNED_LOSS_CEILING_IF_FEE_UNAVAILABLE_OR_ZERO = 0.0049
+
+
+def parse_money(value: Any) -> tuple[float | None, bool]:
+    """Return (amount, readable). readable is False when the field cannot be used."""
+    if value is None:
+        return None, True
+    if isinstance(value, bool):
+        return None, False
+    if isinstance(value, (int, float)):
+        if value != value or value in (float("inf"), float("-inf")):  # NaN / inf
+            return None, False
+        return float(value), True
+    if isinstance(value, str):
+        text = value.strip().replace("$", "").replace(",", "")
+        if text == "":
+            return None, True
+        try:
+            amount = float(text)
+        except ValueError:
+            return None, False
+        if amount != amount or amount in (float("inf"), float("-inf")):
+            return None, False
+        return amount, True
+    return None, False
+
+
+def _unavailable(reason: str) -> dict[str, Any]:
+    return {
+        "fee_status": "unavailable",
+        "entry_fee": None,
+        "journal": "fee_unavailable",
+        "source": reason,
+        "apply_049_ceiling": True,
+        "estimated_exit_fee": None,
+        "estimated_round_trip_fees": None,
+    }
+
+
+def _explicit_zero(source: str) -> dict[str, Any]:
+    return {
+        "fee_status": "explicit_zero",
+        "entry_fee": 0.0,
+        "journal": "fee_explicit_zero",
+        "source": source,
+        "apply_049_ceiling": True,
+        "estimated_exit_fee": None,
+        "estimated_round_trip_fees": None,
+    }
+
+
+def _quoted(entry_fee: float, source: str) -> dict[str, Any]:
+    return {
+        "fee_status": "quoted",
+        "entry_fee": entry_fee,
+        "journal": source,
+        "source": source,
+        "apply_049_ceiling": True,
+        "estimated_exit_fee": 2.0 * entry_fee,
+        "estimated_round_trip_fees": 3.0 * entry_fee,
+    }
+
+
+def _conflict(source: str) -> dict[str, Any]:
+    return {
+        "fee_status": "ambiguous",
+        "entry_fee": None,
+        "journal": "fee_conflict",
+        "source": source,
+        "apply_049_ceiling": True,
+        "estimated_exit_fee": None,
+        "estimated_round_trip_fees": None,
+    }
+
+
+def _fee_mappings(review: Any) -> list[dict[str, Any]]:
+    if not isinstance(review, dict):
+        return []
+    mappings = [review]
+    nested = review.get("fees")
+    if isinstance(nested, dict):
+        mappings.append(nested)
+    return mappings
+
+
+def _list_components(review: Any) -> list[tuple[str, Any]]:
+    rows: list[tuple[str, Any]] = []
+    if not isinstance(review, dict):
+        return rows
+    nested = review.get("fees")
+    if not isinstance(nested, list):
+        return rows
+    for item in nested:
+        if not isinstance(item, dict):
+            continue
+        name = str(
+            item.get("type")
+            or item.get("name")
+            or item.get("label")
+            or item.get("key")
+            or ""
+        ).strip().lower()
+        amount = item.get("amount", item.get("fee", item.get("value")))
+        if name:
+            rows.append((name, amount))
+    return rows
+
+
+def _first_total(mappings: list[dict[str, Any]]) -> tuple[Any, bool]:
+    """Return (raw_value, present). Prefer total_fee over aliases."""
+    present = False
+    raw: Any = None
+    for mapping in mappings:
+        if "total_fee" in mapping:
+            return mapping["total_fee"], True
+        if "total_fees" in mapping and not present:
+            raw = mapping["total_fees"]
+            present = True
+        if mapping.get("total") is not None and "commission" in mapping and not present:
+            # Nested RH-style {total, commission, ...}
+            raw = mapping["total"]
+            present = True
+    return raw, present
+
+
+def _component_values(mappings: list[dict[str, Any]], extra: list[tuple[str, Any]]) -> dict[str, Any]:
+    values: dict[str, Any] = {}
+    for mapping in mappings:
+        for key in COMPONENT_KEYS:
+            if key in mapping:
+                values[key] = mapping[key]
+    for name, amount in extra:
+        if name in COMPONENT_KEYS:
+            values[name] = amount
+        elif name in {"sec", "taf", "orf"}:
+            values[f"{name}_fee"] = amount
+    return values
+
+
+def _subtotal_values(mappings: list[dict[str, Any]]) -> dict[str, Any]:
+    values: dict[str, Any] = {}
+    for mapping in mappings:
+        for key in SUBTOTAL_KEYS:
+            if key in mapping:
+                values[key] = mapping[key]
+    return values
+
+
+def _parsed_items(raw_items: dict[str, Any]) -> tuple[dict[str, float], str | None]:
+    parsed: dict[str, float] = {}
+    for key, raw in raw_items.items():
+        amount, readable = parse_money(raw)
+        if not readable:
+            return {}, "unreadable"
+        if amount is None:
+            continue
+        if amount < 0:
+            return {}, "negative"
+        parsed[key] = amount
+    return parsed, None
+
+
+def _components_overlap(keys: set[str]) -> bool:
+    for family in COMPONENT_FAMILIES:
+        hit = keys & family
+        if len(hit) <= 1:
+            continue
+        group = hit & {
+            "commission",
+            "commissions",
+            "regulatory_fee",
+            "regulatory_fees",
+            "regulatory",
+            "contract_fee",
+            "contract_fees",
+            "exchange_fee",
+            "exchange_fees",
+            "clearing_fee",
+            "clearing_fees",
+        }
+        parts = hit - group
+        if group and parts:
+            return True
+        if len(hit & {"commission", "commissions"}) == 2:
+            return True
+        if len(hit & {"contract_fee", "contract_fees", "per_contract_fee"}) > 1 and not parts:
+            # two names for the same contract fee
+            if len(hit & {"contract_fee", "contract_fees"}) == 2:
+                return True
+    return False
+
+
+def classify_review_fees(review: Any) -> dict[str, Any]:
+    """Parse review_option_order fees. Never trust $0.00 total with positive parts."""
+    if review is None or not isinstance(review, dict):
+        return _unavailable("review_unreadable")
+
+    mappings = _fee_mappings(review)
+    raw_total, total_present = _first_total(mappings)
+    components_raw = _component_values(mappings, _list_components(review))
+    subtotals_raw = _subtotal_values(mappings)
+
+    if total_present:
+        total, readable = parse_money(raw_total)
+        if not readable or total is None or total < 0:
+            return _unavailable("total_fee_unreadable")
+
+        components, error = _parsed_items(components_raw)
+        if error:
+            return _unavailable(f"component_{error}")
+
+        if total > 0:
+            return _quoted(total, "total_fee")
+
+        positive = {key: amount for key, amount in components.items() if amount > 0}
+        if positive:
+            return _conflict(
+                "zero_total_plus_positive_component:" + ",".join(sorted(positive))
+            )
+        return _explicit_zero("total_fee_and_components_zero_or_absent")
+
+    components, error = _parsed_items(components_raw)
+    if error:
+        return _unavailable(f"component_{error}")
+    subtotals, error = _parsed_items(subtotals_raw)
+    if error:
+        return _unavailable(f"subtotal_{error}")
+
+    if subtotals and components:
+        return _unavailable("subtotal_plus_parts")
+    if _components_overlap(set(components)):
+        return _unavailable("overlapping_components")
+
+    if subtotals:
+        values = list(subtotals.values())
+        if len(set(values)) > 1:
+            return _unavailable("duplicated_subtotals")
+        amount = values[0]
+        source = next(iter(subtotals))
+        if amount > 0:
+            return _quoted(amount, source)
+        return _explicit_zero(source)
+
+    if components:
+        amount = sum(components.values())
+        source = "components:" + ",".join(sorted(components))
+        if amount > 0:
+            return _quoted(amount, source)
+        return _explicit_zero(source)
+
+    return _unavailable("no_fee_fields")
+
+
+def fee_aware_planned_loss_ok(
+    *,
+    planned_loss: float,
+    current_nlv: float,
+    classification: dict[str, Any],
+) -> bool:
+    """Both ceilings apply on every trade. Missing fees count as $0 in the 0.50% sum."""
+    if current_nlv <= 0 or planned_loss < 0:
+        return False
+    if planned_loss > PLANNED_LOSS_CEILING_IF_FEE_UNAVAILABLE_OR_ZERO * current_nlv + 1e-12:
+        return False
+    round_trip = classification.get("estimated_round_trip_fees")
+    if not isinstance(round_trip, (int, float)):
+        round_trip = 0.0
+    if float(round_trip) < 0:
+        return False
+    return (
+        planned_loss + float(round_trip)
+        <= PLANNED_LOSS_CEILING_WITH_QUOTED_FEE * current_nlv + 1e-12
+    )
+
+# ========================================================================
+# pipeline/universe.py
+# Part: 2 · Agent A
+# Used by: F + H
+# Watchlist extract, crypto drop, inverse-ETF reject, ADV ≥ 2,000,000
+# ========================================================================
+
+from __future__ import annotations
+
+from typing import Any
+
+from pipeline.equity_day_trade import is_inverse_etf
 
 
 CRYPTO_OBJECT_TYPES = {"currency_pair", "tokenized_stock"}
@@ -301,6 +775,9 @@ def apply_liquidity_filter(
 
     for symbol in symbols:
         fund = fundamentals_by_symbol.get(symbol) or {}
+        if is_inverse_etf(symbol, fund):
+            rejected.append({"symbol": symbol, "reason": "inverse_etf"})
+            continue
         # RH fundamentals field names can vary; accept common keys only if present.
         avg_vol = None
         for key in (
@@ -349,11 +826,22 @@ def option_quote_liquid(
     Spread is measured as (ask − bid) / mid. Prefer ≤ 5% of price; reject above 10%.
     There is no absolute-dollar override.
     """
-    try:
-        bid = float(quote.get("bid_price") or 0)
-        ask = float(quote.get("ask_price") or 0)
-    except (TypeError, ValueError):
-        return False, "invalid_bid_ask", {}
+    if not quote:
+        return False, "missing_bid_ask", {}
+
+    def _px(*keys: str) -> float | None:
+        for key in keys:
+            if key in quote and quote[key] not in (None, ""):
+                try:
+                    return float(quote[key])
+                except (TypeError, ValueError):
+                    continue
+        return None
+
+    bid = _px("bid_price", "bid", "bid_last")
+    ask = _px("ask_price", "ask", "ask_last")
+    if bid is None or ask is None:
+        return False, "missing_bid_ask", {"bid": bid, "ask": ask}
 
     if reject_one_sided and (bid <= 0 or ask <= 0):
         return False, "one_sided_or_missing_quote", {"bid": bid, "ask": ask}
@@ -389,7 +877,7 @@ def option_quote_liquid(
 # pipeline/patterns.py
 # Part: 3 · Agent B
 # Used by: F + H
-# H&S, double/triple top/bottom, triangles
+# Daily-first H&S / double-triple / triangle; no 1m/3m/5m
 # ========================================================================
 
 from __future__ import annotations
@@ -418,6 +906,98 @@ def _nearly_equal(a: float, b: float, tol_pct: float = 0.015) -> bool:
     return abs(a - b) / base <= tol_pct
 
 
+PATTERN_PRIORITY = (
+    "inverse_head_and_shoulders",
+    "head_and_shoulders",
+    "double_bottom",
+    "double_top",
+    "triple_bottom",
+    "triple_top",
+    "ascending_triangle",
+    "descending_triangle",
+)
+PATTERN_FAMILY = {
+    "inverse_head_and_shoulders": 0,
+    "head_and_shoulders": 0,
+    "double_bottom": 1,
+    "double_top": 1,
+    "triple_bottom": 1,
+    "triple_top": 1,
+    "ascending_triangle": 2,
+    "descending_triangle": 2,
+}
+
+HEAD_PROMINENCE_PCT = 0.015
+MIN_PIVOT_SEPARATION_BARS = 3
+MAX_PATTERN_BARS = {
+    "day": 60,
+    "daily": 60,
+    "hour": 40,
+    "10minute": 30,
+}
+TRIANGLE_TOUCH_PCT = 0.005
+TRIANGLE_MIN_TOUCHES_PER_SIDE = 2
+
+
+def _max_pattern_bars(timeframe: str) -> int:
+    return MAX_PATTERN_BARS.get(timeframe, 60)
+
+
+def _pivots_separated(indices: list[int], *, min_gap: int = MIN_PIVOT_SEPARATION_BARS) -> bool:
+    ordered = sorted(indices)
+    return all(b - a >= min_gap for a, b in zip(ordered, ordered[1:]))
+
+
+def _count_line_touches(prices: np.ndarray, slope: float, intercept: float, *, tol_pct: float) -> int:
+    touches = 0
+    for i, price in enumerate(prices):
+        fitted = intercept + slope * float(i)
+        base = max(abs(fitted), abs(float(price)), 1e-9)
+        if abs(float(price) - fitted) / base <= tol_pct:
+            touches += 1
+    return touches
+
+
+def _last_touch_offset(prices: np.ndarray, slope: float, intercept: float, *, tol_pct: float) -> int | None:
+    last: int | None = None
+    for i, price in enumerate(prices):
+        fitted = intercept + slope * float(i)
+        base = max(abs(fitted), abs(float(price)), 1e-9)
+        if abs(float(price) - fitted) / base <= tol_pct:
+            last = i
+    return last
+
+
+def _span_ok(indices: list[int], *, max_span: int) -> bool:
+    return (max(indices) - min(indices)) <= max_span
+
+
+def _last_pivot(hit: dict[str, Any]) -> int:
+    if hit.get("last_pivot") is not None:
+        return int(hit["last_pivot"])
+    indices = hit.get("indices") or [0]
+    return int(max(indices))
+
+
+def rank_daily_setups(hits: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """One deterministic winner among overlapping daily setups. Neutral triangles never rank."""
+    daily = [
+        hit
+        for hit in hits
+        if hit.get("timeframe") in ("day", "daily") and hit.get("bias") not in (None, "neutral", "none")
+    ]
+    priority = {name: i for i, name in enumerate(PATTERN_PRIORITY)}
+
+    def sort_key(hit: dict[str, Any]) -> tuple[int, int, float, int]:
+        name = str(hit.get("pattern"))
+        family = PATTERN_FAMILY.get(name, 99)
+        prominence = float(hit.get("prominence") or 0.0)
+        # Family first so a triangle window-end cannot leapfrog H&S or double/triple.
+        return (family, -_last_pivot(hit), -prominence, priority.get(name, 99))
+
+    return sorted(daily, key=sort_key)
+
+
 def detect_patterns(ohlc: list[dict[str, Any]], *, timeframe: str) -> list[dict[str, Any]]:
     """
     Deterministic pattern heuristics on close prices.
@@ -431,31 +1011,49 @@ def detect_patterns(ohlc: list[dict[str, Any]], *, timeframe: str) -> list[dict[
     lows = np.array([float(b.get("low", b["close"])) for b in ohlc], dtype=float)
     peaks, troughs = _local_extrema(closes, order=3)
     hits: list[dict[str, Any]] = []
+    max_span = _max_pattern_bars(timeframe)
 
     # Double / triple tops
     if len(peaks) >= 2:
         p1, p2 = peaks[-2], peaks[-1]
-        if _nearly_equal(closes[p1], closes[p2]):
+        if (
+            _nearly_equal(closes[p1], closes[p2])
+            and _pivots_separated([p1, p2])
+            and _span_ok([p1, p2], max_span=max_span)
+        ):
             neck = float(closes[p1:p2].min()) if p2 > p1 else float(closes[p2])
+            prominence = abs(float(closes[p2]) - neck) / max(abs(neck), 1e-9)
             hits.append(
                 {
                     "pattern": "double_top",
                     "timeframe": timeframe,
                     "indices": [p1, p2],
+                    "last_pivot": p2,
                     "prices": [float(closes[p1]), float(closes[p2])],
                     "neckline": neck,
+                    "prominence": prominence,
                     "bias": "bearish",
                 }
             )
     if len(peaks) >= 3:
         p1, p2, p3 = peaks[-3], peaks[-2], peaks[-1]
-        if _nearly_equal(closes[p1], closes[p2]) and _nearly_equal(closes[p2], closes[p3]):
+        if (
+            _nearly_equal(closes[p1], closes[p2])
+            and _nearly_equal(closes[p2], closes[p3])
+            and _pivots_separated([p1, p2, p3])
+            and _span_ok([p1, p3], max_span=max_span)
+        ):
+            neck = float(closes[p1:p3].min())
+            prominence = abs(float(closes[p3]) - neck) / max(abs(neck), 1e-9)
             hits.append(
                 {
                     "pattern": "triple_top",
                     "timeframe": timeframe,
                     "indices": [p1, p2, p3],
+                    "last_pivot": p3,
                     "prices": [float(closes[p1]), float(closes[p2]), float(closes[p3])],
+                    "neckline": neck,
+                    "prominence": prominence,
                     "bias": "bearish",
                 }
             )
@@ -463,53 +1061,108 @@ def detect_patterns(ohlc: list[dict[str, Any]], *, timeframe: str) -> list[dict[
     # Double / triple bottoms
     if len(troughs) >= 2:
         t1, t2 = troughs[-2], troughs[-1]
-        if _nearly_equal(closes[t1], closes[t2]):
+        if (
+            _nearly_equal(closes[t1], closes[t2])
+            and _pivots_separated([t1, t2])
+            and _span_ok([t1, t2], max_span=max_span)
+        ):
             neck = float(closes[t1:t2].max()) if t2 > t1 else float(closes[t2])
+            prominence = abs(neck - float(closes[t2])) / max(abs(neck), 1e-9)
             hits.append(
                 {
                     "pattern": "double_bottom",
                     "timeframe": timeframe,
                     "indices": [t1, t2],
+                    "last_pivot": t2,
                     "prices": [float(closes[t1]), float(closes[t2])],
                     "neckline": neck,
+                    "prominence": prominence,
                     "bias": "bullish",
                 }
             )
     if len(troughs) >= 3:
         t1, t2, t3 = troughs[-3], troughs[-2], troughs[-1]
-        if _nearly_equal(closes[t1], closes[t2]) and _nearly_equal(closes[t2], closes[t3]):
+        if (
+            _nearly_equal(closes[t1], closes[t2])
+            and _nearly_equal(closes[t2], closes[t3])
+            and _pivots_separated([t1, t2, t3])
+            and _span_ok([t1, t3], max_span=max_span)
+        ):
+            neck = float(closes[t1:t3].max())
+            prominence = abs(neck - float(closes[t3])) / max(abs(neck), 1e-9)
             hits.append(
                 {
                     "pattern": "triple_bottom",
                     "timeframe": timeframe,
                     "indices": [t1, t2, t3],
+                    "last_pivot": t3,
                     "prices": [float(closes[t1]), float(closes[t2]), float(closes[t3])],
+                    "neckline": neck,
+                    "prominence": prominence,
                     "bias": "bullish",
                 }
             )
 
-    # Head and shoulders / inverse (last three extrema of opposite type)
+    # Head and shoulders / inverse: time-ordered LS → head → RS, intervening opposite pivots.
     if len(peaks) >= 3:
         l, h, r = peaks[-3], peaks[-2], peaks[-1]
-        if closes[h] > closes[l] and closes[h] > closes[r] and _nearly_equal(closes[l], closes[r], tol_pct=0.025):
+        left_troughs = [t for t in troughs if l < t < h]
+        right_troughs = [t for t in troughs if h < t < r]
+        head_vs_left = (closes[h] - closes[l]) / max(abs(closes[l]), 1e-9)
+        head_vs_right = (closes[h] - closes[r]) / max(abs(closes[r]), 1e-9)
+        if (
+            l < h < r
+            and (r - l) <= max_span
+            and _pivots_separated([l, h, r])
+            and left_troughs
+            and right_troughs
+            and closes[h] > closes[l]
+            and closes[h] > closes[r]
+            and head_vs_left >= HEAD_PROMINENCE_PCT
+            and head_vs_right >= HEAD_PROMINENCE_PCT
+            and _nearly_equal(closes[l], closes[r], tol_pct=0.025)
+        ):
+            neck = float((closes[left_troughs[-1]] + closes[right_troughs[0]]) / 2.0)
             hits.append(
                 {
                     "pattern": "head_and_shoulders",
                     "timeframe": timeframe,
                     "indices": [l, h, r],
+                    "last_pivot": r,
                     "prices": [float(closes[l]), float(closes[h]), float(closes[r])],
+                    "neckline": neck,
+                    "prominence": float(min(head_vs_left, head_vs_right)),
                     "bias": "bearish",
                 }
             )
     if len(troughs) >= 3:
         l, h, r = troughs[-3], troughs[-2], troughs[-1]
-        if closes[h] < closes[l] and closes[h] < closes[r] and _nearly_equal(closes[l], closes[r], tol_pct=0.025):
+        left_peaks = [p for p in peaks if l < p < h]
+        right_peaks = [p for p in peaks if h < p < r]
+        head_vs_left = (closes[l] - closes[h]) / max(abs(closes[l]), 1e-9)
+        head_vs_right = (closes[r] - closes[h]) / max(abs(closes[r]), 1e-9)
+        if (
+            l < h < r
+            and (r - l) <= max_span
+            and _pivots_separated([l, h, r])
+            and left_peaks
+            and right_peaks
+            and closes[h] < closes[l]
+            and closes[h] < closes[r]
+            and head_vs_left >= HEAD_PROMINENCE_PCT
+            and head_vs_right >= HEAD_PROMINENCE_PCT
+            and _nearly_equal(closes[l], closes[r], tol_pct=0.025)
+        ):
+            neck = float((closes[left_peaks[-1]] + closes[right_peaks[0]]) / 2.0)
             hits.append(
                 {
                     "pattern": "inverse_head_and_shoulders",
                     "timeframe": timeframe,
                     "indices": [l, h, r],
+                    "last_pivot": r,
                     "prices": [float(closes[l]), float(closes[h]), float(closes[r])],
+                    "neckline": neck,
+                    "prominence": float(min(head_vs_left, head_vs_right)),
                     "bias": "bullish",
                 }
             )
@@ -520,277 +1173,66 @@ def detect_patterns(ohlc: list[dict[str, Any]], *, timeframe: str) -> list[dict[
     seg_low = lows[-window:]
     x = np.arange(window, dtype=float)
     if window >= 20:
-        high_slope = float(np.polyfit(x, seg_high, 1)[0])
-        low_slope = float(np.polyfit(x, seg_low, 1)[0])
+        high_fit = np.polyfit(x, seg_high, 1)
+        low_fit = np.polyfit(x, seg_low, 1)
+        high_slope = float(high_fit[0])
+        low_slope = float(low_fit[0])
         high_range = float(seg_high.max() - seg_high.min())
         low_range = float(seg_low.max() - seg_low.min())
+        # Flat side: abs(OLS slope) < 15% of (side range / window bars).
         flat_high = abs(high_slope) < (high_range / window) * 0.15
         flat_low = abs(low_slope) < (low_range / window) * 0.15
         rising_low = low_slope > 0
         falling_high = high_slope < 0
-        if flat_high and rising_low:
-            hits.append(
-                {
-                    "pattern": "ascending_triangle",
-                    "timeframe": timeframe,
-                    "high_slope": high_slope,
-                    "low_slope": low_slope,
-                    "bias": "bullish",
-                }
-            )
-        elif flat_low and falling_high:
-            hits.append(
-                {
-                    "pattern": "descending_triangle",
-                    "timeframe": timeframe,
-                    "high_slope": high_slope,
-                    "low_slope": low_slope,
-                    "bias": "bearish",
-                }
-            )
-        elif falling_high and rising_low:
-            hits.append(
-                {
-                    "pattern": "symmetrical_triangle",
-                    "timeframe": timeframe,
-                    "high_slope": high_slope,
-                    "low_slope": low_slope,
-                    "bias": "neutral",
-                }
-            )
+        high_touches = _count_line_touches(seg_high, high_slope, float(high_fit[1]), tol_pct=TRIANGLE_TOUCH_PCT)
+        low_touches = _count_line_touches(seg_low, low_slope, float(low_fit[1]), tol_pct=TRIANGLE_TOUCH_PCT)
+        enough_touches = (
+            high_touches >= TRIANGLE_MIN_TOUCHES_PER_SIDE
+            and low_touches >= TRIANGLE_MIN_TOUCHES_PER_SIDE
+        )
+        start_idx = len(closes) - window
+        high_last = _last_touch_offset(seg_high, high_slope, float(high_fit[1]), tol_pct=TRIANGLE_TOUCH_PCT)
+        low_last = _last_touch_offset(seg_low, low_slope, float(low_fit[1]), tol_pct=TRIANGLE_TOUCH_PCT)
+        touch_offsets = [idx for idx in (high_last, low_last) if idx is not None]
+        last_pivot = start_idx + max(touch_offsets) if touch_offsets else start_idx
+        triangle_meta = {
+            "timeframe": timeframe,
+            "indices": [start_idx, last_pivot],
+            "last_pivot": last_pivot,
+            "high_slope": high_slope,
+            "low_slope": low_slope,
+            "high_touches": high_touches,
+            "low_touches": low_touches,
+            "prominence": float(min(high_range, low_range)),
+        }
+        if enough_touches and flat_high and rising_low:
+            hits.append({"pattern": "ascending_triangle", "bias": "bullish", **triangle_meta})
+        elif enough_touches and flat_low and falling_high:
+            hits.append({"pattern": "descending_triangle", "bias": "bearish", **triangle_meta})
+        elif enough_touches and falling_high and rising_low:
+            hits.append({"pattern": "symmetrical_triangle", "bias": "neutral", **triangle_meta})
 
     return hits
 
-# ========================================================================
-# pipeline/bars.py
-# Part: 3 · Agent B
-# Used by: F + H
-# Normalize RH OHLCV; synthesize 3-minute from 1-minute
-# ========================================================================
 
-"""Normalize Robinhood OHLCV bars and build custom intervals.
-
-Robinhood MCP `get_equity_historicals` fixed intervals:
-  15second, 30second, minute, 5minute, 10minute, 30minute, hour, 4hour, day, ...
-The 1-minute bar is named `minute` (not `1minute`). There is no `3minute`
-and no `15minute`. For 3-minute graphs, fetch `minute` and aggregate here.
-"""
-
-from __future__ import annotations
-
-from datetime import datetime, timezone
-from typing import Any
-
-
-def _as_float(value: Any, default: float | None = None) -> float:
-    if value is None or value == "":
-        if default is None:
-            raise ValueError("missing numeric bar field")
-        return default
-    return float(value)
-
-
-def _begins_at(bar: dict[str, Any]) -> str:
-    raw = bar.get("begins_at") or bar.get("timestamp") or bar.get("start") or bar.get("time") or ""
-    return str(raw)
-
-
-def _parse_utc(ts: str) -> datetime:
-    text = ts.strip()
-    if text.endswith("Z"):
-        text = text[:-1] + "+00:00"
-    dt = datetime.fromisoformat(text)
-    if dt.tzinfo is None:
-        dt = dt.replace(tzinfo=timezone.utc)
-    return dt.astimezone(timezone.utc)
-
-
-def normalize_bar(bar: dict[str, Any]) -> dict[str, Any]:
-    """Accept RH (`open_price`) or pipeline (`open`) keys. Skip nothing here."""
-    open_px = bar.get("open", bar.get("open_price"))
-    high_px = bar.get("high", bar.get("high_price"))
-    low_px = bar.get("low", bar.get("low_price"))
-    close_px = bar.get("close", bar.get("close_price"))
-    return {
-        "begins_at": _begins_at(bar),
-        "open": _as_float(open_px),
-        "high": _as_float(high_px),
-        "low": _as_float(low_px),
-        "close": _as_float(close_px),
-        "volume": _as_float(bar.get("volume"), default=0.0),
-        "interpolated": bool(bar.get("interpolated")),
-        "session": bar.get("session"),
-    }
-
-
-def normalize_bars(bars: list[dict[str, Any]] | None, *, drop_interpolated: bool = True) -> list[dict[str, Any]]:
-    out: list[dict[str, Any]] = []
-    for bar in bars or []:
-        try:
-            row = normalize_bar(bar)
-        except (TypeError, ValueError):
-            continue
-        if drop_interpolated and row["interpolated"]:
-            continue
-        out.append(row)
-    out.sort(key=lambda b: b["begins_at"])
-    return out
-
-
-def extract_rh_historicals_bars(payload: Any) -> list[dict[str, Any]]:
-    """Unwrap `get_equity_historicals` MCP JSON to a flat bar list."""
-    if isinstance(payload, list):
-        if payload and isinstance(payload[0], dict) and (
-            "open" in payload[0] or "open_price" in payload[0] or "close" in payload[0]
-        ):
-            return payload
-    data = payload
-    if isinstance(payload, dict) and "data" in payload:
-        data = payload["data"]
-    results = []
-    if isinstance(data, dict):
-        results = data.get("results") or data.get("historicals") or []
-        if isinstance(data.get("bars"), list):
-            return data["bars"]
-    bars: list[dict[str, Any]] = []
-    for row in results:
-        if not isinstance(row, dict):
-            continue
-        chunk = row.get("bars") or row.get("historicals") or []
-        bars.extend(chunk)
-    return bars
-
-
-def aggregate_to_minutes(bars: list[dict[str, Any]] | None, minutes: int) -> list[dict[str, Any]]:
-    """Build N-minute OHLCV from 1-minute (or finer) left-edge bars.
-
-    Buckets align to UTC clock minutes (RTH 09:30 ET = 13:30 UTC, which is
-    divisible by 3). Partial last buckets are kept (live in-progress bar).
-    """
-    if minutes < 1:
-        raise ValueError("minutes must be >= 1")
-    norm = normalize_bars(bars)
-    if minutes == 1:
-        return norm
-    buckets: dict[datetime, list[dict[str, Any]]] = {}
-    order: list[datetime] = []
-    for bar in norm:
-        if not bar["begins_at"]:
-            continue
-        dt = _parse_utc(bar["begins_at"]).replace(second=0, microsecond=0)
-        minute_of_day = dt.hour * 60 + dt.minute
-        aligned = minute_of_day - (minute_of_day % minutes)
-        key = dt.replace(hour=aligned // 60, minute=aligned % 60)
-        if key not in buckets:
-            buckets[key] = []
-            order.append(key)
-        buckets[key].append(bar)
-    out: list[dict[str, Any]] = []
-    for key in order:
-        group = buckets[key]
-        out.append(
-            {
-                "begins_at": key.strftime("%Y-%m-%dT%H:%M:%SZ"),
-                "open": group[0]["open"],
-                "high": max(b["high"] for b in group),
-                "low": min(b["low"] for b in group),
-                "close": group[-1]["close"],
-                "volume": sum(b["volume"] for b in group),
-                "interpolated": False,
-                "session": group[0].get("session"),
-            }
-        )
-    return out
-
-
-def bars_for_timeframe(
-    historicals_for_symbol: dict[str, Any] | None,
-    timeframe: str,
+def collect_pattern_hits(
+    historicals_for_symbol: dict[str, Any],
+    timeframes: list[str],
 ) -> list[dict[str, Any]]:
-    """Resolve bars for a rules.json timeframe, synthesizing 3-minute from 1-minute."""
-    by_tf = historicals_for_symbol or {}
-    if timeframe == "3minute":
-        existing = normalize_bars(by_tf.get("3minute") or [])
-        if existing:
-            return existing
-        return aggregate_to_minutes(by_tf.get("minute") or by_tf.get("1minute") or [], 3)
-    return normalize_bars(by_tf.get(timeframe) or [])
-
-# ========================================================================
-# pipeline/charts.py
-# Part: 3 · Agent B
-# Used by: F + H
-# ASCII 1m / 3m / 5m candlestick graphs
-# ========================================================================
-
-"""Compact ASCII candlestick graphs for live / 1m / 3m / 5m bars."""
-
-from __future__ import annotations
-
-from typing import Any
-
-from pipeline.bars import normalize_bars
-
-
-def ascii_chart(
-    bars: list[dict[str, Any]] | None,
-    *,
-    title: str,
-    last_n: int = 48,
-    height: int = 10,
-) -> str:
-    rows = normalize_bars(bars)[-last_n:]
-    if not rows:
-        return f"{title}: no bars"
-    hi = max(b["high"] for b in rows)
-    lo = min(b["low"] for b in rows)
-    span = hi - lo or 1.0
-    grid = [[" " for _ in rows] for _ in range(height)]
-
-    def y_of(price: float) -> int:
-        return max(0, min(height - 1, int(round((price - lo) / span * (height - 1)))))
-
-    for i, bar in enumerate(rows):
-        y_high = y_of(bar["high"])
-        y_low = y_of(bar["low"])
-        y_open = y_of(bar["open"])
-        y_close = y_of(bar["close"])
-        for y in range(min(y_low, y_high), max(y_low, y_high) + 1):
-            grid[height - 1 - y][i] = "│"
-        body_lo, body_hi = min(y_open, y_close), max(y_open, y_close)
-        fill = "█" if bar["close"] >= bar["open"] else "░"
-        for y in range(body_lo, body_hi + 1):
-            grid[height - 1 - y][i] = fill
-
-    last = rows[-1]
-    first_ts = rows[0]["begins_at"]
-    last_ts = last["begins_at"]
-    lines = [
-        title,
-        f"{hi:.2f}",
-        *["".join(row) for row in grid],
-        f"{lo:.2f}  n={len(rows)}  {first_ts} → {last_ts}",
-        (
-            f"last O={last['open']:.2f} H={last['high']:.2f} "
-            f"L={last['low']:.2f} C={last['close']:.2f} V={last['volume']:.0f}"
-        ),
-    ]
-    return "\n".join(lines)
-
-
-def live_quote_line(quote: dict[str, Any] | None, *, symbol: str) -> str:
-    q = quote or {}
-    inner = q.get("quote") if isinstance(q.get("quote"), dict) else q
-    last = inner.get("last_trade_price") or inner.get("last_non_reg_trade_price") or inner.get("last")
-    bid = inner.get("bid_price") or inner.get("bid")
-    ask = inner.get("ask_price") or inner.get("ask")
-    ts = (
-        inner.get("venue_last_trade_time")
-        or inner.get("venue_last_non_reg_trade_time")
-        or inner.get("updated_at")
-        or ""
-    )
-    return f"{symbol} live last={last} bid={bid} ask={ask} ts={ts}"
+    """Daily first. 10-minute / hour only on names with a daily pattern hit."""
+    daily_bars = list(historicals_for_symbol.get("day") or historicals_for_symbol.get("daily") or [])
+    daily_hits = detect_patterns(daily_bars, timeframe="day")
+    ranked = rank_daily_setups(daily_hits)
+    if not ranked:
+        return []
+    winner = ranked[0]
+    hits = [winner]
+    for tf in timeframes:
+        if tf in ("day", "daily"):
+            continue
+        bars = historicals_for_symbol.get(tf) or []
+        hits.extend(detect_patterns(list(bars), timeframe=tf))
+    return hits
 
 # ========================================================================
 # pipeline/news.py
@@ -835,7 +1277,7 @@ def build_news_signal(
 # pipeline/options_structure.py
 # Part: 5 · Agent D
 # Used by: F + H
-# Long call/put from bias; ATM else one OTM; DTE 0–7
+# Long call/put; ATM/OTM; 2–3 DTE while overnight off
 # ========================================================================
 
 from __future__ import annotations
@@ -843,14 +1285,104 @@ from __future__ import annotations
 from datetime import date, datetime
 from typing import Any
 
+from pipeline.session import today_et
+
 
 def _parse_ymd(value: str) -> date:
     return datetime.strptime(value[:10], "%Y-%m-%d").date()
 
 
 def dte(expiration: str, as_of: date | None = None) -> int:
-    as_of = as_of or date.today()
+    as_of = as_of or today_et()
     return (_parse_ymd(expiration) - as_of).days
+
+
+def _instrument_type(row: dict[str, Any]) -> str:
+    raw = (row.get("type") or row.get("option_type") or "").strip().lower()
+    if raw in ("c", "call"):
+        return "call"
+    if raw in ("p", "put"):
+        return "put"
+    return raw
+
+
+def _strike(row: dict[str, Any]) -> float:
+    value = row.get("strike_price")
+    if value in (None, ""):
+        value = row.get("strike")
+    return float(value)
+
+
+def _instrument_id(row: dict[str, Any]) -> str | None:
+    value = row.get("id") or row.get("instrument_id")
+    return str(value) if value not in (None, "") else None
+
+
+def instrument_id(row: dict[str, Any]) -> str | None:
+    return _instrument_id(row)
+
+
+def strike_price(row: dict[str, Any]) -> float:
+    return _strike(row)
+
+
+def _typed_instruments(instruments: list[dict[str, Any]], option_type: str) -> list[dict[str, Any]]:
+    want = option_type.strip().lower()
+    if want in ("c", "call"):
+        want = "call"
+    elif want in ("p", "put"):
+        want = "put"
+    return [row for row in instruments if _instrument_type(row) == want]
+
+
+def _same_instrument(left: dict[str, Any], right: dict[str, Any]) -> bool:
+    lid, rid = _instrument_id(left), _instrument_id(right)
+    if lid and rid:
+        return lid == rid
+    return _strike(left) == _strike(right)
+
+
+def strikes_bracket_spot(spot: float, instruments: list[dict[str, Any]], *, option_type: str) -> bool:
+    """True when the page includes strikes on both sides of spot (ATM is in the set)."""
+    typed = _typed_instruments(instruments, option_type)
+    if not typed or spot <= 0:
+        return False
+    strikes = [_strike(row) for row in typed]
+    return min(strikes) <= spot <= max(strikes)
+
+
+def _atm_sort_key(row: dict[str, Any], spot: float, option_type: str) -> tuple[float, float]:
+    strike = _strike(row)
+    distance = abs(strike - spot)
+    ot = option_type.strip().lower()
+    # Tie: lower strike for calls, higher strike for puts.
+    if ot in ("put", "p"):
+        return (distance, -strike)
+    return (distance, strike)
+
+
+def rank_atm_then_one_otm(
+    spot: float,
+    instruments: list[dict[str, Any]],
+    *,
+    option_type: str,
+) -> list[dict[str, Any]]:
+    """ATM is the nearest strike (no 1% cutoff). Then exactly one listed strike OTM from ATM."""
+    typed = _typed_instruments(instruments, option_type)
+    if not typed or spot <= 0:
+        return []
+    typed_sorted = sorted(typed, key=lambda row: _atm_sort_key(row, spot, option_type))
+    atm = typed_sorted[0]
+    ranked: list[dict[str, Any]] = [{"selection": "atm", "instrument": atm}]
+    atm_strike = _strike(atm)
+    ot = option_type.strip().lower()
+    if ot in ("call", "c"):
+        farther = sorted((row for row in typed if _strike(row) > atm_strike), key=_strike)
+    else:
+        farther = sorted((row for row in typed if _strike(row) < atm_strike), key=_strike, reverse=True)
+    if farther and not _same_instrument(farther[0], atm):
+        ranked.append({"selection": "one_otm", "instrument": farther[0]})
+    return ranked
 
 
 def pick_atm_or_one_otm(
@@ -859,26 +1391,9 @@ def pick_atm_or_one_otm(
     *,
     option_type: str,
 ) -> dict[str, Any] | None:
-    """Prefer ATM strike; fallback one strike OTM for calls/puts."""
-    typed = [i for i in instruments if (i.get("type") or "").lower() == option_type.lower()]
-    if not typed or spot <= 0:
-        return None
-    typed = sorted(typed, key=lambda i: abs(float(i["strike_price"]) - spot))
-    atm = typed[0]
-    atm_strike = float(atm["strike_price"])
-    if abs(atm_strike - spot) / spot <= 0.01:
-        return {"selection": "atm", "instrument": atm}
-
-    if option_type.lower() == "call":
-        otm = [i for i in typed if float(i["strike_price"]) > spot]
-        otm = sorted(otm, key=lambda i: float(i["strike_price"]))
-    else:
-        otm = [i for i in typed if float(i["strike_price"]) < spot]
-        otm = sorted(otm, key=lambda i: float(i["strike_price"]), reverse=True)
-
-    if otm:
-        return {"selection": "one_otm", "instrument": otm[0]}
-    return {"selection": "atm_fallback", "instrument": atm}
+    """Prefer ATM (nearest strike); fallback one strike OTM for calls/puts."""
+    ranked = rank_atm_then_one_otm(spot, instruments, option_type=option_type)
+    return ranked[0] if ranked else None
 
 
 def choose_structure_from_bias(bias: str | None) -> str | None:
@@ -889,24 +1404,59 @@ def choose_structure_from_bias(bias: str | None) -> str | None:
     return None
 
 
-def filter_expirations(expiration_dates: list[str], *, max_dte: int, as_of: date | None = None) -> list[str]:
-    as_of = as_of or date.today()
+def filter_expirations(
+    expiration_dates: list[str],
+    *,
+    max_dte: int,
+    min_dte: int = 2,
+    as_of: date | None = None,
+) -> list[str]:
+    as_of = as_of or today_et()
     out = []
     for exp in expiration_dates:
         days = dte(exp, as_of=as_of)
-        if 0 <= days <= max_dte:
+        if min_dte <= days <= max_dte:
             out.append(exp)
     return sorted(out)
+
+
+def rank_expirations(
+    expiration_dates: list[str],
+    *,
+    overnight_holding_enabled: bool,
+    as_of: date | None = None,
+    same_day_min_dte: int = 2,
+    same_day_max_dte: int = 3,
+    overnight_min_dte: int = 4,
+    overnight_max_dte: int = 7,
+    hard_min_dte: int = 2,
+    hard_max_dte: int = 7,
+) -> list[str]:
+    """Deterministic expiration group. Ascending DTE inside the one permitted group."""
+    as_of = as_of or today_et()
+    if overnight_holding_enabled:
+        lo, hi = overnight_min_dte, overnight_max_dte
+    else:
+        lo, hi = same_day_min_dte, same_day_max_dte
+    lo = max(lo, hard_min_dte)
+    hi = min(hi, hard_max_dte)
+    ranked: list[tuple[int, str]] = []
+    for exp in expiration_dates:
+        days = dte(exp, as_of=as_of)
+        if lo <= days <= hi:
+            ranked.append((days, exp))
+    return [exp for _, exp in sorted(ranked)]
 
 # ========================================================================
 # pipeline/equity_day_trade.py
 # Part: 5 · Agent D
-# Used by: F + H
-# Long shares only; inverse-ETF denylist; size to buying power
+# Used by: F only
+# Long shares only; inverse-ETF denylist; H has no equity fallback
 # ========================================================================
 
 from __future__ import annotations
 
+import re
 from math import floor
 from typing import Any
 
@@ -957,6 +1507,13 @@ INVERSE_ETF_SYMBOLS = frozenset(
 )
 
 
+# One-word UltraShort / Inverse names. Do not match "ultra short" (short-duration bond funds).
+_INVERSE_NAME_RE = re.compile(
+    r"\b(?:inverse|ultrashort|ultrapro\s+short|leveraged\s+inverse)\b",
+    re.IGNORECASE,
+)
+
+
 def is_inverse_etf(symbol: str, fundamentals: dict[str, Any] | None = None) -> bool:
     if (symbol or "").strip().upper() in INVERSE_ETF_SYMBOLS:
         return True
@@ -964,8 +1521,8 @@ def is_inverse_etf(symbol: str, fundamentals: dict[str, Any] | None = None) -> b
     blob = " ".join(
         str(fund.get(k) or "")
         for k in ("description", "name", "security_name", "instrument_name")
-    ).lower()
-    return "inverse" in blob
+    )
+    return bool(_INVERSE_NAME_RE.search(blob))
 
 
 def parse_bid_ask(quote: dict[str, Any] | None) -> tuple[float | None, float | None]:
@@ -1147,7 +1704,7 @@ def select_equity_day_trade_candidates(
 # pipeline/greeks.py
 # Part: 6 · Agent I
 # Used by: F + H
-# Copy RH Greeks only; abs(delta) 0.40–0.50 band
+# Copy RH Greeks only; signed call +0.40–+0.50 / put −0.50–−0.40
 # ========================================================================
 
 from __future__ import annotations
@@ -1178,14 +1735,28 @@ def extract_greeks(quote: dict[str, Any]) -> dict[str, Any]:
     return {"greeks": out, "missing_fields": missing, "source": "robinhood_get_option_quotes"}
 
 
-def delta_in_band(delta: float | None, *, lo: float, hi: float) -> tuple[bool, str | None]:
+def delta_in_band(
+    delta: float | None,
+    *,
+    option_type: str,
+    lo: float = 0.4,
+    hi: float = 0.5,
+) -> tuple[bool, str | None]:
+    """Signed long-option bands. Do not accept absolute-only or sign-inverted values."""
     if delta is None:
         return False, "delta_missing_from_quote"
-    # Calls: positive delta. Puts: negative — compare absolute value for long options band.
-    ad = abs(delta)
-    if lo <= ad <= hi:
-        return True, None
-    return False, f"delta_abs_{ad:.4f}_outside_{lo}_{hi}"
+    ot = (option_type or "").strip().lower()
+    if ot in ("put", "p"):
+        lo_signed, hi_signed = -abs(hi), -abs(lo)
+        if lo_signed <= delta <= hi_signed:
+            return True, None
+        return False, f"put_delta_{delta:.4f}_outside_{lo_signed}_{hi_signed}"
+    if ot in ("call", "c"):
+        lo_signed, hi_signed = abs(lo), abs(hi)
+        if lo_signed <= delta <= hi_signed:
+            return True, None
+        return False, f"call_delta_{delta:.4f}_outside_{lo_signed}_{hi_signed}"
+    return False, "delta_option_type_required"
 
 # ========================================================================
 # pipeline/risk.py
@@ -1286,7 +1857,7 @@ def equity_risk_plan(
 # pipeline/orchestrator.py
 # Part: 8 · Agent G
 # Used by: F + H
-# Phase 2 read-only cycle; writes signals/; never places
+# Phase 2 read-only snapshot; h_entry_ready is always false
 # ========================================================================
 
 from __future__ import annotations
@@ -1294,31 +1865,73 @@ from __future__ import annotations
 from collections import Counter
 from typing import Any
 
-from pipeline.bars import bars_for_timeframe
 from pipeline.equity_day_trade import buying_power_from_raw, select_equity_day_trade_candidates
 from pipeline.greeks import delta_in_band, extract_greeks
 from pipeline.io_util import append_jsonl, load_rules, utc_now_iso, write_json, SIGNALS, JOURNAL
 from pipeline.news import build_news_signal
 from pipeline.options_structure import (
     choose_structure_from_bias,
-    filter_expirations,
-    pick_atm_or_one_otm,
+    instrument_id,
+    rank_atm_then_one_otm,
+    rank_expirations,
+    strikes_bracket_spot,
 )
-from pipeline.patterns import detect_patterns
+from pipeline.patterns import collect_pattern_hits
+from pipeline.quotes import extract_bod_nlv
 from pipeline.risk import equity_risk_plan, options_risk_plan
+from pipeline.session import today_et
 from pipeline.universe import apply_liquidity_filter, extract_watchlist_symbols, option_quote_liquid
+
+PHASE2_SNAPSHOT_NOTE = (
+    "Pipeline snapshot. Daily-pattern screen only. Not H-entry-ready: "
+    "does not confirm hour alignment, 10m breakout/retest, live trigger, "
+    "IV, volume/OI, quote age, event blackout, BOD NLV, or dual fee ceilings. "
+    "Re-quote live. Never place from this file. Agent H must ignore equity_candidates."
+)
 
 
 def dominant_bias(pattern_hits: list[dict[str, Any]]) -> str | None:
+    for hit in pattern_hits:
+        if hit.get("timeframe") in ("day", "daily") and hit.get("bias") in ("bullish", "bearish"):
+            return str(hit["bias"])
     biases = [p.get("bias") for p in pattern_hits if p.get("bias") in ("bullish", "bearish")]
     if not biases:
         return None
     counts = Counter(biases)
-    # Require strict majority
     top, n = counts.most_common(1)[0]
     if n > len(biases) / 2:
         return top
     return None
+
+
+def _snapshot(payload: dict[str, Any]) -> dict[str, Any]:
+    return {
+        **payload,
+        "do_not_place": True,
+        "h_entry_ready": False,
+        "snapshot_note": PHASE2_SNAPSHOT_NOTE,
+    }
+
+
+def _option_premium(quote: dict[str, Any], liq_metrics: dict[str, Any]) -> tuple[float | None, str | None]:
+    """Playbook premium is bid/ask mid. Do not require mark_price."""
+    mid = liq_metrics.get("mid")
+    if mid not in (None, ""):
+        try:
+            value = float(mid)
+            if value > 0:
+                return value, "mid"
+        except (TypeError, ValueError):
+            pass
+    for key in ("mark_price", "adjusted_mark_price"):
+        if quote.get(key) not in (None, ""):
+            try:
+                value = float(quote[key])
+                if value > 0:
+                    return value, key
+            except (TypeError, ValueError):
+                continue
+    return None, None
 
 
 def run_pipeline(raw: dict[str, Any]) -> dict[str, Any]:
@@ -1353,21 +1966,21 @@ def run_pipeline(raw: dict[str, Any]) -> dict[str, Any]:
         "index_symbols": universe_extract["index_symbols"],
         "eligible_equities": liq["passed_symbols"],
     }
-    write_json(SIGNALS / "universe.json", universe_signal)
+    write_json(SIGNALS / "universe.json", _snapshot(universe_signal))
 
     # --- Agent B ---
     technicals: dict[str, Any] = {"agent": "B_patterns", "as_of": as_of, "symbols": {}}
     historicals = raw.get("historicals_by_symbol_timeframe", {})
     for symbol in liq["passed_symbols"]:
-        symbol_hits: list[dict[str, Any]] = []
-        for tf in rules["patterns"]["timeframes"]:
-            bars = bars_for_timeframe(historicals.get(symbol) or {}, tf)
-            symbol_hits.extend(detect_patterns(bars, timeframe=tf))
+        symbol_hits = collect_pattern_hits(
+            historicals.get(symbol) or {},
+            list(rules["patterns"]["timeframes"]),
+        )
         technicals["symbols"][symbol] = {
             "pattern_hits": symbol_hits,
             "dominant_bias": dominant_bias(symbol_hits),
         }
-    write_json(SIGNALS / "technicals.json", technicals)
+    write_json(SIGNALS / "technicals.json", _snapshot(technicals))
 
     # --- Agent C ---
     news_signal = {"agent": "C_news", "as_of": as_of, "symbols": {}}
@@ -1379,7 +1992,7 @@ def run_pipeline(raw: dict[str, Any]) -> dict[str, Any]:
             news_raw.get(symbol) or [],
             earnings_raw.get(symbol),
         )
-    write_json(SIGNALS / "news.json", news_signal)
+    write_json(SIGNALS / "news.json", _snapshot(news_signal))
 
     # --- Agents D + I ---
     option_candidates: list[dict[str, Any]] = []
@@ -1389,6 +2002,17 @@ def run_pipeline(raw: dict[str, Any]) -> dict[str, Any]:
     chains = raw.get("option_chains_by_symbol", {})
     instruments_by_key = raw.get("option_instruments_by_symbol_exp", {})
     quotes_by_id = raw.get("option_quotes_by_id", {})
+    quotes_by_id = {str(k): v for k, v in quotes_by_id.items()}
+    buying_power = buying_power_from_raw(raw)
+    delta_lo = float(rules["options"]["strike"]["delta_min"])
+    delta_hi = float(rules["options"]["strike"]["delta_max"])
+    max_spread = float(rules["liquidity"]["option_max_spread_pct_of_price"])
+    pref_spread = float(rules["liquidity"]["option_preferred_spread_pct_of_price"])
+    reject_one_sided = bool(rules["liquidity"]["reject_one_sided_quotes"])
+    multiplier = 100.0
+    min_dte = int(rules["options"].get("min_dte", 0))
+    max_dte = int(rules["options"]["max_dte"])
+    overnight_holding = bool(rules["agent_h"].get("overnight_holding_enabled", False))
 
     for symbol in liq["passed_symbols"]:
         bias = technicals["symbols"].get(symbol, {}).get("dominant_bias")
@@ -1405,96 +2029,182 @@ def run_pipeline(raw: dict[str, Any]) -> dict[str, Any]:
             continue
 
         chain = chains.get(symbol) or {}
-        expirations = filter_expirations(chain.get("expiration_dates") or [], max_dte=int(rules["options"]["max_dte"]))
+        expirations = rank_expirations(
+            chain.get("expiration_dates") or [],
+            overnight_holding_enabled=overnight_holding,
+            hard_min_dte=min_dte,
+            hard_max_dte=max_dte,
+        )
         if not expirations:
             equity_fallbacks.append({"symbol": symbol, "reason": "no_expiration_within_max_dte", "bias": bias})
             continue
 
-        exp = expirations[0]
         option_type = "call" if structure == "long_call" else "put"
-        instruments = instruments_by_key.get(f"{symbol}|{exp}") or instruments_by_key.get(symbol) or []
-        pick = pick_atm_or_one_otm(float(spot), instruments, option_type=option_type)
-        if not pick:
-            equity_fallbacks.append({"symbol": symbol, "reason": "no_instrument_match", "bias": bias})
-            continue
+        passed: dict[str, Any] | None = None
+        last_reject: dict[str, Any] | None = None
+        for exp in expirations:
+            instruments = instruments_by_key.get(f"{symbol}|{exp}") or instruments_by_key.get(symbol) or []
+            if not strikes_bracket_spot(float(spot), instruments, option_type=option_type):
+                last_reject = {
+                    "symbol": symbol,
+                    "reason": "option_chain_incomplete_atm_not_in_page",
+                    "bias": bias,
+                    "expiration": exp,
+                }
+                continue
 
-        inst = pick["instrument"]
-        oid = inst["id"]
-        quote = quotes_by_id.get(oid) or {}
-        ok_liq, liq_reason, liq_metrics = option_quote_liquid(
-            quote,
-            max_spread_pct_of_price=float(rules["liquidity"]["option_max_spread_pct_of_price"]),
-            preferred_spread_pct_of_price=float(rules["liquidity"]["option_preferred_spread_pct_of_price"]),
-            reject_one_sided=bool(rules["liquidity"]["reject_one_sided_quotes"]),
-        )
-        gpack = extract_greeks(quote)
-        greeks_rows.append(
-            {
-                "symbol": symbol,
-                "option_id": oid,
-                "expiration": exp,
-                "type": option_type,
-                "strike": inst.get("strike_price"),
-                **gpack,
-                "liquidity": {"ok": ok_liq, "reason": liq_reason, **liq_metrics},
-            }
-        )
-        delta = gpack["greeks"].get("delta")
-        ok_delta, delta_reason = delta_in_band(
-            delta,
-            lo=float(rules["options"]["strike"]["delta_min"]),
-            hi=float(rules["options"]["strike"]["delta_max"]),
-        )
-        if not ok_liq:
-            equity_fallbacks.append(
-                {"symbol": symbol, "reason": f"option_illiquid:{liq_reason}", "bias": bias, "option_id": oid}
-            )
-            continue
-        if not ok_delta:
-            equity_fallbacks.append(
-                {"symbol": symbol, "reason": f"greeks_filter:{delta_reason}", "bias": bias, "option_id": oid}
-            )
-            continue
+            ranked = rank_atm_then_one_otm(float(spot), instruments, option_type=option_type)
+            if not ranked:
+                last_reject = {"symbol": symbol, "reason": "no_instrument_match", "bias": bias, "expiration": exp}
+                continue
 
-        mark = quote.get("mark_price") or quote.get("adjusted_mark_price")
-        try:
-            premium = float(mark)
-        except (TypeError, ValueError):
-            equity_fallbacks.append({"symbol": symbol, "reason": "missing_mark_price", "option_id": oid})
-            continue
+            for pick in ranked:
+                inst = pick["instrument"]
+                oid = instrument_id(inst)
+                if not oid:
+                    last_reject = {"symbol": symbol, "reason": "missing_option_id", "bias": bias, "expiration": exp}
+                    continue
+                quote = quotes_by_id.get(oid) or quotes_by_id.get(str(inst.get("id"))) or {}
+                ok_liq, liq_reason, liq_metrics = option_quote_liquid(
+                    quote,
+                    max_spread_pct_of_price=max_spread,
+                    preferred_spread_pct_of_price=pref_spread,
+                    reject_one_sided=reject_one_sided,
+                )
+                gpack = extract_greeks(quote)
+                greeks_rows.append(
+                    {
+                        "symbol": symbol,
+                        "option_id": oid,
+                        "expiration": exp,
+                        "type": option_type,
+                        "strike": inst.get("strike_price", inst.get("strike")),
+                        "selection": pick["selection"],
+                        **gpack,
+                        "liquidity": {"ok": ok_liq, "reason": liq_reason, **liq_metrics},
+                    }
+                )
+                if not ok_liq:
+                    last_reject = {
+                        "symbol": symbol,
+                        "reason": f"option_illiquid:{liq_reason}",
+                        "bias": bias,
+                        "option_id": oid,
+                        "selection": pick["selection"],
+                        "expiration": exp,
+                    }
+                    continue
+                ok_delta, delta_reason = delta_in_band(
+                    gpack["greeks"].get("delta"),
+                    option_type=option_type,
+                    lo=delta_lo,
+                    hi=delta_hi,
+                )
+                if not ok_delta:
+                    last_reject = {
+                        "symbol": symbol,
+                        "reason": f"greeks_filter:{delta_reason}",
+                        "bias": bias,
+                        "option_id": oid,
+                        "selection": pick["selection"],
+                        "expiration": exp,
+                    }
+                    continue
+                premium, premium_source = _option_premium(quote, liq_metrics)
+                if premium is None:
+                    last_reject = {
+                        "symbol": symbol,
+                        "reason": "missing_bid_ask_mid",
+                        "bias": bias,
+                        "option_id": oid,
+                        "selection": pick["selection"],
+                        "expiration": exp,
+                    }
+                    continue
+                cash = premium * multiplier
+                if buying_power is None:
+                    last_reject = {
+                        "symbol": symbol,
+                        "reason": "missing_buying_power",
+                        "bias": bias,
+                        "option_id": oid,
+                        "selection": pick["selection"],
+                        "expiration": exp,
+                    }
+                    continue
+                if cash > buying_power + 1e-9:
+                    last_reject = {
+                        "symbol": symbol,
+                        "reason": "exceeds_buying_power",
+                        "bias": bias,
+                        "option_id": oid,
+                        "selection": pick["selection"],
+                        "expiration": exp,
+                        "cash_debit": cash,
+                        "buying_power": buying_power,
+                    }
+                    continue
+                passed = {
+                    "symbol": symbol,
+                    "structure": structure,
+                    "bias": bias,
+                    "expiration": exp,
+                    "option_type": option_type,
+                    "strike": inst.get("strike_price", inst.get("strike")),
+                    "option_id": oid,
+                    "selection": pick["selection"],
+                    "premium_mark": premium,
+                    "premium_source": premium_source,
+                    "greeks": gpack["greeks"],
+                    "liquidity": liq_metrics,
+                    "contracts": 1,
+                    "cash_debit": cash,
+                    "playbook_status": rules["options"]["playbook_status"],
+                }
+                break
+            if passed is not None:
+                break
 
-        option_candidates.append(
-            {
-                "symbol": symbol,
-                "structure": structure,
-                "bias": bias,
-                "expiration": exp,
-                "option_type": option_type,
-                "strike": inst.get("strike_price"),
-                "option_id": oid,
-                "selection": pick["selection"],
-                "premium_mark": premium,
-                "greeks": gpack["greeks"],
-                "liquidity": liq_metrics,
-                "contracts": 1,
-                "playbook_status": rules["options"]["playbook_status"],
-            }
-        )
+        if passed is None:
+            equity_fallbacks.append(last_reject or {"symbol": symbol, "reason": "no_instrument_match", "bias": bias})
+            continue
+        option_candidates.append(passed)
 
     write_json(
         SIGNALS / "option_candidates.json",
-        {
-            "agent": "D_option_structure",
-            "as_of": as_of,
-            "mode": "read_only",
-            "candidates": option_candidates,
-            "equity_fallbacks": equity_fallbacks,
-            "max_contracts": rules["options"]["max_contracts"],
-        },
+        _snapshot(
+            {
+                "agent": "D_option_structure",
+                "as_of": as_of,
+                "mode": "read_only",
+                "candidates": option_candidates,
+                "equity_fallbacks": equity_fallbacks,
+                "max_contracts": rules["options"]["max_contracts"],
+                "phase2_checks": [
+                    "daily_pattern",
+                    "expiration_group",
+                    "atm_otm",
+                    "signed_delta",
+                    "spread",
+                    "buying_power",
+                ],
+                "h_still_requires": [
+                    "hour_confirm",
+                    "10m_breakout_retest",
+                    "live_trigger",
+                    "iv",
+                    "volume_oi",
+                    "quote_age",
+                    "event_blackout",
+                    "bod_nlv",
+                    "dual_fee_ceilings",
+                ],
+            }
+        ),
     )
     write_json(
         SIGNALS / "greeks.json",
-        {"agent": "I_greeks", "as_of": as_of, "source": "robinhood_get_option_quotes", "rows": greeks_rows},
+        _snapshot({"agent": "I_greeks", "as_of": as_of, "source": "robinhood_get_option_quotes", "rows": greeks_rows}),
     )
 
     equity_candidates, equity_rejects = select_equity_day_trade_candidates(
@@ -1504,26 +2214,30 @@ def run_pipeline(raw: dict[str, Any]) -> dict[str, Any]:
         quotes_by_symbol=raw.get("equity_quotes_by_symbol") or {},
         tradability_by_symbol=raw.get("equity_tradability_by_symbol") or {},
         fundamentals_by_symbol=raw.get("fundamentals_by_symbol") or {},
-        buying_power=buying_power_from_raw(raw),
+        buying_power=buying_power,
         playbook_status=str(rules["risk"]["equity"]["playbook_status"]),
         take_profit_pct=float(rules["risk"]["equity"]["take_profit_pct_of_cost"]),
         stop_loss_pct=float(rules["risk"]["equity"]["stop_loss_pct_of_cost"]),
     )
     write_json(
         SIGNALS / "equity_candidates.json",
-        {
-            "agent": "D_equity_day_trade",
-            "as_of": as_of,
-            "mode": "read_only",
-            "playbook_status": rules["risk"]["equity"]["playbook_status"],
-            "playbook_path": rules["risk"]["equity"]["playbook_path"],
-            "side": "long_only",
-            "no_shorting": True,
-            "priority": "options_first",
-            "candidates": equity_candidates,
-            "rejected": equity_rejects,
-            "option_fallback_notes": equity_fallbacks,
-        },
+        _snapshot(
+            {
+                "agent": "D_equity_day_trade",
+                "as_of": as_of,
+                "mode": "read_only",
+                "playbook_status": rules["risk"]["equity"]["playbook_status"],
+                "playbook_path": rules["risk"]["equity"]["playbook_path"],
+                "side": "long_only",
+                "no_shorting": True,
+                "priority": "options_first",
+                "agent_h_may_use": False,
+                "agent_h_equity_fallback": False,
+                "candidates": equity_candidates,
+                "rejected": equity_rejects,
+                "option_fallback_notes": equity_fallbacks,
+            }
+        ),
     )
 
     # --- Agent E ---
@@ -1551,39 +2265,45 @@ def run_pipeline(raw: dict[str, Any]) -> dict[str, Any]:
 
     write_json(
         SIGNALS / "risk_plan.json",
-        {
-            "agent": "E_risk",
-            "as_of": as_of,
-            "mode": "read_only",
-            "max_open_positions": rules["risk"]["max_open_positions"],
-            "plans": risk_plans,
-            "notes": "Stop-first until OCO; TP monitored in loop. Phase 2 does not place orders.",
-        },
+        _snapshot(
+            {
+                "agent": "E_risk",
+                "as_of": as_of,
+                "mode": "read_only",
+                "max_open_positions": rules["risk"]["max_open_positions"],
+                "plans": risk_plans,
+                "notes": "Stop-first until OCO; TP monitored in loop. Phase 2 does not place orders.",
+            }
+        ),
     )
 
+    bod_nlv, bod_field = extract_bod_nlv(raw.get("portfolio"))
     summary = {
         "as_of": as_of,
         "phase": 2,
         "places_orders": False,
+        "h_entry_ready": False,
         "eligible_equities": liq["passed_symbols"],
         "option_candidate_count": len(option_candidates),
         "equity_candidate_count": len(equity_candidates),
         "equity_fallback_count": len(equity_fallbacks),
         "risk_plan_count": len(risk_plans),
+        "bod_nlv": bod_nlv,
+        "bod_nlv_field": bod_field,
         "open_questions": rules.get("open_questions", []),
     }
-    write_json(SIGNALS / "phase2_summary.json", summary)
+    write_json(SIGNALS / "phase2_summary.json", _snapshot(summary))
     append_jsonl(
         JOURNAL / "loop_runs.jsonl",
         {"event": "phase2_cycle", "mode": "read_only", **summary},
     )
+    journal_day = today_et().isoformat()
     append_jsonl(
-        JOURNAL / f"{as_of[:10]}.md.jsonl",
-        {"type": "markdown_seed", "text": f"# {as_of[:10]} Phase 2 cycle\n\n- options candidates: {len(option_candidates)}\n- eligible equities: {len(liq['passed_symbols'])}\n"},
+        JOURNAL / f"{journal_day}.md.jsonl",
+        {"type": "markdown_seed", "text": f"# {journal_day} Phase 2 cycle\n\n- options candidates: {len(option_candidates)}\n- eligible equities: {len(liq['passed_symbols'])}\n"},
     )
-    # Human-readable daily markdown journal
-    md_path = JOURNAL / f"{as_of[:10]}.md"
-    prev = md_path.read_text(encoding="utf-8") if md_path.exists() else f"# Trading journal {as_of[:10]}\n\n"
+    md_path = JOURNAL / f"{journal_day}.md"
+    prev = md_path.read_text(encoding="utf-8") if md_path.exists() else f"# Trading journal {journal_day}\n\n"
     prev += f"\n## Phase 2 read-only cycle ({as_of})\n"
     prev += f"- Eligible equities: {', '.join(liq['passed_symbols']) or '(none)'}\n"
     prev += f"- Option candidates: {len(option_candidates)}\n"
@@ -1598,7 +2318,7 @@ def run_pipeline(raw: dict[str, Any]) -> dict[str, Any]:
 # pipeline/execution.py
 # Part: 9 · Agent F
 # Used by: F (chat)
-# Supervised review/place gate; blocked in RTH while H is on
+# Supervised place-gate: confirm, RTH, 09:45 options, H-owns-RTH
 # ========================================================================
 
 from __future__ import annotations
@@ -1607,7 +2327,13 @@ from datetime import datetime
 from typing import Any
 
 from pipeline.io_util import JOURNAL, SIGNALS, append_jsonl, load_rules, read_json, utc_now_iso, write_json
-from pipeline.session import is_rth
+from pipeline.session import (
+    NO_NEW_OPTION_ENTRIES_BEFORE,
+    entries_open,
+    is_rth,
+    now_et,
+    option_entries_open,
+)
 
 
 def load_latest_option_candidates() -> list[dict[str, Any]]:
@@ -1644,9 +2370,17 @@ def can_place_live(
         return False, f"{playbook_kind}_playbook_still_draft"
     if not explicit_confirm:
         return False, "missing_explicit_user_confirm"
+    if not is_rth(now):
+        return False, "outside_rth"
+    if playbook_kind == "options" and not option_entries_open(now):
+        if now_et(now).time() < NO_NEW_OPTION_ENTRIES_BEFORE:
+            return False, "no_new_option_entries_before_0945"
+        return False, "no_new_entries_after_1545"
+    if not entries_open(now):
+        return False, "no_new_entries_after_1545"
     if h_enabled is None:
         h_enabled = load_rules().get("execution", {}).get("unsupervised_agent_h") == "enabled"
-    if h_enabled and is_rth(now) and not h_rth_override:
+    if h_enabled and not h_rth_override:
         return False, "h_owns_rth_while_enabled"
     return True, None
 
@@ -1835,32 +2569,35 @@ DOCS = ROOT / "docs"
 CATALOG: list[tuple[str, str, str, str]] = [
     ("pipeline/__init__.py", "0 · Package", "F + H", "Pipeline package marker"),
     ("pipeline/io_util.py", "1 · Shared", "F + H", "Paths, rules.json loader, journal helpers"),
-    ("pipeline/session.py", "1 · Shared", "F + H", "RTH clock: 09:30–16:00 ET, no new entries after 15:45"),
+    ("pipeline/session.py", "1 · Shared", "F + H", "RTH clock; option entries 09:45–15:45; equity entries to 15:45"),
     ("pipeline/orders.py", "1 · Shared", "F + H", "Working-order states for Robinhood MCP (no open=true)"),
-    ("pipeline/universe.py", "2 · Agent A", "F + H", "Watchlist extract, crypto drop, ADV ≥ 2,000,000, option quote liquidity"),
-    ("pipeline/patterns.py", "3 · Agent B", "F + H", "H&S, double/triple top/bottom, triangles"),
-    ("pipeline/bars.py", "3 · Agent B", "F + H", "Normalize RH OHLCV; synthesize 3-minute from 1-minute"),
-    ("pipeline/charts.py", "3 · Agent B", "F + H", "ASCII 1m / 3m / 5m candlestick graphs"),
+    ("pipeline/quotes.py", "1 · Shared", "F + H", "5s underlying executable price; BOD NLV field extract"),
+    ("pipeline/fees.py", "1 · Shared", "F + H", "Dual fee ceilings: 0.49% planned loss and 0.50% with fees"),
+    ("pipeline/universe.py", "2 · Agent A", "F + H", "Watchlist extract, crypto drop, inverse-ETF reject, ADV ≥ 2,000,000"),
+    ("pipeline/patterns.py", "3 · Agent B", "F + H", "Daily-first H&S / double-triple / triangle; no 1m/3m/5m"),
     ("pipeline/news.py", "4 · Agent C", "F + H", "Factual RH news/earnings pack; no invented sentiment"),
-    ("pipeline/options_structure.py", "5 · Agent D", "F + H", "Long call/put from bias; ATM else one OTM; DTE 0–7"),
-    ("pipeline/equity_day_trade.py", "5 · Agent D", "F + H", "Long shares only; inverse-ETF denylist; size to buying power"),
-    ("pipeline/greeks.py", "6 · Agent I", "F + H", "Copy RH Greeks only; abs(delta) 0.40–0.50 band"),
+    ("pipeline/options_structure.py", "5 · Agent D", "F + H", "Long call/put; ATM/OTM; 2–3 DTE while overnight off"),
+    ("pipeline/equity_day_trade.py", "5 · Agent D", "F only", "Long shares only; inverse-ETF denylist; H has no equity fallback"),
+    ("pipeline/greeks.py", "6 · Agent I", "F + H", "Copy RH Greeks only; signed call +0.40–+0.50 / put −0.50–−0.40"),
     ("pipeline/risk.py", "7 · Agent E", "F + H", "Options −20%/+40%; equity −20%/+25%; stop first until OCO"),
-    ("pipeline/orchestrator.py", "8 · Agent G", "F + H", "Phase 2 read-only cycle; writes signals/; never places"),
-    ("pipeline/execution.py", "9 · Agent F", "F (chat)", "Supervised review/place gate; blocked in RTH while H is on"),
+    ("pipeline/orchestrator.py", "8 · Agent G", "F + H", "Phase 2 read-only snapshot; h_entry_ready is always false"),
+    ("pipeline/execution.py", "9 · Agent F", "F (chat)", "Supervised place-gate: confirm, RTH, 09:45 options, H-owns-RTH"),
     ("scripts/run_phase2_cycle.py", "10 · CLI", "F + H", "Load data/raw/latest_raw.json and run the orchestrator"),
     ("scripts/build_python_source_book.py", "10 · CLI", "docs", "This generator — rebuilds the printable source book"),
-    ("pipeline/tests/test_phase2.py", "11 · Tests", "CI / F", "Universe, liquidity, greeks, ATM, risk math"),
-    ("pipeline/tests/test_orders.py", "11 · Tests", "CI / F", "Working states and locked rules.json graph intervals"),
-    ("pipeline/tests/test_bars.py", "11 · Tests", "CI / F", "1m→3m aggregation and live 5m match"),
-    ("pipeline/tests/test_equity_day_trade.py", "11 · Tests", "CI / F", "Long-only equity day-trade selection"),
-    ("pipeline/tests/test_execution.py", "11 · Tests", "CI / F", "F place-gate and historical snapshot skip"),
+    ("pipeline/tests/test_phase2.py", "11 · Tests", "CI / F", "Universe, liquidity, signed delta, ATM/OTM, expiration rank"),
+    ("pipeline/tests/test_orders.py", "11 · Tests", "CI / F", "Working states and locked agent_h schema"),
+    ("pipeline/tests/test_fees.py", "11 · Tests", "CI / F", "Dual NLV fee ceilings"),
+    ("pipeline/tests/test_session.py", "11 · Tests", "CI / F", "ET calendar date and flatten window"),
+    ("pipeline/tests/test_equity_day_trade.py", "11 · Tests", "CI / F", "Long-only equity selection and Phase 2 snapshots"),
+    ("pipeline/tests/test_execution.py", "11 · Tests", "CI / F", "F place-gate including 09:45 option lock"),
 ]
 
 
 def _read(rel: str) -> str:
     path = ROOT / rel
-    return path.read_text(encoding="utf-8") if path.exists() else f"# MISSING: {rel}\n"
+    if not path.exists():
+        return ""
+    return path.read_text(encoding="utf-8")
 
 
 def _banner(rel: str, part: str, used_by: str, role: str) -> str:
@@ -1873,6 +2610,10 @@ def _banner(rel: str, part: str, used_by: str, role: str) -> str:
         f"# {role}\n"
         f"# {line}\n\n"
     )
+
+
+def _catalog() -> list[tuple[str, str, str, str]]:
+    return [row for row in CATALOG if (ROOT / row[0]).exists() and _read(row[0]).strip()]
 
 
 def build_python_book() -> str:
@@ -1891,7 +2632,7 @@ def build_python_book() -> str:
         "Print companion: docs/agentic-python-source-printable.html\n",
         '"""\n\n',
     ]
-    for rel, part, used_by, role in CATALOG:
+    for rel, part, used_by, role in _catalog():
         chunks.append(_banner(rel, part, used_by, role))
         chunks.append(_read(rel).rstrip() + "\n\n")
     return "".join(chunks)
@@ -1902,7 +2643,7 @@ def build_html(py_book: str) -> str:
     toc_rows = []
     sections = []
     total_lines = 0
-    for rel, part, used_by, role in CATALOG:
+    for rel, part, used_by, role in _catalog():
         src = _read(rel)
         n = src.count("\n") + (0 if src.endswith("\n") or not src else 1)
         total_lines += n
@@ -2022,9 +2763,10 @@ def build_html(py_book: str) -> str:
             confirm of a specific order. Blocked during RTH while H is enabled.</li>
         <li><strong>Agent H (Agentic AI Bot)</strong> — unsupervised Cursor Automation. The standing prompt is
             <code>playbooks/agent_h_autonomous.PROMPT.md</code> (markdown, not Python). On each fire H checks out
-            <code>main</code>, reads <code>config/rules.json</code> and the playbooks, and may call
-            <code>pipeline.bars</code> / <code>pipeline.charts</code> / <code>pipeline.patterns</code> for graphs
-            and bias. Live <code>place_*</code> is Robinhood MCP from that prompt, not a pipeline side effect.</li>
+            <code>main</code>, reads <code>config/rules.json</code> → <code>agent_h</code>, and uses
+            daily → 1-hour → completed 10-minute → live quote only (no 1m / 3m / 5m).
+            Live <code>place_*</code> is Robinhood MCP from that prompt, not a pipeline side effect.
+            H is options-only; it must ignore equity candidates.</li>
         <li><strong>Not in this book:</strong> lock JSON, playbooks, and the H prompt. Those are not Python.</li>
       </ul>
     </div>
@@ -2119,7 +2861,7 @@ def build_pdf(path: Path) -> None:
     y += 10
     page.insert_text(pymupdf.Point(margin, y), "Contents", fontname="helv", fontsize=13)
     y += 18
-    for rel, part, used_by, role in CATALOG:
+    for rel, part, used_by, role in _catalog():
         n = _read(rel).count("\n") + 1
         row = f"{part:16s}  {rel:42s}  {used_by:10s}  {n:4d}  {role}"
         for w in wrap(row, 98):
@@ -2131,7 +2873,7 @@ def build_pdf(path: Path) -> None:
             y += 10
     footer(page, "cover")
 
-    for rel, part, used_by, role in CATALOG:
+    for rel, part, used_by, role in _catalog():
         src_lines = _read(rel).splitlines()
         page = new_page()
         header = f"{rel}   ·   {part}   ·   {used_by}   ·   {role}"
@@ -2205,13 +2947,25 @@ if __name__ == "__main__":
 # pipeline/tests/test_phase2.py
 # Part: 11 · Tests
 # Used by: CI / F
-# Universe, liquidity, greeks, ATM, risk math
+# Universe, liquidity, signed delta, ATM/OTM, expiration rank
 # ========================================================================
 
+from datetime import date, datetime, timezone
+from zoneinfo import ZoneInfo
+
 from pipeline.greeks import delta_in_band, extract_greeks
-from pipeline.options_structure import filter_expirations, pick_atm_or_one_otm
-from pipeline.patterns import detect_patterns
+from pipeline.options_structure import (
+    filter_expirations,
+    pick_atm_or_one_otm,
+    rank_atm_then_one_otm,
+    rank_expirations,
+    strikes_bracket_spot,
+)
+from pipeline.patterns import rank_daily_setups
+from pipeline.quotes import executable_underlying_price, extract_bod_nlv
+from pipeline.patterns import collect_pattern_hits, detect_patterns
 from pipeline.risk import equity_risk_plan, options_risk_plan
+from pipeline.session import today_et
 from pipeline.universe import apply_liquidity_filter, extract_watchlist_symbols, option_quote_liquid
 
 
@@ -2235,6 +2989,19 @@ def test_liquidity_volume_gate():
     assert out["rejected"][0]["symbol"] == "BBB"
 
 
+def test_liquidity_rejects_inverse_etfs_before_volume():
+    fund = {
+        "AAA": {"average_volume": 3_000_000},
+        "SQQQ": {"average_volume": 20_000_000, "name": "ProShares UltraPro Short QQQ"},
+        "XYZ": {"average_volume": 5_000_000, "description": "Leveraged inverse daily"},
+    }
+    out = apply_liquidity_filter(["AAA", "SQQQ", "XYZ"], fund, min_average_volume=2_000_000)
+    assert out["passed_symbols"] == ["AAA"]
+    reasons = {row["symbol"]: row["reason"] for row in out["rejected"]}
+    assert reasons["SQQQ"] == "inverse_etf"
+    assert reasons["XYZ"] == "inverse_etf"
+
+
 def test_option_spread_gate():
     preferred, reason, pref_m = option_quote_liquid(
         {"bid_price": "1.00", "ask_price": "1.05"},
@@ -2245,12 +3012,19 @@ def test_option_spread_gate():
     assert pref_m["spread_quality"] == "preferred"
 
     acceptable, reason_ok, acc_m = option_quote_liquid(
-        {"bid_price": "1.00", "ask_price": "1.08"},
+        {"bid": "1.00", "ask": "1.08"},
         max_spread_pct_of_price=0.1,
         preferred_spread_pct_of_price=0.05,
     )
     assert acceptable and reason_ok is None
     assert acc_m["spread_quality"] == "acceptable"
+
+    missing, missing_reason, _ = option_quote_liquid(
+        {},
+        max_spread_pct_of_price=0.1,
+        preferred_spread_pct_of_price=0.05,
+    )
+    assert not missing and missing_reason == "missing_bid_ask"
 
     bad, reason2, _ = option_quote_liquid(
         {"bid_price": "1.00", "ask_price": "1.50"},
@@ -2286,10 +3060,16 @@ def test_greeks_no_invention():
     pack = extract_greeks(q)
     assert pack["greeks"]["delta"] == 0.45
     assert "theta" in pack["missing_fields"]
-    ok, _ = delta_in_band(0.45, lo=0.4, hi=0.5)
+    ok, _ = delta_in_band(0.45, option_type="call", lo=0.4, hi=0.5)
     assert ok
-    bad, reason = delta_in_band(0.9, lo=0.4, hi=0.5)
+    bad, reason = delta_in_band(0.9, option_type="call", lo=0.4, hi=0.5)
     assert not bad and reason is not None
+    put_ok, _ = delta_in_band(-0.45, option_type="put", lo=0.4, hi=0.5)
+    assert put_ok
+    inverted, inv_reason = delta_in_band(0.45, option_type="put", lo=0.4, hi=0.5)
+    assert not inverted and inv_reason is not None
+    abs_call, abs_reason = delta_in_band(-0.45, option_type="call", lo=0.4, hi=0.5)
+    assert not abs_call and abs_reason is not None
 
 
 def test_options_risk_math():
@@ -2335,14 +3115,183 @@ def test_atm_pick_and_dte():
     pick = pick_atm_or_one_otm(100.0, instruments, option_type="call")
     assert pick["selection"] == "atm"
     assert pick["instrument"]["id"] == "1"
-    exps = filter_expirations(["2099-01-01", "2026-09-02"], max_dte=7, as_of=__import__("datetime").date(2026, 8, 30))
+    exps = filter_expirations(["2099-01-01", "2026-09-02"], max_dte=7, as_of=date(2026, 8, 30))
     assert exps == ["2026-09-02"]
+    default_min = filter_expirations(
+        ["2026-08-30", "2026-08-31", "2026-09-01", "2026-09-02"],
+        max_dte=7,
+        as_of=date(2026, 8, 30),
+    )
+    assert default_min == ["2026-09-01", "2026-09-02"]
+    locked = filter_expirations(
+        ["2026-08-30", "2026-08-31", "2026-09-02"],
+        min_dte=2,
+        max_dte=7,
+        as_of=date(2026, 8, 30),
+    )
+    assert locked == ["2026-09-02"]
+
+
+def test_atm_is_nearest_strike_even_when_more_than_one_percent_away():
+    instruments = [
+        {"id": "itm", "type": "call", "strike_price": "5.0"},
+        {"id": "otm", "type": "call", "strike_price": "5.5"},
+    ]
+    ranked = rank_atm_then_one_otm(5.10, instruments, option_type="call")
+    assert ranked[0]["selection"] == "atm"
+    assert ranked[0]["instrument"]["id"] == "itm"
+    assert ranked[1]["selection"] == "one_otm"
+    assert ranked[1]["instrument"]["id"] == "otm"
+    pick = pick_atm_or_one_otm(5.10, instruments, option_type="call")
+    assert pick["instrument"]["id"] == "itm"
+
+
+def test_put_atm_then_distinct_one_otm():
+    instruments = [
+        {"id": "otm", "option_type": "put", "strike": "18.0"},
+        {"id": "atm", "option_type": "put", "strike": "18.5"},
+    ]
+    ranked = rank_atm_then_one_otm(18.30, instruments, option_type="put")
+    assert ranked[0]["instrument"]["id"] == "atm"
+    assert ranked[1]["instrument"]["id"] == "otm"
+
+
+def test_strikes_must_bracket_spot_for_atm_page():
+    only_low = [{"id": "1", "type": "call", "strike_price": "100"}]
+    assert not strikes_bracket_spot(200.0, only_low, option_type="call")
+    assert strikes_bracket_spot(100.0, only_low, option_type="call")
+    bracketed = only_low + [{"id": "2", "type": "call", "strike_price": "210"}]
+    assert strikes_bracket_spot(200.0, bracketed, option_type="call")
+
+
+def test_today_et_uses_new_york_calendar_not_utc():
+    utc_after_midnight = datetime(2026, 9, 1, 2, 0, tzinfo=timezone.utc)
+    assert today_et(utc_after_midnight).isoformat() == "2026-08-31"
+    et_evening = datetime(2026, 8, 31, 22, 0, tzinfo=ZoneInfo("America/New_York"))
+    assert today_et(et_evening).isoformat() == "2026-08-31"
+
+
+def test_atm_tie_and_otm_are_measured_from_atm():
+    instruments = [
+        {"id": "low", "type": "call", "strike_price": "100"},
+        {"id": "high", "type": "call", "strike_price": "101"},
+        {"id": "higher", "type": "call", "strike_price": "102"},
+    ]
+    call_ranked = rank_atm_then_one_otm(100.5, instruments, option_type="call")
+    assert call_ranked[0]["instrument"]["id"] == "low"
+    assert call_ranked[1]["instrument"]["id"] == "high"
+
+    puts = [
+        {"id": "low", "option_type": "put", "strike": "100"},
+        {"id": "high", "option_type": "put", "strike": "101"},
+        {"id": "higher", "option_type": "put", "strike": "102"},
+    ]
+    put_ranked = rank_atm_then_one_otm(100.5, puts, option_type="put")
+    assert put_ranked[0]["instrument"]["id"] == "high"
+    assert put_ranked[1]["instrument"]["id"] == "low"
+
+    call_above_spot = rank_atm_then_one_otm(100.6, instruments, option_type="call")
+    assert call_above_spot[0]["instrument"]["id"] == "high"
+    assert call_above_spot[1]["instrument"]["id"] == "higher"
+
+
+def test_expiration_rank_uses_same_day_group_when_overnight_off():
+    dates = ["2026-09-07", "2026-09-08", "2026-09-09", "2026-09-11"]
+    as_of = date(2026, 9, 5)
+    same_day = rank_expirations(dates, overnight_holding_enabled=False, as_of=as_of)
+    assert same_day == ["2026-09-07", "2026-09-08"]
+    overnight = rank_expirations(dates, overnight_holding_enabled=True, as_of=as_of)
+    assert overnight == ["2026-09-09", "2026-09-11"]
+
+
+def test_underlying_quote_and_bod_nlv_helpers():
+    now = datetime(2026, 9, 4, 17, 30, tzinfo=timezone.utc)
+    fresh = {
+        "bid_price": "10.00",
+        "ask_price": "10.10",
+        "last_trade_price": "10.04",
+        "updated_at": "2026-09-04T17:29:58Z",
+    }
+    price, reason = executable_underlying_price(fresh, now=now)
+    assert reason is None
+    assert price == 10.04
+    outside = dict(fresh, last_trade_price="10.50")
+    mid, mid_reason = executable_underlying_price(outside, now=now)
+    assert mid_reason is None
+    assert mid == 10.05
+    stale, stale_reason = executable_underlying_price(
+        dict(fresh, updated_at="2026-09-04T17:29:50Z"), now=now
+    )
+    assert stale is None and stale_reason == "underlying_quote_stale"
+    amount, field = extract_bod_nlv({"start_of_day_equity": "1500.00", "total_value": "1512"})
+    assert amount == 1500.0 and field == "start_of_day_equity"
+    missing, missing_field = extract_bod_nlv({"total_value": "1512"})
+    assert missing is None and missing_field is None
+
+
+def test_daily_setup_rank_is_deterministic():
+    hits = [
+        {
+            "pattern": "ascending_triangle",
+            "timeframe": "day",
+            "bias": "bullish",
+            "indices": [20, 80],
+            "last_pivot": 80,
+            "prominence": 9.0,
+        },
+        {
+            "pattern": "head_and_shoulders",
+            "timeframe": "day",
+            "bias": "bearish",
+            "indices": [10, 20, 30],
+            "last_pivot": 30,
+            "prominence": 0.02,
+        },
+        {
+            "pattern": "double_bottom",
+            "timeframe": "day",
+            "bias": "bullish",
+            "indices": [10, 40],
+            "last_pivot": 40,
+            "prominence": 1.0,
+        },
+        {
+            "pattern": "symmetrical_triangle",
+            "timeframe": "day",
+            "bias": "neutral",
+            "indices": [30, 50],
+            "prominence": 9.0,
+        },
+    ]
+    ranked = rank_daily_setups(hits)
+    assert [row["pattern"] for row in ranked] == [
+        "head_and_shoulders",
+        "double_bottom",
+        "ascending_triangle",
+    ]
+
+
+def test_double_rejects_span_beyond_max_duration():
+    prices = [5.0] * 3 + [3.0] + [5.0] * 70 + [3.0] + [5.0] * 6
+    bars = [{"close": c, "high": c + 0.2, "low": c - 0.2} for c in prices]
+    hits = detect_patterns(bars, timeframe="day")
+    assert "double_bottom" not in {h["pattern"] for h in hits}
+
+
+def test_intraday_patterns_ignored_without_daily_hit():
+    prices = [6, 6, 6, 5, 4, 3, 4, 5, 6, 5, 4, 3, 4, 5, 6] + [6.2 + i * 0.05 for i in range(20)]
+    bars = [{"close": c, "high": c + 0.2, "low": c - 0.2} for c in prices]
+    hits = collect_pattern_hits({"10minute": bars}, ["10minute", "hour", "day"])
+    assert hits == []
+    daily_first = collect_pattern_hits({"day": bars, "10minute": bars}, ["10minute", "hour", "day"])
+    assert any(h["timeframe"] == "day" for h in daily_first)
+    assert any(h["timeframe"] == "10minute" for h in daily_first)
 
 # ========================================================================
 # pipeline/tests/test_orders.py
 # Part: 11 · Tests
 # Used by: CI / F
-# Working states and locked rules.json graph intervals
+# Working states and locked agent_h schema
 # ========================================================================
 
 from pipeline.equity_day_trade import INVERSE_ETF_SYMBOLS
@@ -2374,24 +3323,126 @@ def test_working_option_and_equity_states():
     assert not has_working_orders([{"state": "rejected"}], [{"state": "filled"}])
 
 
-def test_rules_json_matches_working_states_and_intraday_graphs():
+def test_rules_json_matches_working_states_and_10minute():
     rules = load_rules()
     assert set(rules["orders"]["option_working_states"]) == set(OPTION_WORKING_STATES)
     assert set(rules["orders"]["equity_working_states"]) == set(EQUITY_WORKING_STATES)
-    assert rules["patterns"]["timeframes"] == ["minute", "3minute", "5minute", "hour", "day"]
-    assert rules["historicals"]["intraday_interval"] == "minute"
-    assert rules["historicals"]["live"] == "get_equity_quotes"
+    assert rules["patterns"]["timeframes"] == ["10minute", "hour", "day"]
+    assert rules["historicals"]["intraday_interval"] == "10minute"
     assert "15minute" not in rules["patterns"]["timeframes"]
-    assert "3minute" not in rules["historicals"]["rh_native_intervals"]
-    assert rules["options"]["may_hold_overnight_with_stop"] is True
-    assert rules["options"]["flatten_at_close"] is False
-    assert rules["options"]["overnight_lock_confirmed"] == "2026-08-31"
+    assert rules["options"]["may_hold_overnight_with_stop"] is False
+    assert rules["options"]["flatten_at_close"] is True
+    assert rules["options"]["overnight_lock_confirmed"] == "2026-09-05"
     assert rules["loop"]["flatten_equity_before_close"] is True
-    assert rules["loop"]["options_may_hold_overnight_with_stop"] is True
+    assert rules["loop"]["options_may_hold_overnight_with_stop"] is False
     assert "flatten_before_close" not in rules["loop"]
     assert rules["git"]["work_on"] == "main"
     assert rules["git"]["open_pull_request"] is False
     assert rules["git"]["create_feature_branch"] is False
+    assert rules["agent_h"]["equity_fallback"] is False
+    assert rules["agent_h"]["min_dte"] == 2
+    assert rules["agent_h"]["max_dte"] == 7
+    assert rules["agent_h"]["allow_0dte"] is False
+    assert rules["agent_h"]["allow_1dte"] is False
+    assert rules["agent_h"]["no_new_entries_before"] == "09:45"
+    assert rules["agent_h"]["same_day_expiry_target_flatten_by"] == "15:30"
+    assert rules["agent_h"]["same_day_expiry_absolute_deadline"] == "15:45"
+    assert rules["agent_h"]["max_new_entries_per_day"] == 2
+    assert rules["agent_h"]["max_planned_loss_pct_of_current_nlv"] == 0.005
+    assert rules["agent_h"]["max_debit_pct_of_current_nlv"] == 0.025
+    assert rules["agent_h"]["max_daily_realized_loss_pct_of_session_start_nlv"] == 0.01
+    assert rules["agent_h"]["option_quote"]["min_open_interest"] == 500
+    assert rules["agent_h"]["option_quote"]["max_quote_age_seconds"] == 5
+    assert rules["agent_h"]["intraday_timeframes"] == ["10minute", "hour", "day"]
+    assert rules["agent_h"]["forbidden_timeframes"] == [
+        "1minute",
+        "3minute",
+        "5minute",
+        "15minute",
+    ]
+    assert rules["agent_h"]["chart_hierarchy"] == [
+        "daily_setup",
+        "hour_confirmation",
+        "completed_10minute_trigger",
+        "live_quote",
+        "option_review",
+    ]
+    assert rules["agent_h"]["chart_roles"]["day"] == "major_trend_support_resistance_and_chart_pattern"
+    assert rules["agent_h"]["chart_roles"]["hour"] == "confirm_direction_reject_conflict_with_broader_intraday_trend"
+    assert rules["agent_h"]["chart_roles"]["10minute"] == "confirm_breakout_volume_retest_and_entry_trigger"
+    assert rules["agent_h"]["chart_roles"]["live_quote"] == "validate_underlying_trigger_and_price_option_immediately_before_order"
+    assert rules["agent_h"]["no_1m_3m_autonomous_noise"] is True
+    assert rules["agent_h"]["no_5m_stateless_inconsistency"] is True
+    assert rules["agent_h"]["include_index_options"] is False
+    assert rules["agent_h"]["schema_version"] == "2026-09-05.2"
+    assert rules["agent_h"]["overnight"]["evaluate"] == "current_dte_each_run"
+    assert rules["agent_h"]["overnight"]["current_dte_lte_3_flatten_by"] == "15:45"
+    assert rules["agent_h"]["overnight"]["current_dte_gte_4_overnight_with_stop"] is False
+    assert rules["agent_h"]["overnight_holding_enabled"] is False
+    assert rules["agent_h"]["overnight"]["overnight_requires_verified_gtc_stop"] is True
+    assert rules["agent_h"]["overnight"]["expiration_day_absolute_deadline"] == "15:45"
+    assert rules["agent_h"]["overnight"]["dte_1_to_3_liquidation_begin"] == "15:40"
+    assert rules["agent_h"]["lease_valid_only_after_successful_push_to_origin_main"] is True
+    assert rules["agent_h"]["recheck_remote_lease_before_every_place_option_order"] is True
+    assert rules["agent_h"]["scheduler_must_enforce_max_concurrent_runs"] == 1
+    assert rules["agent_h"]["apply_both_fee_ceilings_on_every_trade"] is True
+    assert rules["agent_h"]["bod_nlv_unavailable_means_no_new_entry"] is True
+    assert rules["priority_does_not_authorize_agent_h_equity"] is True
+    assert rules["agent_h"]["session_start_required_for_new_entry"] == [
+        "et_trading_date",
+        "first_valid_rth_timestamp_et",
+        "account",
+        "bod_nlv",
+        "bod_nlv_field",
+        "daily_loss_limit_usd",
+    ]
+    assert rules["agent_h"]["session_start_diagnostic_only_fields"] == ["first_fire_baseline_nlv"]
+    assert (
+        rules["agent_h"]["forced_liquidation"]["leftover_4_to_7_dte_while_overnight_disabled"]
+        == "treat_as_dte_1_to_3_begin_1540"
+    )
+    assert rules["agent_h"]["protective_stop"]["time_in_force"] == "gtc"
+    assert rules["agent_h"]["cancel_lifecycle"]["never_assume_cancel_means_zero_fill"] is True
+    assert rules["agent_h"]["entry_order"]["cancel_confirm_before_replacement"] is True
+    assert rules["agent_h"]["take_profit"]["cancel_existing_stop_and_confirm_before_tp"] is True
+    assert rules["agent_h"]["take_profit"]["cancel_unfilled_replacement_seconds_after_initial_tp"] == 30
+    assert rules["agent_h"]["forced_liquidation"]["dte_1_to_3_begin"] == "15:40"
+    assert rules["agent_h"]["patterns"]["daily_neckline_governs_10m_breakout"] is True
+    assert rules["agent_h"]["patterns"]["overlapping_rank"][0] == "hs_then_double_triple_then_triangle"
+    assert rules["agent_h"]["patterns"]["earliest_practical_entry_after_retest_et"] == "13:10"
+    assert rules["agent_h"]["expiration_selection"]["same_day_group_dte"] == [2, 3]
+    assert rules["options"]["strike"]["put_delta_min"] == -0.5
+    assert rules["options"]["strike"]["call_otm"] == "exactly_one_listed_strike_above_atm"
+    assert "get_realized_pnl" in rules["agent_h"]["required_tools"]
+    assert "get_earnings_calendar" in rules["agent_h"]["required_tools"]
+    assert rules["agent_h"]["patterns"]["breakout_volume_multiple_of_median"] == 1.5
+    assert rules["agent_h"]["patterns"]["retest_tolerance_pct"] == 0.002
+    assert rules["agent_h"]["patterns"]["live_trigger_beyond_breakout_pct"] == 0.001
+    assert rules["agent_h"]["patterns"]["volume_statistic"] == "median"
+    assert rules["agent_h"]["estimated_round_trip_fees"] == "3 * entry_fee_from_review"
+    assert rules["agent_h"]["entry_fee_source_hierarchy"][0] == "valid_positive_total_fee_only"
+    assert rules["agent_h"]["entry_fee_source_hierarchy"][1] == "zero_total_plus_positive_component_is_fee_conflict"
+    assert rules["agent_h"]["entry_fee_source_hierarchy"][2] == "zero_total_and_zero_or_absent_components_is_explicit_zero"
+    assert rules["agent_h"]["journal_fee_conflict"] is True
+    assert rules["agent_h"]["journal_entry_fee_source"] is True
+    assert rules["agent_h"]["fee_status_values"] == [
+        "quoted",
+        "explicit_zero",
+        "ambiguous",
+        "unavailable",
+    ]
+    assert rules["agent_h"]["zero_total_plus_positive_component"]["fee_status"] == "ambiguous"
+    assert rules["agent_h"]["zero_total_plus_positive_component"]["journal"] == "fee_conflict"
+    assert rules["agent_h"]["zero_total_plus_positive_component"]["do_not_sum_or_select_estimate"] is True
+    assert rules["agent_h"]["do_not_apply_049_ceiling_when_positive_fee_included"] is False
+    assert rules["agent_h"]["universal_fee_gate"] == [
+        "planned_loss <= 0.49% current NLV",
+        "planned_loss + estimated_round_trip_fees <= 0.50% current NLV",
+    ]
+    assert rules["agent_h"]["closed_trade_uses_actual_net_pnl_not_estimated_fees"] is True
+    assert rules["agent_h"]["allow_0dte"] is False
+    assert rules["universe"]["include_index_options"] is False
+    assert rules["options"]["min_dte"] == 2
 
 
 def test_permissions_is_kill_switch_not_a_rules_copy():
@@ -2406,6 +3457,22 @@ def test_permissions_is_kill_switch_not_a_rules_copy():
     assert "patterns" not in perms
 
 
+def test_agent_h_prompt_locks_schema_and_live_safety():
+    from pathlib import Path
+
+    prompt = (Path(__file__).resolve().parents[2] / "playbooks" / "agent_h_autonomous.PROMPT.md").read_text()
+    assert "2026-09-05.2" in prompt
+    assert "A lease is valid only after that commit successfully pushes to `origin/main`" in prompt
+    assert "time_in_force=gtc" in prompt
+    assert "09:30–09:44:59" in prompt
+    assert "approximately **13:10–15:45 ET**" in prompt
+    assert "Call delta: **+0.40 through +0.50 inclusive**" in prompt
+    assert "Put delta: **−0.50 through −0.40 inclusive**" in prompt
+    assert "planned_loss` ≤ **0.49% of current NLV**" in prompt
+    assert "bod_nlv_unavailable" in prompt
+    assert "maximum concurrent runs = 1" in prompt
+
+
 def test_inverse_etf_denylist_has_no_duplicate_twm():
     from pathlib import Path
 
@@ -2414,150 +3481,139 @@ def test_inverse_etf_denylist_has_no_duplicate_twm():
     assert "TWM" in INVERSE_ETF_SYMBOLS
 
 # ========================================================================
-# pipeline/tests/test_bars.py
+# pipeline/tests/test_fees.py
 # Part: 11 · Tests
 # Used by: CI / F
-# 1m→3m aggregation and live 5m match
+# Dual NLV fee ceilings
 # ========================================================================
 
-from pipeline.bars import aggregate_to_minutes, bars_for_timeframe, extract_rh_historicals_bars, normalize_bars
-from pipeline.charts import ascii_chart
-from pipeline.io_util import load_rules
+from pipeline.fees import classify_review_fees, fee_aware_planned_loss_ok
 
 
-def _bar(ts: str, o: float, h: float, l: float, c: float, v: float = 10) -> dict:
-    return {
-        "begins_at": ts,
-        "open_price": str(o),
-        "high_price": str(h),
-        "low_price": str(l),
-        "close_price": str(c),
-        "volume": v,
-        "interpolated": False,
-    }
+NLV = 1500.0
+CEILING_049 = 0.0049 * NLV  # 7.35
+CEILING_050 = 0.005 * NLV  # 7.50
 
 
-def test_normalize_rh_keys_and_drop_interpolated():
-    bars = normalize_bars(
-        [
-            _bar("2026-09-01T13:30:00Z", 1, 2, 0.5, 1.5, 100),
-            {
-                "begins_at": "2026-09-01T13:31:00Z",
-                "open_price": "1",
-                "high_price": "1",
-                "low_price": "1",
-                "close_price": "1",
-                "volume": 1,
-                "interpolated": True,
-            },
-        ]
+def test_positive_total_fee_is_used_alone():
+    out = classify_review_fees({"total_fee": "0.65", "commission": "0.65", "sec_fee": "0.02"})
+    assert out["fee_status"] == "quoted"
+    assert out["entry_fee"] == 0.65
+    assert out["journal"] == "total_fee"
+    assert out["estimated_round_trip_fees"] == out["entry_fee"] * 3
+    assert out["apply_049_ceiling"] is True
+
+
+def test_zero_total_plus_positive_component_is_fee_conflict():
+    out = classify_review_fees({"total_fee": "$0.00", "commission": "0.65"})
+    assert out["fee_status"] == "ambiguous"
+    assert out["entry_fee"] is None
+    assert out["journal"] == "fee_conflict"
+    assert out["estimated_exit_fee"] is None
+    assert out["estimated_round_trip_fees"] is None
+    assert out["apply_049_ceiling"] is True
+    assert fee_aware_planned_loss_ok(
+        planned_loss=CEILING_049, current_nlv=NLV, classification=out
     )
-    assert len(bars) == 1
-    assert bars[0]["open"] == 1.0
-    assert bars[0]["close"] == 1.5
+    assert not fee_aware_planned_loss_ok(
+        planned_loss=7.40, current_nlv=NLV, classification=out
+    )
 
 
-def test_aggregate_three_minute_from_one_minute():
-    # AVGO 2026-09-01 first three RTH 1-minute bars (live RH dump).
-    minute = [
-        _bar("2026-09-01T13:30:00Z", 364.49, 365.10, 363.36, 364.015, 369411),
-        _bar("2026-09-01T13:31:00Z", 364.15, 364.21, 362.55, 362.7262, 41993),
-        _bar("2026-09-01T13:32:00Z", 362.56, 363.7399, 362.265, 363.49, 46068),
-        _bar("2026-09-01T13:33:00Z", 363.55, 364.50, 362.90, 364.04, 26954),
-        _bar("2026-09-01T13:34:00Z", 363.9143, 364.3259, 363.37, 363.37, 18451),
-        _bar("2026-09-01T13:35:00Z", 363.35, 364.2381, 363.25, 363.69, 33091),
-    ]
-    three = aggregate_to_minutes(minute, 3)
-    assert [b["begins_at"] for b in three] == [
-        "2026-09-01T13:30:00Z",
-        "2026-09-01T13:33:00Z",
-    ]
-    first = three[0]
-    assert first["open"] == 364.49
-    assert first["high"] == 365.10
-    assert first["low"] == 362.265
-    assert first["close"] == 363.49
-    assert first["volume"] == 369411 + 41993 + 46068
+def test_zero_total_and_zero_or_absent_components_is_explicit_zero():
+    accepted = classify_review_fees({"total_fee": 0, "commission": "0.00"})
+    assert accepted["fee_status"] == "explicit_zero"
+    assert accepted["entry_fee"] == 0.0
+    assert accepted["journal"] == "fee_explicit_zero"
+    assert accepted["apply_049_ceiling"] is True
+
+    absent = classify_review_fees({"total_fee": "0.00"})
+    assert absent["fee_status"] == "explicit_zero"
+    assert absent["entry_fee"] == 0.0
+    assert fee_aware_planned_loss_ok(
+        planned_loss=CEILING_049, current_nlv=NLV, classification=absent
+    )
+    assert not fee_aware_planned_loss_ok(
+        planned_loss=7.40, current_nlv=NLV, classification=absent
+    )
 
 
-def test_aggregate_five_minute_matches_live_rh_first_bar():
-    # Same AVGO session; native RH 5-minute open bar was O 364.49 H 365.10 L 362.265 C 363.37 V 502877.
-    minute = [
-        _bar("2026-09-01T13:30:00Z", 364.49, 365.10, 363.36, 364.015, 369411),
-        _bar("2026-09-01T13:31:00Z", 364.15, 364.21, 362.55, 362.7262, 41993),
-        _bar("2026-09-01T13:32:00Z", 362.56, 363.7399, 362.265, 363.49, 46068),
-        _bar("2026-09-01T13:33:00Z", 363.55, 364.50, 362.90, 364.04, 26954),
-        _bar("2026-09-01T13:34:00Z", 363.9143, 364.3259, 363.37, 363.37, 18451),
-    ]
-    five = aggregate_to_minutes(minute, 5)
-    assert five[0]["begins_at"] == "2026-09-01T13:30:00Z"
-    assert five[0]["open"] == 364.49
-    assert five[0]["high"] == 365.10
-    assert five[0]["low"] == 362.265
-    assert five[0]["close"] == 363.37
-    assert five[0]["volume"] == 502877
+def test_missing_total_sums_non_overlapping_components():
+    out = classify_review_fees({"commission": "0.65", "sec_fee": "0.02", "taf_fee": "0.01"})
+    assert out["fee_status"] == "quoted"
+    assert out["entry_fee"] == 0.68
+    assert out["journal"].startswith("components:")
+    assert out["apply_049_ceiling"] is True
 
 
-def test_bars_for_timeframe_synthesizes_3minute():
-    minute = [
-        _bar("2026-09-01T13:30:00Z", 10, 11, 9, 10.5, 1),
-        _bar("2026-09-01T13:31:00Z", 10.5, 10.6, 10.4, 10.4, 1),
-        _bar("2026-09-01T13:32:00Z", 10.4, 10.8, 10.3, 10.7, 1),
-    ]
-    out = bars_for_timeframe({"minute": minute}, "3minute")
-    assert len(out) == 1
-    assert out[0]["close"] == 10.7
+def test_both_fee_ceilings_apply_on_every_trade():
+    out = classify_review_fees({"total_fee": 0.03})
+    # 7.40 exceeds 0.49% of $1,500 even though 7.40 + 3*0.03 still fits 0.50%.
+    assert out["fee_status"] == "quoted"
+    assert out["apply_049_ceiling"] is True
+    assert 7.40 > CEILING_049
+    assert 7.40 + 0.09 <= CEILING_050
+    assert not fee_aware_planned_loss_ok(
+        planned_loss=7.40, current_nlv=NLV, classification=out
+    )
+    assert fee_aware_planned_loss_ok(
+        planned_loss=CEILING_049, current_nlv=NLV, classification=out
+    )
+    expensive = classify_review_fees({"total_fee": 1.00})
+    assert not fee_aware_planned_loss_ok(
+        planned_loss=CEILING_049, current_nlv=NLV, classification=expensive
+    )
+    assert fee_aware_planned_loss_ok(
+        planned_loss=4.50, current_nlv=NLV, classification=expensive
+    )
 
 
-def test_extract_rh_historicals_unwraps_results():
-    payload = {
-        "data": {
-            "results": [
-                {
-                    "symbol": "AVGO",
-                    "interval": "minute",
-                    "bars": [_bar("2026-09-01T13:30:00Z", 1, 2, 1, 1.5, 9)],
-                }
-            ]
-        }
-    }
-    bars = extract_rh_historicals_bars(payload)
-    assert len(bars) == 1
-    assert bars[0]["close_price"] == "1.5"
+def test_nested_zero_total_with_positive_component_is_conflict():
+    out = classify_review_fees({"fees": {"total_fee": 0, "contract_fee": 0.12}})
+    assert out["journal"] == "fee_conflict"
+    assert out["entry_fee"] is None
 
 
-def test_ascii_chart_contains_title_and_last_close():
-    bars = [
-        {"begins_at": f"2026-09-01T13:{i:02d}:00Z", "open": 10 + i * 0.1, "high": 11, "low": 9, "close": 10.2 + i * 0.1, "volume": 1}
-        for i in range(12)
-    ]
-    text = ascii_chart(bars, title="AVGO 1m")
-    assert text.startswith("AVGO 1m")
-    assert "last O=" in text
-    assert "C=11.30" in text
+def test_subtotal_plus_parts_is_unavailable():
+    out = classify_review_fees({"estimated_fee": "0.70", "commission": "0.65"})
+    assert out["fee_status"] == "unavailable"
+    assert out["journal"] == "fee_unavailable"
+    assert out["apply_049_ceiling"] is True
+
+# ========================================================================
+# pipeline/tests/test_session.py
+# Part: 11 · Tests
+# Used by: CI / F
+# ET calendar date and flatten window
+# ========================================================================
+
+from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
+
+from pipeline.session import flatten_window, today_et
 
 
-def test_rules_use_live_1m_3m_5m():
-    rules = load_rules()
-    assert rules["patterns"]["timeframes"] == ["minute", "3minute", "5minute", "hour", "day"]
-    hist = rules["historicals"]
-    assert hist["live"] == "get_equity_quotes"
-    assert hist["intraday_interval"] == "minute"
-    assert hist["synthetic_intervals"]["3minute"]["source"] == "minute"
-    assert "15minute" not in rules["patterns"]["timeframes"]
-    assert "3minute" not in hist["rh_native_intervals"]
+def test_today_et_before_utc_date_rollover():
+    utc = datetime(2026, 9, 5, 0, 42, tzinfo=timezone.utc)
+    assert today_et(utc).isoformat() == "2026-09-04"
 
-# hash-pad 1
+
+def test_flatten_window_is_rth_only():
+    et = ZoneInfo("America/New_York")
+    assert flatten_window(datetime(2026, 8, 31, 15, 50, tzinfo=et))
+    assert not flatten_window(datetime(2026, 8, 31, 16, 0, tzinfo=et))
 
 # ========================================================================
 # pipeline/tests/test_equity_day_trade.py
 # Part: 11 · Tests
 # Used by: CI / F
-# Long-only equity day-trade selection
+# Long-only equity selection and Phase 2 snapshots
 # ========================================================================
 
 from datetime import datetime
 from zoneinfo import ZoneInfo
+
+import pytest
 
 from pipeline.equity_day_trade import (
     equity_quote_ok,
@@ -2568,7 +3624,14 @@ from pipeline.equity_day_trade import (
 )
 from pipeline.execution import build_equity_entry_proposal, can_place_live
 from pipeline.risk import equity_risk_plan
-from pipeline.session import ET, entries_open, flatten_window, is_rth, session_gate
+from pipeline.session import (
+    ET,
+    entries_open,
+    flatten_window,
+    is_rth,
+    option_entries_open,
+    session_gate,
+)
 
 
 def test_session_rth_and_1545_cutoff():
@@ -2582,14 +3645,23 @@ def test_session_rth_and_1545_cutoff():
     assert not is_rth(sunday_noon)
     assert is_rth(monday_open)
     assert is_rth(monday_morning)
+    assert entries_open(monday_open)
+    assert not option_entries_open(monday_open)
     assert entries_open(monday_morning)
+    assert option_entries_open(monday_morning)
     assert is_rth(monday_1545)
     assert not entries_open(monday_1545)
+    assert not option_entries_open(monday_1545)
     assert flatten_window(monday_1545)
     assert not is_rth(monday_close)
     assert not is_rth(monday_pre)
     gate = session_gate(monday_1545)
     assert gate["reason"] == "no_new_entries_after_1545"
+    assert gate["option_reason"] == "no_new_entries_after_1545"
+    open_gate = session_gate(monday_open)
+    assert open_gate["entries_open"] is True
+    assert open_gate["option_entries_open"] is False
+    assert open_gate["option_reason"] == "no_new_option_entries_before_0945"
 
 
 def test_whole_share_size_uses_floor_and_buying_power_cap():
@@ -2607,6 +3679,8 @@ def test_no_shorting_skips_bearish_and_inverse_etfs():
     assert is_inverse_etf("SQQQ") is True
     assert is_inverse_etf("SPY") is False
     assert is_inverse_etf("XYZ", {"description": "ProShares UltraShort Inverse"}) is True
+    assert is_inverse_etf("QID", {"name": "ProShares UltraShort QQQ"}) is True
+    assert is_inverse_etf("BIL", {"description": "SPDR Bloomberg 1-3 Month T-Bill Ultra Short Duration"}) is False
 
     cands, rejected = select_equity_day_trade_candidates(
         symbols=["SQQQ", "AMD", "AAPL"],
@@ -2703,12 +3777,20 @@ def test_equity_place_gate_and_proposal_is_buy_only():
         now=sunday,
     )
     assert not ok2 and reason2 == "missing_explicit_user_confirm"
-    ok3, reason3 = can_place_live(
+    sunday_blocked, sunday_reason = can_place_live(
         explicit_confirm=True,
         playbook_released=True,
         playbook_kind="equity",
         h_enabled=False,
         now=sunday,
+    )
+    assert not sunday_blocked and sunday_reason == "outside_rth"
+    ok3, reason3 = can_place_live(
+        explicit_confirm=True,
+        playbook_released=True,
+        playbook_kind="equity",
+        h_enabled=False,
+        now=monday,
     )
     assert ok3 and reason3 is None
     blocked, blocked_reason = can_place_live(
@@ -2766,6 +3848,10 @@ def test_pipeline_writes_equity_candidate_without_placing(tmp_path, monkeypatch)
     assert summary["option_candidate_count"] == 0
     assert summary["equity_candidate_count"] == 1
     payload = json.loads((signals / "equity_candidates.json").read_text())
+    assert payload["do_not_place"] is True
+    assert payload["h_entry_ready"] is False
+    assert payload["agent_h_may_use"] is False
+    assert summary["h_entry_ready"] is False
     cand = payload["candidates"][0]
     assert cand["symbol"] == "AAPL"
     assert cand["side"] == "buy"
@@ -2773,11 +3859,213 @@ def test_pipeline_writes_equity_candidate_without_placing(tmp_path, monkeypatch)
     assert cand["quantity"] == 14
     assert cand["playbook_status"] == "RELEASED"
 
+
+def _double_bottom_bars():
+    prices = [6, 6, 6, 5, 4, 3, 4, 5, 6, 5, 4, 3, 4, 5, 6] + [6.2 + i * 0.05 for i in range(20)]
+    return [{"close": c, "high": c + 0.2, "low": c - 0.2} for c in prices]
+
+
+def _pipeline_dirs(tmp_path, monkeypatch):
+    import pipeline.orchestrator as orch
+
+    signals = tmp_path / "signals"
+    journal = tmp_path / "journal"
+    signals.mkdir()
+    journal.mkdir()
+    monkeypatch.setattr(orch, "SIGNALS", signals)
+    monkeypatch.setattr(orch, "JOURNAL", journal)
+    return orch, signals, journal
+
+
+def test_intraday_only_bars_do_not_create_equity_bias(tmp_path, monkeypatch):
+    import json
+
+    orch, signals, _journal = _pipeline_dirs(tmp_path, monkeypatch)
+    bars = _double_bottom_bars()
+    raw = {
+        "watchlists": [{"id": "1", "display_name": "T"}],
+        "watchlist_items_by_id": {"1": [{"object_type": "instrument", "symbol": "AAPL"}]},
+        "fundamentals_by_symbol": {"AAPL": {"average_volume": 3_000_000}},
+        "historicals_by_symbol_timeframe": {"AAPL": {"10minute": bars}},
+        "buying_power": 1500.0,
+        "equity_quotes_by_symbol": {"AAPL": {"bid_price": "100.00", "ask_price": "100.10"}},
+        "equity_tradability_by_symbol": {"AAPL": {"regular_hours": {"buy": True}}},
+    }
+    summary = orch.run_pipeline(raw)
+    assert summary["equity_candidate_count"] == 0
+    payload = json.loads((signals / "equity_candidates.json").read_text())
+    reasons = {row["symbol"]: row["reason"] for row in payload["rejected"]}
+    assert reasons["AAPL"] == "equity_long_only_requires_bullish"
+
+
+def test_option_candidate_uses_mid_and_falls_back_to_one_otm(tmp_path, monkeypatch):
+    import json
+    from datetime import timedelta
+
+    from pipeline.session import today_et
+
+    orch, signals, journal = _pipeline_dirs(tmp_path, monkeypatch)
+    bars = _double_bottom_bars()
+    exp = (today_et() + timedelta(days=3)).isoformat()
+    raw = {
+        "watchlists": [{"id": "1", "display_name": "T"}],
+        "watchlist_items_by_id": {"1": [{"object_type": "instrument", "symbol": "AAPL"}]},
+        "fundamentals_by_symbol": {"AAPL": {"average_volume": 3_000_000}},
+        "historicals_by_symbol_timeframe": {"AAPL": {"day": bars}},
+        "buying_power": 1500.0,
+        "spots_by_symbol": {"AAPL": 100.0},
+        "option_chains_by_symbol": {"AAPL": {"expiration_dates": [exp]}},
+        "option_instruments_by_symbol_exp": {
+            f"AAPL|{exp}": [
+                {"id": "atm", "type": "call", "strike_price": "100"},
+                {"id": "otm", "type": "call", "strike_price": "105"},
+                {"id": "itm", "type": "call", "strike_price": "95"},
+            ]
+        },
+        "option_quotes_by_id": {
+            "atm": {
+                "bid_price": "2.00",
+                "ask_price": "2.10",
+                "delta": "0.55",
+                "mark_price": "9.99",
+            },
+            "otm": {
+                "bid_price": "1.00",
+                "ask_price": "1.05",
+                "delta": "0.45",
+                "mark_price": "9.99",
+            },
+        },
+        "equity_quotes_by_symbol": {"AAPL": {"bid_price": "100.00", "ask_price": "100.10"}},
+        "equity_tradability_by_symbol": {"AAPL": {"regular_hours": {"buy": True}}},
+    }
+    summary = orch.run_pipeline(raw)
+    assert summary["option_candidate_count"] == 1
+    assert summary["equity_candidate_count"] == 0
+    payload = json.loads((signals / "option_candidates.json").read_text())
+    cand = payload["candidates"][0]
+    assert cand["option_id"] == "otm"
+    assert cand["selection"] == "one_otm"
+    assert cand["premium_mark"] == pytest.approx(1.025)
+    assert cand["premium_source"] == "mid"
+    assert cand["cash_debit"] == pytest.approx(102.5)
+    assert payload["do_not_place"] is True
+    assert payload["h_entry_ready"] is False
+    assert "hour_confirm" in payload["h_still_requires"]
+    assert (journal / f"{today_et().isoformat()}.md").exists()
+
+
+def test_inverse_etf_never_becomes_option_candidate(tmp_path, monkeypatch):
+    import json
+    from datetime import timedelta
+
+    from pipeline.session import today_et
+
+    orch, signals, _journal = _pipeline_dirs(tmp_path, monkeypatch)
+    bars = _double_bottom_bars()
+    exp = (today_et() + timedelta(days=3)).isoformat()
+    raw = {
+        "watchlists": [{"id": "1", "display_name": "T"}],
+        "watchlist_items_by_id": {"1": [{"object_type": "instrument", "symbol": "SQQQ"}]},
+        "fundamentals_by_symbol": {
+            "SQQQ": {"average_volume": 20_000_000, "name": "ProShares UltraPro Short QQQ"}
+        },
+        "historicals_by_symbol_timeframe": {"SQQQ": {"day": bars}},
+        "buying_power": 1500.0,
+        "spots_by_symbol": {"SQQQ": 10.0},
+        "option_chains_by_symbol": {"SQQQ": {"expiration_dates": [exp]}},
+        "option_instruments_by_symbol_exp": {
+            f"SQQQ|{exp}": [
+                {"id": "atm", "type": "call", "strike_price": "10"},
+                {"id": "otm", "type": "call", "strike_price": "11"},
+            ]
+        },
+        "option_quotes_by_id": {
+            "atm": {"bid_price": "1.00", "ask_price": "1.05", "delta": "0.45"},
+        },
+        "portfolio": {"start_of_day_equity": "1500.00", "total_value": "1512"},
+    }
+    summary = orch.run_pipeline(raw)
+    assert summary["option_candidate_count"] == 0
+    assert summary["equity_candidate_count"] == 0
+    assert "SQQQ" not in summary["eligible_equities"]
+    assert summary["bod_nlv"] == 1500.0
+    assert summary["bod_nlv_field"] == "start_of_day_equity"
+    universe = json.loads((signals / "universe.json").read_text())
+    reasons = {row["symbol"]: row["reason"] for row in universe["liquidity"]["rejected"]}
+    assert reasons["SQQQ"] == "inverse_etf"
+
+
+def test_option_candidate_rejects_debit_above_buying_power(tmp_path, monkeypatch):
+    import json
+    from datetime import timedelta
+
+    from pipeline.session import today_et
+
+    orch, signals, _journal = _pipeline_dirs(tmp_path, monkeypatch)
+    bars = _double_bottom_bars()
+    exp = (today_et() + timedelta(days=3)).isoformat()
+    raw = {
+        "watchlists": [{"id": "1", "display_name": "T"}],
+        "watchlist_items_by_id": {"1": [{"object_type": "instrument", "symbol": "AAPL"}]},
+        "fundamentals_by_symbol": {"AAPL": {"average_volume": 3_000_000}},
+        "historicals_by_symbol_timeframe": {"AAPL": {"day": bars}},
+        "buying_power": 1500.0,
+        "spots_by_symbol": {"AAPL": 100.0},
+        "option_chains_by_symbol": {"AAPL": {"expiration_dates": [exp]}},
+        "option_instruments_by_symbol_exp": {
+            f"AAPL|{exp}": [
+                {"id": "atm", "type": "call", "strike_price": "100"},
+            ]
+        },
+        "option_quotes_by_id": {
+            "atm": {"bid_price": "19.50", "ask_price": "20.50", "delta": "0.45"},
+        },
+        "equity_quotes_by_symbol": {"AAPL": {"bid_price": "100.00", "ask_price": "100.10"}},
+        "equity_tradability_by_symbol": {"AAPL": {"regular_hours": {"buy": True}}},
+    }
+    summary = orch.run_pipeline(raw)
+    assert summary["option_candidate_count"] == 0
+    payload = json.loads((signals / "option_candidates.json").read_text())
+    reasons = {row["symbol"]: row["reason"] for row in payload["equity_fallbacks"]}
+    assert reasons["AAPL"] == "exceeds_buying_power"
+
+
+def test_incomplete_option_page_is_rejected(tmp_path, monkeypatch):
+    import json
+    from datetime import timedelta
+
+    from pipeline.session import today_et
+
+    orch, signals, _journal = _pipeline_dirs(tmp_path, monkeypatch)
+    bars = _double_bottom_bars()
+    exp = (today_et() + timedelta(days=3)).isoformat()
+    raw = {
+        "watchlists": [{"id": "1", "display_name": "T"}],
+        "watchlist_items_by_id": {"1": [{"object_type": "instrument", "symbol": "AAPL"}]},
+        "fundamentals_by_symbol": {"AAPL": {"average_volume": 3_000_000}},
+        "historicals_by_symbol_timeframe": {"AAPL": {"day": bars}},
+        "buying_power": 1500.0,
+        "spots_by_symbol": {"AAPL": 200.0},
+        "option_chains_by_symbol": {"AAPL": {"expiration_dates": [exp]}},
+        "option_instruments_by_symbol_exp": {
+            f"AAPL|{exp}": [{"id": "far", "type": "call", "strike_price": "100"}]
+        },
+        "option_quotes_by_id": {
+            "far": {"bid_price": "1.00", "ask_price": "1.05", "delta": "0.45"},
+        },
+    }
+    summary = orch.run_pipeline(raw)
+    assert summary["option_candidate_count"] == 0
+    payload = json.loads((signals / "option_candidates.json").read_text())
+    reasons = {row["symbol"]: row["reason"] for row in payload["equity_fallbacks"]}
+    assert reasons["AAPL"] == "option_chain_incomplete_atm_not_in_page"
+
 # ========================================================================
 # pipeline/tests/test_execution.py
 # Part: 11 · Tests
 # Used by: CI / F
-# F place-gate and historical snapshot skip
+# F place-gate including 09:45 option lock
 # ========================================================================
 
 from datetime import datetime
@@ -2811,11 +4099,21 @@ def test_place_blocked_without_confirm():
     assert reason == "missing_explicit_user_confirm"
 
 
-def test_place_allowed_only_with_confirm_and_release_outside_rth():
+def test_place_blocked_outside_rth_even_with_confirm():
     ok, reason = can_place_live(
         explicit_confirm=True, playbook_released=True, h_enabled=True, now=SUNDAY
     )
-    assert ok and reason is None
+    assert not ok
+    assert reason == "outside_rth"
+
+
+def test_place_blocked_after_1545_even_if_h_disabled():
+    monday_1545 = datetime(2026, 8, 31, 15, 45, tzinfo=ET)
+    ok, reason = can_place_live(
+        explicit_confirm=True, playbook_released=True, h_enabled=False, now=monday_1545
+    )
+    assert not ok
+    assert reason == "no_new_entries_after_1545"
 
 
 def test_place_blocked_while_h_owns_rth():
@@ -2824,6 +4122,36 @@ def test_place_blocked_while_h_owns_rth():
     )
     assert not ok
     assert reason == "h_owns_rth_while_enabled"
+
+
+def test_place_blocked_before_0945_for_options_even_if_h_disabled():
+    monday_0930 = datetime(2026, 8, 31, 9, 30, tzinfo=ET)
+    monday_0944 = datetime(2026, 8, 31, 9, 44, 59, tzinfo=ET)
+    monday_0945 = datetime(2026, 8, 31, 9, 45, tzinfo=ET)
+    blocked, reason = can_place_live(
+        explicit_confirm=True, playbook_released=True, h_enabled=False, now=monday_0930
+    )
+    assert not blocked and reason == "no_new_option_entries_before_0945"
+    blocked2, reason2 = can_place_live(
+        explicit_confirm=True, playbook_released=True, h_enabled=False, now=monday_0944
+    )
+    assert not blocked2 and reason2 == "no_new_option_entries_before_0945"
+    ok, ok_reason = can_place_live(
+        explicit_confirm=True, playbook_released=True, h_enabled=False, now=monday_0945
+    )
+    assert ok and ok_reason is None
+
+
+def test_equity_place_allowed_at_open_if_h_disabled():
+    monday_0930 = datetime(2026, 8, 31, 9, 30, tzinfo=ET)
+    ok, reason = can_place_live(
+        explicit_confirm=True,
+        playbook_released=True,
+        playbook_kind="equity",
+        h_enabled=False,
+        now=monday_0930,
+    )
+    assert ok and reason is None
 
 
 def test_place_allowed_during_rth_if_h_disabled():

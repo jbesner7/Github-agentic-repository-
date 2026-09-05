@@ -19,26 +19,27 @@ DOCS = ROOT / "docs"
 CATALOG: list[tuple[str, str, str, str]] = [
     ("pipeline/__init__.py", "0 · Package", "F + H", "Pipeline package marker"),
     ("pipeline/io_util.py", "1 · Shared", "F + H", "Paths, rules.json loader, journal helpers"),
-    ("pipeline/session.py", "1 · Shared", "F + H", "RTH clock: 09:30–16:00 ET, no new entries after 15:45"),
+    ("pipeline/session.py", "1 · Shared", "F + H", "RTH clock; option entries 09:45–15:45; equity entries to 15:45"),
     ("pipeline/orders.py", "1 · Shared", "F + H", "Working-order states for Robinhood MCP (no open=true)"),
-    ("pipeline/universe.py", "2 · Agent A", "F + H", "Watchlist extract, crypto drop, ADV ≥ 2,000,000, option quote liquidity"),
-    ("pipeline/patterns.py", "3 · Agent B", "F + H", "H&S, double/triple top/bottom, triangles"),
-    ("pipeline/bars.py", "3 · Agent B", "F + H", "Normalize RH OHLCV; synthesize 3-minute from 1-minute"),
-    ("pipeline/charts.py", "3 · Agent B", "F + H", "ASCII 1m / 3m / 5m candlestick graphs"),
+    ("pipeline/quotes.py", "1 · Shared", "F + H", "5s underlying executable price; BOD NLV field extract"),
+    ("pipeline/fees.py", "1 · Shared", "F + H", "Dual fee ceilings: 0.49% planned loss and 0.50% with fees"),
+    ("pipeline/universe.py", "2 · Agent A", "F + H", "Watchlist extract, crypto drop, inverse-ETF reject, ADV ≥ 2,000,000"),
+    ("pipeline/patterns.py", "3 · Agent B", "F + H", "Daily-first H&S / double-triple / triangle; no 1m/3m/5m"),
     ("pipeline/news.py", "4 · Agent C", "F + H", "Factual RH news/earnings pack; no invented sentiment"),
-    ("pipeline/options_structure.py", "5 · Agent D", "F + H", "Long call/put from bias; ATM else one OTM; DTE 0–7"),
-    ("pipeline/equity_day_trade.py", "5 · Agent D", "F + H", "Long shares only; inverse-ETF denylist; size to buying power"),
-    ("pipeline/greeks.py", "6 · Agent I", "F + H", "Copy RH Greeks only; abs(delta) 0.40–0.50 band"),
+    ("pipeline/options_structure.py", "5 · Agent D", "F + H", "Long call/put; ATM/OTM; 2–3 DTE while overnight off"),
+    ("pipeline/equity_day_trade.py", "5 · Agent D", "F only", "Long shares only; inverse-ETF denylist; H has no equity fallback"),
+    ("pipeline/greeks.py", "6 · Agent I", "F + H", "Copy RH Greeks only; signed call +0.40–+0.50 / put −0.50–−0.40"),
     ("pipeline/risk.py", "7 · Agent E", "F + H", "Options −20%/+40%; equity −20%/+25%; stop first until OCO"),
-    ("pipeline/orchestrator.py", "8 · Agent G", "F + H", "Phase 2 read-only cycle; writes signals/; never places"),
-    ("pipeline/execution.py", "9 · Agent F", "F (chat)", "Supervised review/place gate; blocked in RTH while H is on"),
+    ("pipeline/orchestrator.py", "8 · Agent G", "F + H", "Phase 2 read-only snapshot; h_entry_ready is always false"),
+    ("pipeline/execution.py", "9 · Agent F", "F (chat)", "Supervised place-gate: confirm, RTH, 09:45 options, H-owns-RTH"),
     ("scripts/run_phase2_cycle.py", "10 · CLI", "F + H", "Load data/raw/latest_raw.json and run the orchestrator"),
     ("scripts/build_python_source_book.py", "10 · CLI", "docs", "This generator — rebuilds the printable source book"),
-    ("pipeline/tests/test_phase2.py", "11 · Tests", "CI / F", "Universe, liquidity, greeks, ATM, risk math"),
-    ("pipeline/tests/test_orders.py", "11 · Tests", "CI / F", "Working states and locked rules.json graph intervals"),
-    ("pipeline/tests/test_bars.py", "11 · Tests", "CI / F", "1m→3m aggregation and live 5m match"),
-    ("pipeline/tests/test_equity_day_trade.py", "11 · Tests", "CI / F", "Long-only equity day-trade selection"),
-    ("pipeline/tests/test_execution.py", "11 · Tests", "CI / F", "F place-gate and historical snapshot skip"),
+    ("pipeline/tests/test_phase2.py", "11 · Tests", "CI / F", "Universe, liquidity, signed delta, ATM/OTM, expiration rank"),
+    ("pipeline/tests/test_orders.py", "11 · Tests", "CI / F", "Working states and locked agent_h schema"),
+    ("pipeline/tests/test_fees.py", "11 · Tests", "CI / F", "Dual NLV fee ceilings"),
+    ("pipeline/tests/test_session.py", "11 · Tests", "CI / F", "ET calendar date and flatten window"),
+    ("pipeline/tests/test_equity_day_trade.py", "11 · Tests", "CI / F", "Long-only equity selection and Phase 2 snapshots"),
+    ("pipeline/tests/test_execution.py", "11 · Tests", "CI / F", "F place-gate including 09:45 option lock"),
 ]
 
 
@@ -212,9 +213,10 @@ def build_html(py_book: str) -> str:
             confirm of a specific order. Blocked during RTH while H is enabled.</li>
         <li><strong>Agent H (Agentic AI Bot)</strong> — unsupervised Cursor Automation. The standing prompt is
             <code>playbooks/agent_h_autonomous.PROMPT.md</code> (markdown, not Python). On each fire H checks out
-            <code>main</code>, reads <code>config/rules.json</code> and the playbooks, and may call
-            <code>pipeline.bars</code> / <code>pipeline.charts</code> / <code>pipeline.patterns</code> for graphs
-            and bias. Live <code>place_*</code> is Robinhood MCP from that prompt, not a pipeline side effect.</li>
+            <code>main</code>, reads <code>config/rules.json</code> → <code>agent_h</code>, and uses
+            daily → 1-hour → completed 10-minute → live quote only (no 1m / 3m / 5m).
+            Live <code>place_*</code> is Robinhood MCP from that prompt, not a pipeline side effect.
+            H is options-only; it must ignore equity candidates.</li>
         <li><strong>Not in this book:</strong> lock JSON, playbooks, and the H prompt. Those are not Python.</li>
       </ul>
     </div>

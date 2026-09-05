@@ -51,6 +51,7 @@ All Python used by this chat (Agent F) and the autonomous bot (Agent H), organiz
 python3 scripts/build_python_source_book.py
 ```
 
+The book is a snapshot of the Python pipeline. Agent H’s live permission is the pasted Automation prompt, not this book. H charts are daily → hour → 10-minute → live quote only.
 
 ## Kill switch
 
