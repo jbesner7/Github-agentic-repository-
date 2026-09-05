@@ -17,11 +17,11 @@ This repo is a gated Robinhood pipeline for **Agentic ••••2907** only. M
 
 ## Session
 
-RTH = Mon–Fri 09:30 inclusive–16:00 exclusive, `America/New_York`. No extended/overnight/weekend **scan or buy**. Equities flatten before close (F only). Options may hold overnight with the broker stop.
+RTH = Mon–Fri 09:30 inclusive–16:00 exclusive, `America/New_York`. No extended/overnight/weekend **scan or buy**. Equities flatten before close (F only).
 
-Agent H new entries: **09:45–15:45 ET** only. Monitor from 09:30. Same-day expirations flatten by **15:30 ET**. New entries are **2–7 DTE** (no 0–1 DTE until separately validated).
+Agent H new entries: **09:45–15:45 ET** only. Monitor from 09:30. New entries **2–7 DTE** (no 0–1 DTE; owner-only re-enable on `main`). Expiration day flatten by **15:30 ET**. Current DTE **2–3** flatten by **15:45 ET**. Current DTE **4–7** may hold overnight with the broker stop, never through earnings/binary events. The stop is not guaranteed risk.
 
-H graphs: live + **1-minute / 3-minute / 5-minute**. 1m interval is `minute`. 3m is aggregated from 1m. Do not pass `3minute` or `15minute` to RH.
+H graphs: **daily + 1-hour + 10-minute** only. Do not use 1m/3m/5m for Agent H. No index options at launch.
 
 Robinhood MCP has no `open=true` order filter. Working option states: `queued`, `confirmed`, `partially_filled`, `pending_cancelled`. Working equity states: `new`, `queued`, `confirmed`, `unconfirmed`, `partially_filled`.
 

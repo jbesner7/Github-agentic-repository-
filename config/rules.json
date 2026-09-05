@@ -11,7 +11,7 @@
     "include_all_robinhood_watchlists": true,
     "include_options_watchlist": true,
     "include_crypto": false,
-    "include_index_options": true,
+    "include_index_options": false,
     "dedupe_symbols": true
   },
   "priority": ["options", "equity"],
@@ -45,6 +45,7 @@
     "may_hold_overnight_with_stop": true,
     "flatten_at_close": false,
     "overnight_lock_confirmed": "2026-08-31",
+    "overnight_note": "H overnight is 4-7 current DTE only. 2-3 DTE flatten by 15:45. Never expiration day.",
     "playbook_status": "RELEASED",
     "playbook_path": "playbooks/options_day_trading.md"
   },
@@ -103,6 +104,7 @@
     "same_day_expiry_flatten_by": "15:30",
     "flatten_equity_before_close": true,
     "options_may_hold_overnight_with_stop": true,
+    "h_overnight_current_dte_min": 4,
     "proposal_ttl": "until_next_loop"
   },
   "agent_h": {
@@ -120,43 +122,84 @@
     "max_dte": 7,
     "allow_0dte": false,
     "allow_1dte": false,
-    "intraday_timeframes": ["minute", "3minute", "5minute"],
-    "require_daily_and_one_intraday_alignment": true,
+    "include_index_options": false,
+    "intraday_timeframes": ["10minute", "hour", "day"],
+    "chart_roles": {
+      "day": "pattern_setup_and_primary_direction",
+      "hour": "confirmation",
+      "10minute": "entry_trigger"
+    },
+    "require_daily_and_hour_alignment": true,
     "require_breakout_and_retest": true,
     "require_underlying_price_trigger": true,
     "max_open_positions": 1,
     "max_new_entries_per_day": 2,
     "stop_after_losing_trades": 2,
+    "stop_new_entries_whichever_first": ["two_losing_trades", "daily_realized_loss_cap"],
     "cooldown_after_exit_minutes": 30,
     "no_reenter_stopped_underlying_same_day": true,
+    "block_new_entry_if_any_equity_option_or_working_order": true,
     "nlv_field": "get_portfolio.total_value",
-    "max_planned_loss_pct_of_nlv": 0.005,
-    "max_debit_pct_of_nlv": 0.025,
+    "session_start_nlv_path": "journal/h_session.json",
+    "max_planned_loss_pct_of_current_nlv": 0.005,
+    "max_debit_pct_of_current_nlv": 0.025,
+    "max_daily_realized_loss_pct_of_session_start_nlv": 0.01,
     "both_nlv_limits_must_pass": true,
-    "planned_loss_definition": "OWNER_DRAFT: stop_cash = option_limit_price * 100 * stop_loss_pct_of_cash",
-    "max_daily_realized_loss_pct_of_nlv": 0.01,
-    "losing_trade_definition": "OWNER_DRAFT: any closed option trade today with realized pnl < 0",
+    "planned_loss": "debit * 0.20",
+    "maximum_possible_loss": "full_debit",
+    "stop_is_not_guaranteed_risk": true,
+    "losing_trade_definition": "fully_closed_trade_with_negative_net_realized_pnl_after_fees",
+    "breakeven_is_not_a_loss": true,
+    "classify_trade_only_when_fully_closed": true,
+    "overnight": {
+      "evaluate": "current_dte",
+      "dte_2_3_flatten_by": "15:45",
+      "dte_4_7_overnight_with_stop": true,
+      "never_hold_through_earnings_or_binary": true,
+      "never_hold_into_expiration_day": true,
+      "overnight_possible_loss": "full_debit"
+    },
+    "dte_reenable": {
+      "owner_only": true,
+      "h_must_never_self_enable": true,
+      "separate_approval_for_0dte_and_1dte": true,
+      "min_backtest_trades": 200,
+      "min_backtest_sessions": 40,
+      "no_lookahead": true,
+      "realistic_fills_fees_slippage": true,
+      "positive_net_expectancy": true,
+      "min_backtest_profit_factor": 1.3,
+      "max_backtest_drawdown_pct_of_modeled_nlv": 0.05,
+      "min_paper_trades": 30,
+      "min_paper_sessions": 20,
+      "min_paper_profit_factor": 1.2,
+      "no_unprotected_fills_or_critical_om_failures": true,
+      "results_recorded_and_owner_approved_on_main": true
+    },
     "option_quote": {
       "require_bid_and_ask": true,
-      "require_positive_bid_ask_sizes": true,
+      "min_bid_size": 1,
+      "min_ask_size": 1,
       "prefer_spread_pct": 0.05,
       "max_spread_pct": 0.1,
       "min_volume": 100,
-      "min_open_interest": 200,
-      "max_quote_age_seconds": 15,
+      "min_open_interest": 500,
+      "max_quote_age_seconds": 5,
+      "requote_immediately_before_place": true,
       "reject_missing_greeks_iv_oi_volume_or_timestamp": true
     },
     "iv": {
-      "reject_if_missing": true,
+      "reject_if_missing_stale_nonnumeric_or_nonpositive": true,
       "reject_if_absolute_iv_gte": 1.5,
-      "reject_if_gt_atm_iv_multiple": 1.25,
-      "note": "OWNER_DRAFT"
+      "one_otm_reject_if_gt_atm_iv_multiple": 1.25,
+      "do_not_apply_atm_relative_to_atm_contract": true,
+      "fail_closed_if_atm_iv_unavailable": true
     },
     "event_gate": {
-      "skip_earnings_prior_amc_through_next_two_sessions": true,
-      "skip_halts_mergers_splits_binary": true,
-      "fail_closed_if_calendar_unclear": true,
-      "note": "OWNER_DRAFT window"
+      "no_entry_from_start_of_session_preceding_release_through_end_of_second_session_after": true,
+      "applies_to_bmo_amc_intraday": true,
+      "fail_closed_if_date_or_time_missing_conflicting_or_unclear": true,
+      "also_block_investor_day_fda_merger_vote_halt_split_binary": true
     },
     "patterns": {
       "min_candles": 30,
@@ -170,7 +213,8 @@
       "retest_tolerance_pct": 0.0015,
       "underlying_trigger_pct": 0.0015,
       "no_entry_before_breakout_and_retest": true,
-      "note": "OWNER_DRAFT: volume multiple, retest %, trigger %"
+      "breakout_timeframe": "10minute",
+      "note": "OWNER_DRAFT still: volume multiple, retest %, trigger % on 10-minute"
     },
     "entry_order": {
       "start": "rounded_midpoint",
@@ -179,23 +223,26 @@
       "tick_source": "instrument.min_ticks",
       "buying_power_uses_limit_not_mid": true,
       "required_cash": "option_limit_price * 100",
-      "recheck_buying_power_immediately_before_place": true,
+      "recheck_buying_power_immediately_before_review_and_place": true,
       "replacement_count": 1,
       "replacement_increment_ticks": 1,
-      "replacement_timeout_seconds": 45,
-      "pending_timeout_seconds": 90,
+      "replacement_timeout_seconds": 30,
+      "pending_timeout_seconds": 60,
       "cancel_unfilled_on_partial": true,
       "wait_for_remainder_after_partial": false,
-      "protection_failed_action": "immediate_sell_to_close_then_journal_protection_failed",
-      "note": "OWNER_DRAFT: 45s / +1 tick / 90s timeout"
+      "no_additional_chase": true,
+      "protection_failed_action": "immediate_sell_to_close_then_journal_protection_failed"
     },
     "take_profit": {
-      "trigger": "live_bid_gte_140pct_of_average_fill_premium",
+      "threshold_multiple_of_average_fill": 1.4,
+      "trigger": "live_bid_gte_threshold",
       "not_mark_or_last": true,
       "re_quote_before_review": true,
-      "limit_price": "live_bid",
-      "slippage_floor": "not_more_than_1_tick_below_live_bid",
-      "note": "OWNER_DRAFT slippage floor"
+      "initial_limit": "live_bid",
+      "replacement_count": 1,
+      "replacement_after_seconds": 15,
+      "replacement_floor": "max(tp_threshold, live_bid - 1_valid_tick)",
+      "never_lower_limit_below_tp_threshold_to_fill": true
     }
   },
   "git": {
@@ -224,17 +271,9 @@
     }
   },
   "open_questions": [
-    "planned_loss_is_stop_cash_or_full_debit",
-    "confirm_0.5pct_and_2.5pct_at_1500_nlv",
-    "min_option_volume_and_open_interest",
-    "quote_max_age_seconds",
-    "entry_replace_timeout_and_tick_increment",
-    "iv_rule_formula",
-    "earnings_blackout_window",
-    "keep_overnight_hold_for_2_to_7_dte",
-    "losing_trade_definition",
-    "tp_slippage_floor",
-    "h_charts_1m3m5m_vs_10m",
-    "leftover_equity_blocks_new_option"
+    "confirm_overnight_uses_current_dte_each_day",
+    "confirm_session_start_nlv_via_journal_h_session_json",
+    "lock_10m_breakout_volume_1_2x_retest_0_15pct_trigger_0_15pct",
+    "planned_loss_ignores_fees_losing_trade_uses_fees"
   ]
 }

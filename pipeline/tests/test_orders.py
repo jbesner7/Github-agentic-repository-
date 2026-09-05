@@ -51,8 +51,17 @@ def test_rules_json_matches_working_states_and_10minute():
     assert rules["agent_h"]["no_new_entries_before"] == "09:45"
     assert rules["agent_h"]["same_day_expiry_flatten_by"] == "15:30"
     assert rules["agent_h"]["max_new_entries_per_day"] == 2
-    assert rules["agent_h"]["max_planned_loss_pct_of_nlv"] == 0.005
-    assert rules["agent_h"]["max_debit_pct_of_nlv"] == 0.025
+    assert rules["agent_h"]["max_planned_loss_pct_of_current_nlv"] == 0.005
+    assert rules["agent_h"]["max_debit_pct_of_current_nlv"] == 0.025
+    assert rules["agent_h"]["max_daily_realized_loss_pct_of_session_start_nlv"] == 0.01
+    assert rules["agent_h"]["option_quote"]["min_open_interest"] == 500
+    assert rules["agent_h"]["option_quote"]["max_quote_age_seconds"] == 5
+    assert rules["agent_h"]["intraday_timeframes"] == ["10minute", "hour", "day"]
+    assert rules["agent_h"]["include_index_options"] is False
+    assert rules["agent_h"]["overnight"]["dte_2_3_flatten_by"] == "15:45"
+    assert rules["agent_h"]["overnight"]["dte_4_7_overnight_with_stop"] is True
+    assert rules["agent_h"]["allow_0dte"] is False
+    assert rules["universe"]["include_index_options"] is False
     assert rules["options"]["min_dte"] == 2
 
 
