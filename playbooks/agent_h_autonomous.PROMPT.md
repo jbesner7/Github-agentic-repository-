@@ -69,11 +69,11 @@ Working orders (MCP has **no** `open=true` flag and **no** `get_advanced_orders`
 
 **5. Options first.** Bullish → long call. Bearish → long put.
 - `get_option_chains` → expirations with DTE **0–7** only (calendar dates, do not guess DTE).
-- `get_option_instruments`: ATM, else **one** OTM. Page until ATM is in the set (page size 100).
+- `get_option_instruments`: ATM = **nearest strike** (not a 1% band). If that contract fails spread, delta, or buying power, try **exactly one** OTM. Page until strikes **bracket** spot (ATM is in the set; page size 100).
 - `get_option_quotes`: use RH `delta` / gamma / theta / vega / rho / IV only. **Never invent Greeks.**
-- abs(delta) must be **0.40–0.50**. Else reject.
-- mid = (bid+ask)/2. spread_pct = (ask−bid)/mid. Prefer ≤ 5%. **Reject > 10%**. Reject missing/one-sided bid or ask. No $0.10 override.
-- Size: **1** contract. Buy to open. `type=limit`, `time_in_force=gfd`, **`market_hours=regular_hours`**.
+- abs(delta) must be **0.40–0.50**. Else reject that strike (then try the one OTM if you have not yet).
+- Premium and debit use **mid = (bid+ask)/2**. spread_pct = (ask−bid)/mid. Prefer ≤ 5%. **Reject > 10%**. Reject missing/one-sided bid or ask. No $0.10 override.
+- Size: **1** contract. Cash debit = mid × 100. If debit **> buying power**, skip. Buy to open. `type=limit`, `time_in_force=gfd`, **`market_hours=regular_hours`**.
 - Limit: at or inside the **live** ask. Do not chase. Do not use a weekend or prior-session quote.
 
 **6. Equity day trade** (`playbooks/equities_day_trading.md`). Only if **no** option candidate passed this run. Long shares only. **No shorting.**

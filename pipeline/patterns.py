@@ -166,3 +166,21 @@ def detect_patterns(ohlc: list[dict[str, Any]], *, timeframe: str) -> list[dict[
             )
 
     return hits
+
+
+def collect_pattern_hits(
+    historicals_for_symbol: dict[str, Any],
+    timeframes: list[str],
+) -> list[dict[str, Any]]:
+    """Daily first. 10-minute / hour only on names with a daily pattern hit."""
+    daily_bars = list(historicals_for_symbol.get("day") or historicals_for_symbol.get("daily") or [])
+    daily_hits = detect_patterns(daily_bars, timeframe="day")
+    hits = list(daily_hits)
+    if not daily_hits:
+        return hits
+    for tf in timeframes:
+        if tf in ("day", "daily"):
+            continue
+        bars = historicals_for_symbol.get(tf) or []
+        hits.extend(detect_patterns(list(bars), timeframe=tf))
+    return hits

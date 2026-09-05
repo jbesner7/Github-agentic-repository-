@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from math import floor
 from typing import Any
 
@@ -50,6 +51,13 @@ INVERSE_ETF_SYMBOLS = frozenset(
 )
 
 
+# One-word UltraShort / Inverse names. Do not match "ultra short" (short-duration bond funds).
+_INVERSE_NAME_RE = re.compile(
+    r"\b(?:inverse|ultrashort|ultrapro\s+short|leveraged\s+inverse)\b",
+    re.IGNORECASE,
+)
+
+
 def is_inverse_etf(symbol: str, fundamentals: dict[str, Any] | None = None) -> bool:
     if (symbol or "").strip().upper() in INVERSE_ETF_SYMBOLS:
         return True
@@ -57,8 +65,8 @@ def is_inverse_etf(symbol: str, fundamentals: dict[str, Any] | None = None) -> b
     blob = " ".join(
         str(fund.get(k) or "")
         for k in ("description", "name", "security_name", "instrument_name")
-    ).lower()
-    return "inverse" in blob
+    )
+    return bool(_INVERSE_NAME_RE.search(blob))
 
 
 def parse_bid_ask(quote: dict[str, Any] | None) -> tuple[float | None, float | None]:
