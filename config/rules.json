@@ -101,7 +101,8 @@
     "rth": {"timezone": "America/New_York", "start": "09:30", "end": "16:00"},
     "no_new_entries_before": "09:45",
     "no_new_entries_after": "15:45",
-    "same_day_expiry_flatten_by": "15:30",
+    "same_day_expiry_target_flatten_by": "15:30",
+    "same_day_expiry_absolute_deadline": "15:45",
     "flatten_equity_before_close": true,
     "options_may_hold_overnight_with_stop": true,
     "h_overnight_current_dte_min": 4,
@@ -116,7 +117,8 @@
     "monitor_from": "09:30",
     "no_new_entries_before": "09:45",
     "no_new_entries_after": "15:45",
-    "same_day_expiry_flatten_by": "15:30",
+    "same_day_expiry_target_flatten_by": "15:30",
+    "same_day_expiry_absolute_deadline": "15:45",
     "never_rely_on_auto_exercise": true,
     "min_dte": 2,
     "max_dte": 7,
@@ -141,20 +143,37 @@
     "block_new_entry_if_any_equity_option_or_working_order": true,
     "nlv_field": "get_portfolio.total_value",
     "session_start_nlv_path": "journal/h_session.json",
+    "session_start_nlv_fields": [
+      "et_trading_date",
+      "first_valid_rth_timestamp_et",
+      "account",
+      "session_start_nlv",
+      "daily_loss_limit_usd"
+    ],
+    "session_start_nlv_account_mask": "••••2907",
+    "session_start_write_atomic": true,
+    "session_start_do_not_overwrite_same_day": true,
+    "session_nlv_unavailable_means_exits_only": true,
     "max_planned_loss_pct_of_current_nlv": 0.005,
     "max_debit_pct_of_current_nlv": 0.025,
     "max_daily_realized_loss_pct_of_session_start_nlv": 0.01,
     "both_nlv_limits_must_pass": true,
-    "planned_loss": "debit * 0.20",
+    "planned_loss": "debit * 0.20 excluding fees",
     "maximum_possible_loss": "full_debit",
+    "risk_gate_with_fees": "planned_loss + estimated_entry_and_exit_fees <= 0.5% current NLV",
+    "risk_gate_if_fees_unavailable": "planned_loss <= 0.49% current NLV",
     "stop_is_not_guaranteed_risk": true,
-    "losing_trade_definition": "fully_closed_trade_with_negative_net_realized_pnl_after_fees",
+    "losing_trade_definition": "fully_closed_trade_with_negative_net_realized_pnl_after_fees_and_regulatory_charges",
     "breakeven_is_not_a_loss": true,
     "classify_trade_only_when_fully_closed": true,
     "overnight": {
-      "evaluate": "current_dte",
-      "dte_2_3_flatten_by": "15:45",
-      "dte_4_7_overnight_with_stop": true,
+      "evaluate": "current_dte_each_run",
+      "current_dte_formula": "(expiration_date - et_calendar_date).days",
+      "never_classify_overnight_at_entry": true,
+      "current_dte_gte_4_overnight_with_stop": true,
+      "current_dte_lte_3_flatten_by": "15:45",
+      "expiration_day_target_flatten_by": "15:30",
+      "expiration_day_absolute_deadline": "15:45",
       "never_hold_through_earnings_or_binary": true,
       "never_hold_into_expiration_day": true,
       "overnight_possible_loss": "full_debit"
@@ -202,19 +221,25 @@
       "also_block_investor_day_fda_merger_vote_halt_split_binary": true
     },
     "patterns": {
-      "min_candles": 30,
+      "completed_candles_only": true,
+      "daily_hour_min_candles": 30,
+      "ten_minute_min_completed_current_session": 20,
+      "skip_if_fewer_than_20_current_session_10m": true,
+      "do_not_mix_prior_session_10m": true,
       "pivot_order": 3,
       "double_triple_variance_pct": 0.015,
       "head_shoulders_shoulder_variance_pct": 0.025,
       "triangle_window": 40,
       "triangle_min_bars": 20,
       "triangle_flat_slope_frac": 0.15,
-      "breakout_volume_multiple": 1.2,
-      "retest_tolerance_pct": 0.0015,
-      "underlying_trigger_pct": 0.0015,
+      "breakout_close_beyond_level_pct": 0.001,
+      "breakout_volume_multiple_of_median": 1.5,
+      "breakout_volume_lookback_completed_10m": 20,
+      "volume_statistic": "median",
+      "retest_tolerance_pct": 0.002,
+      "live_trigger_beyond_breakout_pct": 0.001,
       "no_entry_before_breakout_and_retest": true,
-      "breakout_timeframe": "10minute",
-      "note": "OWNER_DRAFT still: volume multiple, retest %, trigger % on 10-minute"
+      "breakout_timeframe": "10minute"
     },
     "entry_order": {
       "start": "rounded_midpoint",
@@ -270,10 +295,5 @@
       "regulatory_note": "Owner stated PDT rule no longer exists. Pipeline does not independently verify securities law; this is an operational lock only."
     }
   },
-  "open_questions": [
-    "confirm_overnight_uses_current_dte_each_day",
-    "confirm_session_start_nlv_via_journal_h_session_json",
-    "lock_10m_breakout_volume_1_2x_retest_0_15pct_trigger_0_15pct",
-    "planned_loss_ignores_fees_losing_trade_uses_fees"
-  ]
+  "open_questions": []
 }

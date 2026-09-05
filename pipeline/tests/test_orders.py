@@ -49,7 +49,8 @@ def test_rules_json_matches_working_states_and_10minute():
     assert rules["agent_h"]["allow_0dte"] is False
     assert rules["agent_h"]["allow_1dte"] is False
     assert rules["agent_h"]["no_new_entries_before"] == "09:45"
-    assert rules["agent_h"]["same_day_expiry_flatten_by"] == "15:30"
+    assert rules["agent_h"]["same_day_expiry_target_flatten_by"] == "15:30"
+    assert rules["agent_h"]["same_day_expiry_absolute_deadline"] == "15:45"
     assert rules["agent_h"]["max_new_entries_per_day"] == 2
     assert rules["agent_h"]["max_planned_loss_pct_of_current_nlv"] == 0.005
     assert rules["agent_h"]["max_debit_pct_of_current_nlv"] == 0.025
@@ -58,8 +59,15 @@ def test_rules_json_matches_working_states_and_10minute():
     assert rules["agent_h"]["option_quote"]["max_quote_age_seconds"] == 5
     assert rules["agent_h"]["intraday_timeframes"] == ["10minute", "hour", "day"]
     assert rules["agent_h"]["include_index_options"] is False
-    assert rules["agent_h"]["overnight"]["dte_2_3_flatten_by"] == "15:45"
-    assert rules["agent_h"]["overnight"]["dte_4_7_overnight_with_stop"] is True
+    assert rules["agent_h"]["overnight"]["evaluate"] == "current_dte_each_run"
+    assert rules["agent_h"]["overnight"]["current_dte_lte_3_flatten_by"] == "15:45"
+    assert rules["agent_h"]["overnight"]["current_dte_gte_4_overnight_with_stop"] is True
+    assert rules["agent_h"]["overnight"]["expiration_day_absolute_deadline"] == "15:45"
+    assert rules["agent_h"]["patterns"]["breakout_volume_multiple_of_median"] == 1.5
+    assert rules["agent_h"]["patterns"]["retest_tolerance_pct"] == 0.002
+    assert rules["agent_h"]["patterns"]["live_trigger_beyond_breakout_pct"] == 0.001
+    assert rules["agent_h"]["patterns"]["volume_statistic"] == "median"
+    assert rules["agent_h"]["risk_gate_if_fees_unavailable"] == "planned_loss <= 0.49% current NLV"
     assert rules["agent_h"]["allow_0dte"] is False
     assert rules["universe"]["include_index_options"] is False
     assert rules["options"]["min_dte"] == 2
