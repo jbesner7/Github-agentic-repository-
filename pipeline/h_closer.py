@@ -32,6 +32,8 @@ CLOSE_KINDS = EMERGENCY_KINDS | {
     "stop_limit",
     "sell_to_close",
     "close",
+    "take_profit",
+    "reduce",
 }
 
 
@@ -125,6 +127,39 @@ def working_close_quantity(
     return total
 
 
+def is_buy_to_open(order: dict[str, Any] | None) -> bool:
+    row = order or {}
+    kind = normalize_state(row.get("kind") or row.get("intent") or row.get("type"))
+    if kind in {"entry", "new_entry", "buy_to_open"}:
+        return True
+    side = normalize_state(row.get("side"))
+    effect = normalize_state(row.get("position_effect"))
+    if side == "buy" and effect == "open":
+        return True
+    for leg in row.get("legs") or []:
+        if normalize_state(leg.get("side")) == "buy" and normalize_state(
+            leg.get("position_effect")
+        ) == "open":
+            return True
+    return False
+
+
+def filled_open_quantity(
+    option_orders: Iterable[dict[str, Any]] | None,
+    *,
+    option_id: str,
+) -> int:
+    oid = (option_id or "").strip()
+    total = 0
+    for row in option_orders or []:
+        if oid not in order_option_ids(row):
+            continue
+        if not is_buy_to_open(row):
+            continue
+        total += _int_qty(row.get("filled_quantity"))
+    return total
+
+
 def filled_close_quantity(
     option_orders: Iterable[dict[str, Any]] | None,
     *,
@@ -175,10 +210,18 @@ def decide_emergency_close(
     oid = (option_id or "").strip()
     if qty <= 0 or not oid:
         return {"action": "skip", "reason": NO_POSITION, "ref_id": None, "uncovered": 0}
-    covered = working_close_quantity(option_orders, option_id=oid) + filled_close_quantity(
-        option_orders, option_id=oid
-    )
-    uncovered = max(0, qty - covered)
+    working = working_close_quantity(option_orders, option_id=oid)
+    opens = filled_open_quantity(option_orders, option_id=oid)
+    closes = filled_close_quantity(option_orders, option_id=oid)
+    # Working occupancy covers the current leftover. A filled closer covers a
+    # stale position. A later sequential open of the same option_id is not
+    # covered by an earlier same-day close (opens > closes).
+    if working >= qty:
+        uncovered = 0
+    elif closes >= qty and opens <= closes:
+        uncovered = 0
+    else:
+        uncovered = max(0, qty - working)
     generation = emergency_close_generation(option_orders, option_id=oid)
     ref_id = emergency_close_ref_id(
         option_id=oid,

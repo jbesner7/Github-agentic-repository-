@@ -9,7 +9,7 @@ from __future__ import annotations
 from typing import Any
 
 from pipeline.h_closer import decide_emergency_close
-from pipeline.h_gates import RemoteLease, is_emergency_kind, is_git_unavailable
+from pipeline.h_gates import RemoteLease, is_emergency_kind, is_git_unavailable, is_manage_exit_kind
 
 
 CONTINUITY_STORE = "broker_positions_and_working_orders"
@@ -40,6 +40,10 @@ def handoff_after_lease_loss(
         return "place_nothing_new_owner_manages"
     if is_emergency_kind(kind):
         return "emergency_protect_from_broker_state"
+    if is_manage_exit_kind(kind):
+        if is_git_unavailable(git_status):
+            return "place_nothing_git_unavailable"
+        return "manage_exit_without_owned_lease"
     if is_git_unavailable(git_status):
         return "place_nothing_git_unavailable"
     return "reacquire_then_recover"

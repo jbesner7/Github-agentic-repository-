@@ -41,8 +41,8 @@ def registry_line(spec: InvariantSpec) -> str:
 
 
 INVARIANT_REGISTRY: tuple[InvariantSpec, ...] = (
-    InvariantSpec("schema_version", "schema_version", "2026-09-06.8"),
-    InvariantSpec("prompt_expected_schema_version", "prompt_expected_schema_version", "2026-09-06.8"),
+    InvariantSpec("schema_version", "schema_version", "2026-09-06.10"),
+    InvariantSpec("prompt_expected_schema_version", "prompt_expected_schema_version", "2026-09-06.10"),
     InvariantSpec("no_new_entries_before", "no_new_entries_before", "09:45"),
     InvariantSpec("no_new_entries_after", "no_new_entries_after", "15:45"),
     InvariantSpec("dte_0_liquidation_begin", "overnight.dte_0_liquidation_begin", "15:30"),
@@ -89,6 +89,8 @@ INVARIANT_REGISTRY: tuple[InvariantSpec, ...] = (
 
 REGISTRY_HEADER = "## Invariant registry"
 FORBIDDEN_PROMPT = (
+    "2026-09-06.9",
+    "2026-09-06.8",
     "2026-09-06.7",
     "2026-09-06.6",
     "2026-09-06.5",
@@ -140,6 +142,19 @@ def compare_prompt_to_rules(prompt: str, agent_h: dict[str, Any]) -> list[str]:
         elif prompt.count(line) != 1:
             mismatches.append(f"prompt_duplicate:{line}")
     for needle in FORBIDDEN_PROMPT:
-        if needle in prompt:
+        if _retired_needle_present(prompt, needle):
             mismatches.append(f"prompt_has_retired:{needle}")
     return list(dict.fromkeys(mismatches))
+
+
+def _retired_needle_present(prompt: str, needle: str) -> bool:
+    """`2026-09-06.1` must not match live `2026-09-06.10`."""
+    start = 0
+    while True:
+        found = prompt.find(needle, start)
+        if found < 0:
+            return False
+        end = found + len(needle)
+        if end >= len(prompt) or not prompt[end].isdigit():
+            return True
+        start = found + 1
