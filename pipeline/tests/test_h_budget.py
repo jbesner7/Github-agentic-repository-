@@ -48,6 +48,7 @@ def test_leftover_at_flatten_deadline_is_manage_after_exposure():
         classify_fire_mode(weekday=0, et_time="15:45", has_option_position=True) == MANAGE
     )
     assert allows(MANAGE, "protect_or_flatten") is True
+    assert allows(MANAGE, "take_profit") is True
     assert must_acquire_lease(MANAGE) is False
 
 

@@ -122,9 +122,10 @@ RUN_ORDER_AFTER_LEASE = (
     "core_recovery_capability",
     "read_rules_permissions_playbook",
     "exposure_and_working_orders",
-    "if_exposure_protect_or_flatten_only",
+    "classify_fire_mode_from_clock_and_exposure",
+    "if_exposure_continuity_and_section_8_only",
     "if_flat_before_scan_window_no_scan",
-    "if_flat_permissions_bod_session_full_capability_scan",
+    "if_scan_acquire_lease_then_permissions_bod_session_full_capability_scan",
 )
 
 

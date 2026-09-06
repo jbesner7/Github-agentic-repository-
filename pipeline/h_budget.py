@@ -39,6 +39,7 @@ WORK_CORE_RECOVERY = "core_recovery"
 WORK_FILES = "files"
 WORK_EXPOSURE = "exposure"
 WORK_PROTECT = "protect_or_flatten"
+WORK_TAKE_PROFIT = "take_profit"
 WORK_BOD = "bod_session"
 WORK_REQUIRED_TOOLS = "required_tools"
 WORK_SCAN = "waterfall_scan"
@@ -71,6 +72,7 @@ _MANAGE_WORK = frozenset(
         WORK_FILES,
         WORK_EXPOSURE,
         WORK_PROTECT,
+        WORK_TAKE_PROFIT,
     }
 )
 _WATCH_WORK = frozenset(

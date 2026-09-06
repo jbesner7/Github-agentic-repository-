@@ -105,6 +105,8 @@ def test_new_owner_exposure_blocks_scan():
     assert RUN_ORDER_AFTER_LEASE[1] == "core_recovery_capability"
     assert RUN_ORDER_AFTER_LEASE[2] == "read_rules_permissions_playbook"
     assert RUN_ORDER_AFTER_LEASE[3] == "exposure_and_working_orders"
+    assert RUN_ORDER_AFTER_LEASE[4] == "classify_fire_mode_from_clock_and_exposure"
+    assert RUN_ORDER_AFTER_LEASE[5] == "if_exposure_continuity_and_section_8_only"
 
 
 def test_renew_lease_before_entry_unless_six_minutes_remain():
