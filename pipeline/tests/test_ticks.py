@@ -11,6 +11,7 @@ from pipeline.ticks import (
     protective_stop_price,
     round_to_tick,
     stop_usable_versus_live_bid,
+    take_profit_threshold,
 )
 
 
@@ -93,6 +94,15 @@ def test_stop_must_remain_below_live_option_bid():
     assert stale_rounded is False and rounded_reason == "live_bid_at_or_below_rounded_stop"
     stale_raw, raw_reason = stop_usable_versus_live_bid("3.304", "3.35", "3.30")
     assert stale_raw is False and raw_reason == "live_bid_at_or_below_raw_stop"
+
+
+def test_take_profit_threshold_rounds_up_to_next_tick():
+    # $2.00 * 1.40 = $2.80, already on a penny tick.
+    assert take_profit_threshold("2.00", min_ticks=RH_DOCUMENTED) == Decimal("2.80")
+    # $2.47 * 1.40 = $3.458. Nickel at/above $3 → $3.50, not $3.45.
+    assert take_profit_threshold("2.47", min_ticks=RH_DOCUMENTED) == Decimal("3.50")
+    # Missing ticks: fail closed.
+    assert take_profit_threshold("2.47") is None
 
 
 def test_round_to_tick_modes():

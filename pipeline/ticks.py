@@ -239,6 +239,27 @@ def protective_stop_price(
     return round_to_tick(raw, step, mode="toward_fill")
 
 
+def take_profit_threshold(
+    average_fill: Any,
+    tick: Any | None = None,
+    *,
+    multiple: Any = "1.40",
+    min_ticks: Any = None,
+) -> Decimal | None:
+    """Raw fill × 1.40, rounded up to the next valid broker tick."""
+    fill = _as_decimal(average_fill)
+    mult = _as_decimal(multiple)
+    if fill is None or mult is None:
+        return None
+    raw = fill * mult
+    step = _as_decimal(tick)
+    if step is None:
+        step = option_tick_size(raw, min_ticks)
+    if step is None:
+        return None
+    return round_to_tick(raw, step, mode="toward_fill")
+
+
 def stop_usable_versus_live_bid(
     raw_stop: Any,
     rounded_stop: Any,

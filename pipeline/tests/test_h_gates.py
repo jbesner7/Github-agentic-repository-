@@ -1,8 +1,12 @@
 from pipeline.h_gates import (
+    CORE_RECOVERY_TOOLS,
+    RUN_ORDER_AFTER_LEASE,
     RemoteLease,
     attempt_gtc_stop,
+    core_recovery_tools_present,
     may_place_option_order,
     may_try_one_otm,
+    must_renew_lease,
     permissions_allow,
     post_lease_priority,
     recovery_action,
@@ -88,6 +92,25 @@ def test_new_owner_exposure_blocks_scan():
     assert post_lease_priority(has_option_position=True, has_working_order=False) == "exposure_only_no_scan"
     assert post_lease_priority(has_option_position=False, has_working_order=True) == "exposure_only_no_scan"
     assert post_lease_priority(has_option_position=False, has_working_order=False) == "may_scan_if_other_gates_pass"
+    assert RUN_ORDER_AFTER_LEASE[0] == "account_selection"
+    assert RUN_ORDER_AFTER_LEASE[1] == "core_recovery_capability"
+    assert RUN_ORDER_AFTER_LEASE[2] == "exposure_and_working_orders"
+
+
+def test_renew_lease_before_entry_unless_six_minutes_remain():
+    assert must_renew_lease(minutes_remaining=6.0, before_entry=True) is False
+    assert must_renew_lease(minutes_remaining=5.9, before_entry=True) is True
+    assert must_renew_lease(minutes_remaining=5.0, before_entry=False) is False
+    assert must_renew_lease(minutes_remaining=2.9, before_entry=False) is True
+
+
+def test_core_recovery_tools_are_checked_before_full_required_list():
+    ok, missing = core_recovery_tools_present(CORE_RECOVERY_TOOLS)
+    assert ok is True and missing == ()
+    ok, missing = core_recovery_tools_present(["get_accounts", "get_option_positions"])
+    assert ok is False
+    assert "cancel_option_order" in missing
+    assert "get_realized_pnl" not in CORE_RECOVERY_TOOLS
 
 
 def test_do_not_attempt_gtc_on_this_connection():

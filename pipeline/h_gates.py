@@ -85,8 +85,45 @@ def never_place_from_momentary_absent_other_lease() -> bool:
     return True
 
 
+ENTRY_LEASE_RENEW_MINUTES = 6
+MIDRUN_LEASE_RENEW_MINUTES = 3
+
+CORE_RECOVERY_TOOLS = (
+    "get_accounts",
+    "get_option_positions",
+    "get_option_orders",
+    "get_option_quotes",
+    "review_option_order",
+    "place_option_order",
+    "cancel_option_order",
+)
+
+RUN_ORDER_AFTER_LEASE = (
+    "account_selection",
+    "core_recovery_capability",
+    "exposure_and_working_orders",
+    "if_exposure_protect_or_flatten_only",
+    "if_flat_permissions_bod_session_full_capability_scan",
+)
+
+
 def renew_lease_immediately_before_entry_placement() -> bool:
     return True
+
+
+def must_renew_lease(*, minutes_remaining: float, before_entry: bool) -> bool:
+    """Renew before entry unless at least 6 minutes remain. Always renew under 3."""
+    if minutes_remaining < MIDRUN_LEASE_RENEW_MINUTES:
+        return True
+    if before_entry and minutes_remaining < ENTRY_LEASE_RENEW_MINUTES:
+        return True
+    return False
+
+
+def core_recovery_tools_present(available: set[str] | list[str] | tuple[str, ...]) -> tuple[bool, tuple[str, ...]]:
+    have = {str(name) for name in available}
+    missing = tuple(name for name in CORE_RECOVERY_TOOLS if name not in have)
+    return (not missing, missing)
 
 
 def may_try_one_otm(atm_failure: str) -> bool:
@@ -146,7 +183,7 @@ def permissions_allow(
 
 
 def post_lease_priority(*, has_option_position: bool, has_working_order: bool) -> str:
-    """Exposure reconciliation beats scan, BOD, session counters, and new-entry checks."""
+    """After account + recovery tools: exposure beats scan, BOD, and new-entry checks."""
     if has_option_position or has_working_order:
         return "exposure_only_no_scan"
     return "may_scan_if_other_gates_pass"
