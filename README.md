@@ -13,7 +13,7 @@ Operator notes for agents: [`AGENTS.md`](AGENTS.md).
 | **Agent F** (this Cursor chat) | Only after an explicit confirm of a **specific** order. Blocked during RTH while H is enabled. Never from stale `signals/*`. |
 | **Agent H** (Cursor Automation [Agentic AI Bot](https://cursor.com/automations/9af478e7-a454-11f1-a7d1-d6b4613131ce)) | Standing prompt is the permission. Disable the Automation to stop new entries. Deleting the permissions file also blocks new entries; leftover exposure may still be flattened unless the owner says stop all order activity, including exits. |
 
-Do not run two place-capable Automations. Git updates do **not** change the pasted Automation prompt — re-paste [`playbooks/agent_h_autonomous.PROMPT.md`](playbooks/agent_h_autonomous.PROMPT.md) after prompt edits.
+Do not run two place-capable Automations. Git updates do **not** change the stored Automation prompt. Paste instructions: [`playbooks/agent_h_autonomous.PROMPT.md`](playbooks/agent_h_autonomous.PROMPT.md) — copy from `BEGIN AGENT H PROMPT` through the end into [Agentic AI Bot](https://cursor.com/automations/9af478e7-a454-11f1-a7d1-d6b4613131ce). Re-paste after every prompt change.
 
 ## Locked rules (summary)
 

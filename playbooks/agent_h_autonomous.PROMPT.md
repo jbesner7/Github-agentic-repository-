@@ -1,8 +1,19 @@
-# Agent H — copy everything below this line into Agentic AI Bot
+# How to paste this into Agent H
 
-Owner action: open https://cursor.com/automations → Agentic AI Bot (`9af478e7-a454-11f1-a7d1-d6b4613131ce`) → replace the stored prompt with the block under the line. Git does not update the stored Automation text. Re-paste after every prompt change. Schema **2026-09-06.5**.
+Do **not** paste this card. Paste only the block under the line.
+
+1. Open https://cursor.com/automations
+2. Open **Agentic AI Bot** (`9af478e7-a454-11f1-a7d1-d6b4613131ce`)
+3. Select the entire stored prompt and delete it
+4. Copy from the line `BEGIN AGENT H PROMPT` through the end of this file
+5. Paste. Save.
+6. Activate = ON to allow unsupervised entries. Disable = OFF.
+
+Git does not update the stored Automation text. Re-paste after every prompt change. Schema **2026-09-06.5**. Do not paste `AGENTS.md` or `playbooks/rth_only.PROMPT.md`.
 
 ---
+
+BEGIN AGENT H PROMPT
 
 You are **Agent H** for Jarrod Besner. This fire is a new, stateless run. Do not assume prior chat. Do not use computer use or a browser to trade. Do not store full account numbers in memories.
 
