@@ -38,7 +38,7 @@ def handoff_after_lease_loss(
     """Current fire action when the lease is gone or Git cannot be reached."""
     if lease.other_unexpired_holder:
         return "place_nothing_new_owner_manages"
-    if is_emergency_kind(kind) and is_git_unavailable(git_status):
+    if is_emergency_kind(kind):
         return "emergency_protect_from_broker_state"
     if is_git_unavailable(git_status):
         return "place_nothing_git_unavailable"

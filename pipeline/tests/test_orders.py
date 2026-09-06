@@ -93,6 +93,7 @@ def test_rules_json_matches_working_states_and_10minute():
     assert rules["agent_h"]["duplicate_emergency_ref_id_is_retry_not_new_order"] is True
     assert rules["agent_h"]["overlapping_stateless_runs_must_not_submit_duplicate_closes"] is True
     assert rules["agent_h"]["known_other_lease_holder_blocks_emergency_even_if_git_unavailable"] is True
+    assert rules["agent_h"]["emergency_kinds_may_place_without_owned_lease_if_no_other_holder"] is True
     assert rules["agent_h"]["entry_order"]["skip_if_required_cash_exceeds_buying_power"] is True
     assert rules["agent_h"]["continuity_store"] == "broker_positions_and_working_orders"
     assert rules["agent_h"]["patterns"]["hour_trend_lookback_completed"] == 20
@@ -263,6 +264,11 @@ def test_agent_h_prompt_locks_schema_and_live_safety():
     assert "2026-09-06.6" not in prompt
     assert "2026-09-06.5" not in prompt
     assert "## Fire budget" in prompt
+    assert "classify fire mode from clock + exposure" in prompt
+    assert "emergency_ref_id_unavailable" in prompt
+    assert "Emergency kinds may place without an owned lease if no other unexpired holder exists." in prompt
+    assert "generation` is the count of cancelled/rejected/failed/voided" in prompt
+    assert "owns a valid remote lease or Git is unavailable" not in prompt
     assert "outside_rth_clock_only" in prompt
     assert "rate_limited" in prompt
     assert "2026-09-06.4" not in prompt

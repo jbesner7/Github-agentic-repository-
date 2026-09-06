@@ -45,7 +45,7 @@ def test_handoff_git_outage_vs_other_holder():
     )
     assert (
         handoff_after_lease_loss(EXPIRED, git_status="ok", kind="protect")
-        == "reacquire_then_recover"
+        == "emergency_protect_from_broker_state"
     )
     assert (
         handoff_after_lease_loss(OWNED, git_status="timeout", kind="entry")

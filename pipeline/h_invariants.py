@@ -100,6 +100,8 @@ FORBIDDEN_PROMPT = (
     "time_in_force=gtc",
     "A4.5 Account, recovery tools, then exposure (after a valid remote lease).",
     "including protection and liquidation — is permitted until this run has successfully pushed its lease",
+    "owns a valid remote lease or Git is unavailable",
+    "rejected acquire while Git is reachable · schema mismatch",
 )
 
 

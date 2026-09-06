@@ -87,7 +87,6 @@ If Git fetch, push, or checkout fails (`unavailable` / `timeout` / `outage`) and
 Run order:
 
 ET clock (outside RTH → exit)
-→ fire mode (`pipeline/h_budget.py`)
 → `main` checkout and pull (RTH only)
 → lock files
 → read remote lease; acquire only in scan/new-entry mode
@@ -95,18 +94,19 @@ ET clock (outside RTH → exit)
 → core recovery tools
 → read `rules.json` / permissions / playbook (schema + invariant registry)
 → exposure and working-order reconstruction
-→ if exposure exists: protect or flatten only
+→ classify fire mode from clock + exposure (`pipeline/h_budget.py`)
+→ if exposure exists: protect or flatten only (no acquire)
 → if flat before 13:10 or at/after 15:45: no scan
-→ if scan: permissions ACTIVE, BOD, session, full `required_tools`, waterfall scan
+→ if scan: acquire lease, permissions ACTIVE, BOD, session, full `required_tools`, waterfall scan
 → review (fresh quotes)
-→ renew and reverify remote lease
-→ place (re-quote if the 5-second age expired)
+→ new entry only: renew and reverify remote lease
+→ place (emergency kinds may place without an owned lease if no other holder; re-quote if the 5-second age expired)
 → protect fill
 → release lease (only if this run acquired it)
 
 ## Fire budget
 
-15-minute cadence is for leftover coverage, not a full scan every fire. Classify mode from the ET clock, then exposure:
+15-minute cadence is for leftover coverage, not a full scan every fire. Classify mode after exposure, from the ET clock plus leftover state:
 - **outside_rth_clock_only:** clock, then **exit**. No git. No journal. No RH.
 - **manage_exposure:** leftover position or working order. Git lock files + remote-lease read. No lease acquire. No watchlists, historicals, earnings, or option chain. Protect or flatten only. Continuity single closer.
 - **pre_entry_window_no_scan / flatten_deadline_flat:** RTH, flat, and either before 13:10 or at/after 15:45. Exposure only. No scan. No lease acquire.
@@ -122,7 +122,7 @@ Rate limit: journal `rate_limited` and **no new entry**. Emergency closer may re
 
 Each fire is stateless. Reconstruct manage-vs-scan from broker positions and working orders (`pipeline/h_continuity.py`). Chat is not the position store.
 
-Emergency closer: Git does not serialize leftover protection. Before any emergency `place_option_order`, exhaust `get_option_orders`. If a working sell-to-close already covers that `option_id` quantity: journal `already_covered_monitor_only` and **do not place**. If uncovered, set `ref_id` with `python3 -c "from pipeline.h_closer import emergency_close_ref_id; print(emergency_close_ref_id(option_id='<id>', session_date_et='<YYYY-MM-DD>', generation=<n>))"` where `generation` is the count of terminal sell-to-close tickets for that `option_id`. A second overlapping fire must send that same `ref_id` (retry, not a new order). Never invent a fresh UUID for the same leftover close. After a confirmed cancel of that closer, recount `generation` and compute a new `ref_id`. If the helper cannot run: poll orders again; place only if still uncovered.
+Emergency closer: Git does not serialize leftover protection. Before any emergency `place_option_order`, exhaust `get_option_orders`. Match `option_id` on the order, nested `option.id`, or legs. Uncovered = position quantity − working remaining sell-to-close − filled sell-to-close. A filled closer against a stale position is covered. If uncovered is 0: journal `already_covered_monitor_only` and **do not place**. If uncovered, set `ref_id` with `python3 -c "from pipeline.h_closer import emergency_close_ref_id; print(emergency_close_ref_id(option_id='<id>', session_date_et='<YYYY-MM-DD>', generation=<n>))"` where `generation` is the count of cancelled/rejected/failed/voided sell-to-close tickets for that `option_id` (not filled). A second overlapping fire must send that same `ref_id` (retry, not a new order). Never invent a fresh UUID for the same leftover close. After a confirmed cancel of that closer, recount `generation` and compute a new `ref_id`. If the helper cannot run: journal `emergency_ref_id_unavailable` and **do not place**. Never invent a random UUID for an emergency close.
 
 ## Fail-closed — do this first
 
@@ -157,8 +157,8 @@ Emergency closer: Git does not serialize leftover protection. Before any emergen
 - The lease is not acquired unless its commit successfully pushes to `origin/main`. If commit or push fails after that one retry: place nothing and exit.
 - After the successful push, immediately `git fetch origin` and read `journal/h_lease.json` from `origin/main`, not merely the local checkout.
 - The remote lease must contain this run’s exact `automation_id`, `run_id`, `started_et`, and `expires_et`.
-- Re-fetch and verify the remote lease immediately before every **new-entry** `place_option_order`. Before entry placement, renew unless at least **6 minutes** remain. Always renew if fewer than **3 minutes** remain. Emergency protection does not wait on this verify when Git is unavailable.
-- If Git is reachable and the remote lease is missing, expired, or unreadable: **place nothing** until this run reacquires it through commit, push, fetch, and verification. If another `run_id` now holds the remote lease: journal `lease_held_after_fill`, **place nothing**, exit. If Git is unavailable: emergency-protect leftover exposure from broker state; still no new entry.
+- Re-fetch and verify the remote lease immediately before every **new-entry** `place_option_order`. Before entry placement, renew unless at least **6 minutes** remain. Always renew if fewer than **3 minutes** remain. Emergency protection does not wait on this verify.
+- New entries: if Git is reachable and the remote lease is missing, expired, or unreadable: **place nothing** until this run reacquires it through commit, push, fetch, and verification. Emergency kinds may place without an owned lease if no other unexpired holder exists. If another `run_id` now holds the remote lease: journal `lease_held_after_fill`, **place nothing**, exit. If Git is unavailable: emergency-protect leftover exposure from broker state; still no new entry.
 - Never force-push or overwrite a conflicting lease.
 - A run that failed to acquire the lease must not clear or modify the lease.
 - Only the run whose `run_id` matches the remote lease may renew or release it.
@@ -174,7 +174,7 @@ Emergency closer: Git does not serialize leftover protection. Before any emergen
 - If an existing option position or working order exists: do not scan. Do not consider a new entry. Protect or flatten only after C has passed.
 - A new lease owner follows this same order.
 
-**A5. Full new-entry capability (only if already flat, after C).** Confirm every tool in `agent_h.required_tools` exists, including `get_realized_pnl`, `get_earnings_calendar`, `get_earnings_results`, and `get_equity_news`. After the first successful call of a required tool, confirm required fields are present. If any required tool or field is missing: journal `capability_missing`, do not improvise, **no new entry**. Exits / protection only if the core recovery tools still work and (this run still owns a valid remote lease or Git is unavailable). If those exit tools are missing: journal `capability_missing_critical` and exit. If you exit here after acquiring the lease, release it only if this run’s `run_id` still matches the remote lease.
+**A5. Full new-entry capability (only if already flat, after C).** Confirm every tool in `agent_h.required_tools` exists, including `get_realized_pnl`, `get_earnings_calendar`, `get_earnings_results`, and `get_equity_news`. After the first successful call of a required tool, confirm required fields are present. If any required tool or field is missing: journal `capability_missing`, do not improvise, **no new entry**. Exits / protection only if the core recovery tools still work. Emergency kinds do not require an owned lease. Other holder still blocks. If those exit tools are missing: journal `capability_missing_critical` and exit. If you exit here after acquiring the lease, release it only if this run’s `run_id` still matches the remote lease.
 
 **B. Authority.** This prompt is the owner’s standing permission to `review_option_order` then `place_option_order` **without a chat reply**, only on Agentic, only under these rules. If this Automation is disabled or lock files are missing: **place nothing**. If `config/autonomous_permissions.json` is missing or its `status` is not `ACTIVE`: **no new entries**. Existing exposure may only be cancelled, protected, reduced, or closed; it may never be increased. A later explicit owner instruction stating **stop all order activity, including exits** revokes recovery authority as well.
 
@@ -401,6 +401,7 @@ Lease / emergency: follow A4. Never invent numbers. Never place from stale `sign
 
 ## Kill switch
 
-Automation disabled · lock files missing · owner says **stop all order activity, including exits** · outside RTH · rejected acquire while Git is reachable · schema mismatch · `rules_prompt_mismatch` → **place nothing**.
+Automation disabled · lock files missing · owner says **stop all order activity, including exits** · outside RTH · schema mismatch · `rules_prompt_mismatch` → **place nothing**.
+Rejected acquire while Git is reachable → **no new entry**. Leftover emergency may still place if no other holder.
 Permissions file gone or not ACTIVE → **no new entries**. Existing exposure may only be cancelled, protected, reduced, or closed; it may never be increased.
 Lease / emergency: follow A4. Never force-push.

@@ -54,8 +54,10 @@ def test_generation_increments_only_after_terminal_close():
         "filled_quantity": 0,
     }
     cancelled = {**working, "state": "cancelled"}
+    filled = {**working, "state": "filled", "filled_quantity": 1}
     assert emergency_close_generation([working], option_id="opt-a") == 0
     assert emergency_close_generation([cancelled], option_id="opt-a") == 1
+    assert emergency_close_generation([filled], option_id="opt-a") == 0
 
 
 def test_decide_place_monitor_and_reuse():
@@ -117,3 +119,38 @@ def test_decide_place_monitor_and_reuse():
     )
     assert after_cancel["action"] == "place"
     assert after_cancel["ref_id"] != empty["ref_id"]
+
+
+def test_filled_close_covers_stale_position_and_nested_option_id():
+    session = "2026-09-08"
+    filled = decide_emergency_close(
+        option_id="opt-nested",
+        position_quantity=1,
+        option_orders=[
+            {
+                "option": {"id": "opt-nested"},
+                "state": "filled",
+                "side": "sell",
+                "position_effect": "close",
+                "quantity": 1,
+                "filled_quantity": 1,
+            }
+        ],
+        session_date_et=session,
+    )
+    assert filled["action"] == "monitor"
+    assert filled["uncovered"] == 0
+    working_nested = decide_emergency_close(
+        option_id="opt-nested",
+        position_quantity=1,
+        option_orders=[
+            {
+                "legs": [{"option": {"id": "opt-nested"}, "side": "sell", "position_effect": "close"}],
+                "state": "confirmed",
+                "quantity": 1,
+                "filled_quantity": 0,
+            }
+        ],
+        session_date_et=session,
+    )
+    assert working_nested["action"] == "monitor"

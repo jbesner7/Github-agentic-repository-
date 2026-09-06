@@ -43,6 +43,14 @@ def test_manage_and_windows_skip_scan_and_lease_acquire():
         assert allows(mode, WORK_LEASE_ACQUIRE) is False
 
 
+def test_leftover_at_flatten_deadline_is_manage_after_exposure():
+    assert (
+        classify_fire_mode(weekday=0, et_time="15:45", has_option_position=True) == MANAGE
+    )
+    assert allows(MANAGE, "protect_or_flatten") is True
+    assert must_acquire_lease(MANAGE) is False
+
+
 def test_scan_window_requires_flat_rth_after_1310():
     assert classify_fire_mode(weekday=0, et_time="13:10") == SCAN
     assert classify_fire_mode(weekday=0, et_time=time(15, 44, 59)) == SCAN

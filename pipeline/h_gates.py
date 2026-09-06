@@ -78,8 +78,12 @@ def may_place_option_order(
     """
     if lease.other_unexpired_holder:
         return False, "lease_held_after_fill" if kind != "entry" else "lease_held"
-    if is_emergency_kind(kind) and is_git_unavailable(git_status):
-        return True, "emergency_protection_without_git"
+    if is_emergency_kind(kind):
+        if lease.readable and lease.owned_by_this_run and not lease.expired:
+            return True, "ok"
+        if is_git_unavailable(git_status):
+            return True, "emergency_protection_without_git"
+        return True, "emergency_protection_without_owned_lease"
     if not lease.readable:
         return False, "lease_unreadable"
     if lease.expired or not lease.owned_by_this_run:
@@ -91,8 +95,10 @@ def recovery_action(lease: RemoteLease, *, git_status: str = "ok", kind: str = "
     """What a filled run may do after its lease expires, another run appears, or Git is down."""
     if lease.other_unexpired_holder:
         return "place_nothing_new_owner_manages"
-    if is_emergency_kind(kind) and is_git_unavailable(git_status):
-        return "emergency_protect_without_git"
+    if is_emergency_kind(kind):
+        if lease.readable and lease.owned_by_this_run and not lease.expired:
+            return "recover_now"
+        return "emergency_protect_without_owned_lease"
     if not lease.readable or lease.expired or not lease.owned_by_this_run:
         return "reacquire_then_recover"
     return "recover_now"
@@ -124,7 +130,7 @@ RUN_ORDER_AFTER_LEASE = (
 
 def must_reverify_remote_lease_before_place(*, kind: str, git_status: str = "ok") -> bool:
     """Emergency protection does not wait on Git fetch/push/lease verify."""
-    return not (is_emergency_kind(kind) and is_git_unavailable(git_status))
+    return not is_emergency_kind(kind)
 
 
 def must_renew_lease(*, minutes_remaining: float, before_entry: bool) -> bool:

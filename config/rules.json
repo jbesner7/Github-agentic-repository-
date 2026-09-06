@@ -195,6 +195,7 @@
     "duplicate_emergency_ref_id_is_retry_not_new_order": true,
     "overlapping_stateless_runs_must_not_submit_duplicate_closes": true,
     "known_other_lease_holder_blocks_emergency_even_if_git_unavailable": true,
+    "emergency_kinds_may_place_without_owned_lease_if_no_other_holder": true,
     "fire_budget": {
       "cadence_minutes": 15,
       "outside_rth_is_clock_only": true,
