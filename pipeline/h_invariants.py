@@ -41,8 +41,8 @@ def registry_line(spec: InvariantSpec) -> str:
 
 
 INVARIANT_REGISTRY: tuple[InvariantSpec, ...] = (
-    InvariantSpec("schema_version", "schema_version", "2026-09-06.6"),
-    InvariantSpec("prompt_expected_schema_version", "prompt_expected_schema_version", "2026-09-06.6"),
+    InvariantSpec("schema_version", "schema_version", "2026-09-06.7"),
+    InvariantSpec("prompt_expected_schema_version", "prompt_expected_schema_version", "2026-09-06.7"),
     InvariantSpec("no_new_entries_before", "no_new_entries_before", "09:45"),
     InvariantSpec("no_new_entries_after", "no_new_entries_after", "15:45"),
     InvariantSpec("dte_0_liquidation_begin", "overnight.dte_0_liquidation_begin", "15:30"),
@@ -79,12 +79,17 @@ INVARIANT_REGISTRY: tuple[InvariantSpec, ...] = (
     InvariantSpec("max_pattern_bars_day", "patterns.max_pattern_bars_day", 60),
     InvariantSpec("max_pattern_bars_hour", "patterns.max_pattern_bars_hour", 40),
     InvariantSpec("hour_trend_lookback", "patterns.hour_trend_lookback_completed", 20),
+    InvariantSpec("scan_window_begin", "patterns.earliest_practical_entry_after_retest_et", "13:10"),
+    InvariantSpec("max_daily_historicals_per_fire", "fire_budget.max_daily_historicals_per_fire", 8),
+    InvariantSpec("max_hour_historicals_per_fire", "fire_budget.max_hour_historicals_per_fire", 3),
+    InvariantSpec("max_ten_minute_historicals_per_fire", "fire_budget.max_ten_minute_historicals_per_fire", 2),
     InvariantSpec("same_day_dte_order", "expiration_selection.same_day_dte_order", [4, 5, 6, 7, 3, 2]),
     InvariantSpec("take_profit_multiple", "take_profit.threshold_multiple_of_average_fill", 1.4),
 )
 
 REGISTRY_HEADER = "## Invariant registry"
 FORBIDDEN_PROMPT = (
+    "2026-09-06.6",
     "2026-09-06.5",
     "2026-09-06.4",
     "2026-09-06.3",

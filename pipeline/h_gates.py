@@ -117,6 +117,7 @@ RUN_ORDER_AFTER_LEASE = (
     "read_rules_permissions_playbook",
     "exposure_and_working_orders",
     "if_exposure_protect_or_flatten_only",
+    "if_flat_before_scan_window_no_scan",
     "if_flat_permissions_bod_session_full_capability_scan",
 )
 

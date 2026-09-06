@@ -5,7 +5,7 @@ This repo is a gated Robinhood pipeline for **Agentic ••••2907** only. M
 ## Roles
 
 - **F (this chat):** supervised. `place_*` only after an explicit confirm of a **specific** order. If H is enabled, do not place during RTH. Re-quote live. Never place from `signals/*`. F may still use the equities playbook after a specific confirm. `pipeline/execution.py` enforces confirm, playbook release, RTH, the **15:45** ceiling, **09:45** for options, and H-owns-RTH. Fee, signed-delta, quote-freshness, BOD NLV, pagination, and cancel-confirm are **live F obligations** on the same numbers as H — they are not automated in `can_place_live`.
-- **H (Automation):** unsupervised. Paste file: `playbooks/agent_h_autonomous.PROMPT.md` (`schema_version` **2026-09-06.6**). Follow the numbered card at the top of that file. Copy from `BEGIN AGENT H PROMPT` through the end into Agentic AI Bot. Re-paste after every prompt change. One Automation only (`9af478e7-a454-11f1-a7d1-d6b4613131ce`). **Options only.**
+- **H (Automation):** unsupervised. Paste file: `playbooks/agent_h_autonomous.PROMPT.md` (`schema_version` **2026-09-06.7**). Follow the numbered card at the top of that file. Copy from `BEGIN AGENT H PROMPT` through the end into Agentic AI Bot. Re-paste after every prompt change. One Automation only (`9af478e7-a454-11f1-a7d1-d6b4613131ce`). **Options only.**
 
 ## Source of truth
 
@@ -29,6 +29,10 @@ Protective stop, fee ceilings, signed delta, and underlying-quote rules: same nu
 ## Journal
 
 Append `journal/YYYY-MM-DD.md` on **`main`** only. `git checkout main && git pull origin main` before reads or writes. Do not open a new PR. Do not call `open_git_pr`. Do not commit `MEMORIES.md`.
+
+## Cost
+
+H 15-minute cadence is leftover coverage. Outside RTH is clock-only. F does not run H’s watchlist, historicals, or option-chain waterfall. Re-quote immediately before review and before place. Stop paging after a positive match except to prove there is one ••••2907 account. A rate-limited tool blocks a new entry.
 
 ## Honesty
 

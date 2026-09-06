@@ -78,8 +78,13 @@ def test_rules_json_matches_working_states_and_10minute():
     assert rules["agent_h"]["no_1m_3m_autonomous_noise"] is True
     assert rules["agent_h"]["no_5m_stateless_inconsistency"] is True
     assert rules["agent_h"]["include_index_options"] is False
-    assert rules["agent_h"]["schema_version"] == "2026-09-06.6"
-    assert rules["agent_h"]["prompt_expected_schema_version"] == "2026-09-06.6"
+    assert rules["agent_h"]["schema_version"] == "2026-09-06.7"
+    assert rules["agent_h"]["prompt_expected_schema_version"] == "2026-09-06.7"
+    assert rules["agent_h"]["fire_budget"]["outside_rth_no_git_no_journal_no_rh"] is True
+    assert rules["agent_h"]["fire_budget"]["lease_acquire_only_for_scan_new_entry"] is True
+    assert rules["agent_h"]["fire_budget"]["max_daily_historicals_per_fire"] == 8
+    assert rules["agent_h"]["fire_budget"]["option_chain_only_after_live_trigger"] is True
+    assert rules["agent_h"]["pagination"]["stop_after_positive_match_except"] == ["no_duplicate_account_match"]
     assert rules["agent_h"]["emergency_protection_path_does_not_require_git"] is True
     assert rules["agent_h"]["git_unavailable_allows_emergency_protection_without_lease"] is True
     assert rules["agent_h"]["emergency_close_serialized_by_broker_not_git"] is True
@@ -254,8 +259,12 @@ def test_agent_h_prompt_locks_schema_and_live_safety():
     from pathlib import Path
 
     prompt = (Path(__file__).resolve().parents[2] / "playbooks" / "agent_h_autonomous.PROMPT.md").read_text()
-    assert "2026-09-06.6" in prompt
+    assert "2026-09-06.7" in prompt
+    assert "2026-09-06.6" not in prompt
     assert "2026-09-06.5" not in prompt
+    assert "## Fire budget" in prompt
+    assert "outside_rth_clock_only" in prompt
+    assert "rate_limited" in prompt
     assert "2026-09-06.4" not in prompt
     assert "2026-09-06.3" not in prompt
     assert "## Invariant registry" in prompt
