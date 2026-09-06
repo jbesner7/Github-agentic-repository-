@@ -2,7 +2,7 @@
   "agent": "H_unsupervised",
   "status": "ACTIVE",
   "rules_path": "config/rules.json",
-  "note": "Kill switch and tool allowlist only. Trading rules live in config/rules.json. If this file is missing or status is not ACTIVE, H places nothing.",
+  "note": "Kill switch and tool allowlist only. Trading rules live in config/rules.json. Missing file or status not ACTIVE: no new entries. Existing exposure may only be cancelled, protected, reduced, or closed. An owner instruction to stop all order activity, including exits, revokes recovery as well.",
   "automation": {
     "id": "9af478e7-a454-11f1-a7d1-d6b4613131ce",
     "name": "Agentic AI Bot",
