@@ -104,6 +104,8 @@ def test_rules_json_matches_working_states_and_10minute():
     assert rules["agent_h"]["this_run_fill_must_not_place_if_another_run_id_holds_remote_lease"] is True
     assert rules["agent_h"]["other_run_lease_owner_handles_leftover_exposure"] is True
     assert rules["agent_h"]["entry_order"]["max_acceptable_debit_is_not_first_limit"] is True
+    assert rules["agent_h"]["entry_order"]["max_acceptable_debit_is_tick_floored"] is True
+    assert rules["agent_h"]["entry_order"]["max_acceptable_debit"].startswith("tick_floor(")
     assert rules["agent_h"]["entry_order"]["skip_replacement_if_plus_one_tick_exceeds_max_or_live_ask"] is True
     assert rules["agent_h"]["protective_stop"]["round_trigger_to_min_ticks"] is True
     assert rules["agent_h"]["protective_stop"]["never_round_stop_away_from_fill"] is True
@@ -230,6 +232,7 @@ def test_agent_h_prompt_locks_schema_and_live_safety():
     assert "only if no other unexpired `run_id` holds the lease" in prompt
     assert "you **must still** place protection or flatten for that fill" in prompt
     assert "replacement_skipped_tick_cap" in prompt
+    assert "the tick-floored minimum" in prompt
     assert "Round that trigger to a valid `min_ticks` increment toward the fill" in prompt
     assert "**Do not restore the protective stop** during forced liquidation." in prompt
     assert "**Take-profit only:**" in prompt

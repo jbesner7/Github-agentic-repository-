@@ -94,12 +94,26 @@ def entry_limit_from_mid(mid: Any, ask: Any, tick: Any) -> Decimal | None:
     return rounded
 
 
-def max_acceptable_debit_limit(*caps: Any) -> Decimal | None:
-    """Independent chase cap: min of positive caps (ask, 2.5% NLV, fee ceiling)."""
+def max_acceptable_debit_limit(
+    *caps: Any,
+    min_ticks: dict[str, Any] | None = None,
+    tick: Any = None,
+) -> Decimal | None:
+    """Independent chase cap: tick-floored min of ask, 2.5% NLV, and fee ceiling.
+
+    Floor so an off-grid NLV or fee cap cannot become the entry limit.
+    """
     values = [v for v in (_as_decimal(c) for c in caps) if v is not None]
     if not values:
         return None
-    return min(values)
+    raw = min(values)
+    step = _as_decimal(tick)
+    if step is None:
+        step = option_tick_size(raw, min_ticks)
+    floored = round_to_tick(raw, step, mode="down")
+    if floored is None or floored <= 0:
+        return None
+    return floored
 
 
 def one_tick_replacement(

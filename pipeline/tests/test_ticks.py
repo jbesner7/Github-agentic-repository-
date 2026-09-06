@@ -40,6 +40,20 @@ def test_max_acceptable_debit_is_independent_of_first_limit():
     assert max_acceptable_debit_limit() is None
 
 
+def test_max_acceptable_debit_tick_floors_off_grid_nlv_or_fee_cap():
+    # Binding NLV/fee cap $3.02: nickel tick at/above $3 → floor to $3.00, not $3.02.
+    assert max_acceptable_debit_limit("3.10", "3.02") == Decimal("3.00")
+    # Below $3: penny tick. $1.114 floors to $1.11.
+    assert max_acceptable_debit_limit("1.20", "1.114") == Decimal("1.11")
+    # Already on a tick: unchanged.
+    assert max_acceptable_debit_limit("1.15", "1.20") == Decimal("1.15")
+    # Custom instrument ticks.
+    custom = {"cutoff_price": "1.00", "below_tick": "0.01", "above_tick": "0.05"}
+    assert max_acceptable_debit_limit("1.07", "1.20", min_ticks=custom) == Decimal("1.05")
+    # Floor to zero is not a legal limit.
+    assert max_acceptable_debit_limit("0.004") is None
+
+
 def test_entry_limit_half_tick_toward_bid_never_above_ask():
     assert entry_limit_from_mid("1.105", "1.20", "0.01") == Decimal("1.10")
     assert entry_limit_from_mid("1.104", "1.20", "0.01") == Decimal("1.10")
