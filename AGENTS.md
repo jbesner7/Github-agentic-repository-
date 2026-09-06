@@ -11,6 +11,6 @@ Locks: `pipeline/f_attention.py`, `pipeline/execution.py`, `config/rules.json` �
 Re-quote live. Never place from `signals/*`. Equities playbook only after a specific confirm.
 After every cancel: poll to a terminal state, reconcile fills, protect every fill. Never rest a full-quantity TP or liquidation against a working full-quantity stop.
 
-Trading numbers: `config/rules.json` → `agent_h` only. Kill switch: `config/autonomous_permissions.json`. Options: `playbooks/options_day_trading.md`.
+Trading numbers: `config/rules.json` → `agent_h` only. Kill switch: disable the H Automation, or `config/autonomous_permissions.json`. Options: `playbooks/options_day_trading.md`.
 RTH = Mon–Fri 09:30–16:00 exclusive ET. Overnight **off**. GFD option `stop_market` only.
 Journal on **`main`** only. Never force-push. Never invent Greeks or prices.

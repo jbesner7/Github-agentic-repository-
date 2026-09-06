@@ -38,6 +38,8 @@ def test_agents_md_stays_f_chat_only():
     assert "specific" in text.lower()
     assert "place nothing" in text.lower()
     assert "Do not keep or paste the H Automation prompt in this chat." in text
+    assert "disable the H Automation" in text
     agents = (ROOT / "agents" / "README.md").read_text()
     assert "BEGIN AGENT H PROMPT" not in agents
     assert "Do not paste H into this chat." in agents
+    assert "If H is enabled during RTH: **place nothing**." in agents
