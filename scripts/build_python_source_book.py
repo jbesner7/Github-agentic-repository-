@@ -19,7 +19,7 @@ DOCS = ROOT / "docs"
 CATALOG: list[tuple[str, str, str, str]] = [
     ("pipeline/__init__.py", "0 · Package", "F + H", "Pipeline package marker"),
     ("pipeline/io_util.py", "1 · Shared", "F + H", "Paths, rules.json loader, journal helpers"),
-    ("pipeline/session.py", "1 · Shared", "F + H", "RTH clock; option entries 09:45–15:45; equity entries to 15:45"),
+    ("pipeline/session.py", "1 · Shared", "F + H", "RTH clock; option entries 09:45–15:45; H lease is on origin/main"),
     ("pipeline/orders.py", "1 · Shared", "F + H", "Working-order states for Robinhood MCP (no open=true)"),
     ("pipeline/quotes.py", "1 · Shared", "F + H", "5s underlying executable price; BOD NLV field extract"),
     ("pipeline/fees.py", "1 · Shared", "F + H", "Dual fee ceilings: 0.49% planned loss and 0.50% with fees"),

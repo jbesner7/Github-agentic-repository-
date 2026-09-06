@@ -68,17 +68,17 @@
 <body>
   <div class="toolbar no-print">
     <button type="button" onclick="window.print()">Print / Save as PDF</button>
-    <span>Agentic Python source — Letter portrait · 4020 lines · 23 files</span>
+    <span>Agentic Python source — Letter portrait · 4043 lines · 23 files</span>
   </div>
   <div class="page">
     <p class="kicker">Jarrod Besner · Agentic ••••2907</p>
     <h1>Python source book</h1>
     <div class="rule"></div>
     <p class="meta">Chat agent <strong>F</strong> and autonomous bot <strong>H</strong> share this pipeline.
-    Generated 2026-09-05 23:42 UTC. Companion file: <code>docs/agentic_python_source_book.py</code>.</p>
+    Generated 2026-09-06 00:02 UTC. Companion file: <code>docs/agentic_python_source_book.py</code>.</p>
     <div class="badge-row">
       <span class="badge">23 Python files</span>
-      <span class="badge">4020 lines</span>
+      <span class="badge">4043 lines</span>
       <span class="badge">Language: Python 3</span>
       <span class="badge">Does not place orders</span>
     </div>
@@ -103,7 +103,7 @@
     <table>
       <thead><tr><th>Part</th><th>File</th><th>Used by</th><th>Lines</th><th>Role</th></tr></thead>
       <tbody>
-        <tr><td>0 · Package</td><td><a href='#pipeline-__init__-py'><code>pipeline/__init__.py</code></a></td><td>F + H</td><td>3</td><td>Pipeline package marker</td></tr><tr><td>1 · Shared</td><td><a href='#pipeline-io_util-py'><code>pipeline/io_util.py</code></a></td><td>F + H</td><td>38</td><td>Paths, rules.json loader, journal helpers</td></tr><tr><td>1 · Shared</td><td><a href='#pipeline-session-py'><code>pipeline/session.py</code></a></td><td>F + H</td><td>90</td><td>RTH clock; option entries 09:45–15:45; equity entries to 15:45</td></tr><tr><td>1 · Shared</td><td><a href='#pipeline-orders-py'><code>pipeline/orders.py</code></a></td><td>F + H</td><td>44</td><td>Working-order states for Robinhood MCP (no open=true)</td></tr><tr><td>1 · Shared</td><td><a href='#pipeline-quotes-py'><code>pipeline/quotes.py</code></a></td><td>F + H</td><td>102</td><td>5s underlying executable price; BOD NLV field extract</td></tr><tr><td>1 · Shared</td><td><a href='#pipeline-fees-py'><code>pipeline/fees.py</code></a></td><td>F + H</td><td>330</td><td>Dual fee ceilings: 0.49% planned loss and 0.50% with fees</td></tr><tr><td>2 · Agent A</td><td><a href='#pipeline-universe-py'><code>pipeline/universe.py</code></a></td><td>F + H</td><td>199</td><td>Watchlist extract, crypto drop, inverse-ETF reject, ADV ≥ 2,000,000</td></tr><tr><td>3 · Agent B</td><td><a href='#pipeline-patterns-py'><code>pipeline/patterns.py</code></a></td><td>F + H</td><td>353</td><td>Daily-first H&amp;S / double-triple / triangle; no 1m/3m/5m</td></tr><tr><td>4 · Agent C</td><td><a href='#pipeline-news-py'><code>pipeline/news.py</code></a></td><td>F + H</td><td>31</td><td>Factual RH news/earnings pack; no invented sentiment</td></tr><tr><td>5 · Agent D</td><td><a href='#pipeline-options_structure-py'><code>pipeline/options_structure.py</code></a></td><td>F + H</td><td>166</td><td>Long call/put; ATM/OTM; 2–3 DTE while overnight off</td></tr><tr><td>5 · Agent D</td><td><a href='#pipeline-equity_day_trade-py'><code>pipeline/equity_day_trade.py</code></a></td><td>F only</td><td>245</td><td>Long shares only; inverse-ETF denylist; H has no equity fallback</td></tr><tr><td>6 · Agent I</td><td><a href='#pipeline-greeks-py'><code>pipeline/greeks.py</code></a></td><td>F + H</td><td>50</td><td>Copy RH Greeks only; signed call +0.40–+0.50 / put −0.50–−0.40</td></tr><tr><td>7 · Agent E</td><td><a href='#pipeline-risk-py'><code>pipeline/risk.py</code></a></td><td>F + H</td><td>87</td><td>Options −20%/+40%; equity −20%/+25%; stop first until OCO</td></tr><tr><td>8 · Agent G</td><td><a href='#pipeline-orchestrator-py'><code>pipeline/orchestrator.py</code></a></td><td>F + H</td><td>453</td><td>Phase 2 read-only snapshot; h_entry_ready is always false</td></tr><tr><td>9 · Agent F</td><td><a href='#pipeline-execution-py'><code>pipeline/execution.py</code></a></td><td>F (chat)</td><td>173</td><td>Supervised place-gate: confirm, RTH, 09:45 options, H-owns-RTH</td></tr><tr><td>10 · CLI</td><td><a href='#scripts-run_phase2_cycle-py'><code>scripts/run_phase2_cycle.py</code></a></td><td>F + H</td><td>38</td><td>Load data/raw/latest_raw.json and run the orchestrator</td></tr><tr><td>10 · CLI</td><td><a href='#scripts-build_python_source_book-py'><code>scripts/build_python_source_book.py</code></a></td><td>docs</td><td>394</td><td>This generator — rebuilds the printable source book</td></tr><tr><td>11 · Tests</td><td><a href='#pipeline-tests-test_phase2-py'><code>pipeline/tests/test_phase2.py</code></a></td><td>CI / F</td><td>336</td><td>Universe, liquidity, signed delta, ATM/OTM, expiration rank</td></tr><tr><td>11 · Tests</td><td><a href='#pipeline-tests-test_orders-py'><code>pipeline/tests/test_orders.py</code></a></td><td>CI / F</td><td>185</td><td>Working states and locked agent_h schema</td></tr><tr><td>11 · Tests</td><td><a href='#pipeline-tests-test_fees-py'><code>pipeline/tests/test_fees.py</code></a></td><td>CI / F</td><td>92</td><td>Dual NLV fee ceilings</td></tr><tr><td>11 · Tests</td><td><a href='#pipeline-tests-test_session-py'><code>pipeline/tests/test_session.py</code></a></td><td>CI / F</td><td>15</td><td>ET calendar date and flatten window</td></tr><tr><td>11 · Tests</td><td><a href='#pipeline-tests-test_equity_day_trade-py'><code>pipeline/tests/test_equity_day_trade.py</code></a></td><td>CI / F</td><td>450</td><td>Long-only equity selection and Phase 2 snapshots</td></tr><tr><td>11 · Tests</td><td><a href='#pipeline-tests-test_execution-py'><code>pipeline/tests/test_execution.py</code></a></td><td>CI / F</td><td>146</td><td>F place-gate including 09:45 option lock</td></tr>
+        <tr><td>0 · Package</td><td><a href='#pipeline-__init__-py'><code>pipeline/__init__.py</code></a></td><td>F + H</td><td>3</td><td>Pipeline package marker</td></tr><tr><td>1 · Shared</td><td><a href='#pipeline-io_util-py'><code>pipeline/io_util.py</code></a></td><td>F + H</td><td>38</td><td>Paths, rules.json loader, journal helpers</td></tr><tr><td>1 · Shared</td><td><a href='#pipeline-session-py'><code>pipeline/session.py</code></a></td><td>F + H</td><td>90</td><td>RTH clock; option entries 09:45–15:45; equity entries to 15:45</td></tr><tr><td>1 · Shared</td><td><a href='#pipeline-orders-py'><code>pipeline/orders.py</code></a></td><td>F + H</td><td>44</td><td>Working-order states for Robinhood MCP (no open=true)</td></tr><tr><td>1 · Shared</td><td><a href='#pipeline-quotes-py'><code>pipeline/quotes.py</code></a></td><td>F + H</td><td>102</td><td>5s underlying executable price; BOD NLV field extract</td></tr><tr><td>1 · Shared</td><td><a href='#pipeline-fees-py'><code>pipeline/fees.py</code></a></td><td>F + H</td><td>330</td><td>Dual fee ceilings: 0.49% planned loss and 0.50% with fees</td></tr><tr><td>2 · Agent A</td><td><a href='#pipeline-universe-py'><code>pipeline/universe.py</code></a></td><td>F + H</td><td>199</td><td>Watchlist extract, crypto drop, inverse-ETF reject, ADV ≥ 2,000,000</td></tr><tr><td>3 · Agent B</td><td><a href='#pipeline-patterns-py'><code>pipeline/patterns.py</code></a></td><td>F + H</td><td>353</td><td>Daily-first H&amp;S / double-triple / triangle; no 1m/3m/5m</td></tr><tr><td>4 · Agent C</td><td><a href='#pipeline-news-py'><code>pipeline/news.py</code></a></td><td>F + H</td><td>31</td><td>Factual RH news/earnings pack; no invented sentiment</td></tr><tr><td>5 · Agent D</td><td><a href='#pipeline-options_structure-py'><code>pipeline/options_structure.py</code></a></td><td>F + H</td><td>166</td><td>Long call/put; ATM/OTM; 2–3 DTE while overnight off</td></tr><tr><td>5 · Agent D</td><td><a href='#pipeline-equity_day_trade-py'><code>pipeline/equity_day_trade.py</code></a></td><td>F only</td><td>245</td><td>Long shares only; inverse-ETF denylist; H has no equity fallback</td></tr><tr><td>6 · Agent I</td><td><a href='#pipeline-greeks-py'><code>pipeline/greeks.py</code></a></td><td>F + H</td><td>50</td><td>Copy RH Greeks only; signed call +0.40–+0.50 / put −0.50–−0.40</td></tr><tr><td>7 · Agent E</td><td><a href='#pipeline-risk-py'><code>pipeline/risk.py</code></a></td><td>F + H</td><td>87</td><td>Options −20%/+40%; equity −20%/+25%; stop first until OCO</td></tr><tr><td>8 · Agent G</td><td><a href='#pipeline-orchestrator-py'><code>pipeline/orchestrator.py</code></a></td><td>F + H</td><td>453</td><td>Phase 2 read-only snapshot; h_entry_ready is always false</td></tr><tr><td>9 · Agent F</td><td><a href='#pipeline-execution-py'><code>pipeline/execution.py</code></a></td><td>F (chat)</td><td>173</td><td>Supervised place-gate: confirm, RTH, 09:45 options, H-owns-RTH</td></tr><tr><td>10 · CLI</td><td><a href='#scripts-run_phase2_cycle-py'><code>scripts/run_phase2_cycle.py</code></a></td><td>F + H</td><td>38</td><td>Load data/raw/latest_raw.json and run the orchestrator</td></tr><tr><td>10 · CLI</td><td><a href='#scripts-build_python_source_book-py'><code>scripts/build_python_source_book.py</code></a></td><td>docs</td><td>394</td><td>This generator — rebuilds the printable source book</td></tr><tr><td>11 · Tests</td><td><a href='#pipeline-tests-test_phase2-py'><code>pipeline/tests/test_phase2.py</code></a></td><td>CI / F</td><td>336</td><td>Universe, liquidity, signed delta, ATM/OTM, expiration rank</td></tr><tr><td>11 · Tests</td><td><a href='#pipeline-tests-test_orders-py'><code>pipeline/tests/test_orders.py</code></a></td><td>CI / F</td><td>208</td><td>Working states and locked agent_h schema</td></tr><tr><td>11 · Tests</td><td><a href='#pipeline-tests-test_fees-py'><code>pipeline/tests/test_fees.py</code></a></td><td>CI / F</td><td>92</td><td>Dual NLV fee ceilings</td></tr><tr><td>11 · Tests</td><td><a href='#pipeline-tests-test_session-py'><code>pipeline/tests/test_session.py</code></a></td><td>CI / F</td><td>15</td><td>ET calendar date and flatten window</td></tr><tr><td>11 · Tests</td><td><a href='#pipeline-tests-test_equity_day_trade-py'><code>pipeline/tests/test_equity_day_trade.py</code></a></td><td>CI / F</td><td>450</td><td>Long-only equity selection and Phase 2 snapshots</td></tr><tr><td>11 · Tests</td><td><a href='#pipeline-tests-test_execution-py'><code>pipeline/tests/test_execution.py</code></a></td><td>CI / F</td><td>146</td><td>F place-gate including 09:45 option lock</td></tr>
       </tbody>
     </table>
     <p class="note">Each file starts on a new printed page. Source is verbatim Python from the repo.</p>
@@ -3239,7 +3239,7 @@
 <span class='ln'>334</span>     daily_first = collect_pattern_hits({&quot;day&quot;: bars, &quot;10minute&quot;: bars}, [&quot;10minute&quot;, &quot;hour&quot;, &quot;day&quot;])
 <span class='ln'>335</span>     assert any(h[&quot;timeframe&quot;] == &quot;day&quot; for h in daily_first)
 <span class='ln'>336</span>     assert any(h[&quot;timeframe&quot;] == &quot;10minute&quot; for h in daily_first)
-</pre></section><section class='file' id='pipeline-tests-test_orders-py'><h2>pipeline/tests/test_orders.py</h2><p class='meta'><strong>11 · Tests</strong> · CI / F · 185 lines · Working states and locked agent_h schema</p><pre class='source'><span class='ln'>  1</span> from pipeline.equity_day_trade import INVERSE_ETF_SYMBOLS
+</pre></section><section class='file' id='pipeline-tests-test_orders-py'><h2>pipeline/tests/test_orders.py</h2><p class='meta'><strong>11 · Tests</strong> · CI / F · 208 lines · Working states and locked agent_h schema</p><pre class='source'><span class='ln'>  1</span> from pipeline.equity_day_trade import INVERSE_ETF_SYMBOLS
 <span class='ln'>  2</span> from pipeline.orders import (
 <span class='ln'>  3</span>     EQUITY_WORKING_STATES,
 <span class='ln'>  4</span>     OPTION_WORKING_STATES,
@@ -3319,7 +3319,7 @@
 <span class='ln'> 78</span>     assert rules[&quot;agent_h&quot;][&quot;no_1m_3m_autonomous_noise&quot;] is True
 <span class='ln'> 79</span>     assert rules[&quot;agent_h&quot;][&quot;no_5m_stateless_inconsistency&quot;] is True
 <span class='ln'> 80</span>     assert rules[&quot;agent_h&quot;][&quot;include_index_options&quot;] is False
-<span class='ln'> 81</span>     assert rules[&quot;agent_h&quot;][&quot;schema_version&quot;] == &quot;2026-09-05.2&quot;
+<span class='ln'> 81</span>     assert rules[&quot;agent_h&quot;][&quot;schema_version&quot;] == &quot;2026-09-05.3&quot;
 <span class='ln'> 82</span>     assert rules[&quot;agent_h&quot;][&quot;overnight&quot;][&quot;evaluate&quot;] == &quot;current_dte_each_run&quot;
 <span class='ln'> 83</span>     assert rules[&quot;agent_h&quot;][&quot;overnight&quot;][&quot;current_dte_lte_3_flatten_by&quot;] == &quot;15:45&quot;
 <span class='ln'> 84</span>     assert rules[&quot;agent_h&quot;][&quot;overnight&quot;][&quot;current_dte_gte_4_overnight_with_stop&quot;] is False
@@ -3329,101 +3329,124 @@
 <span class='ln'> 88</span>     assert rules[&quot;agent_h&quot;][&quot;overnight&quot;][&quot;dte_1_to_3_liquidation_begin&quot;] == &quot;15:40&quot;
 <span class='ln'> 89</span>     assert rules[&quot;agent_h&quot;][&quot;lease_valid_only_after_successful_push_to_origin_main&quot;] is True
 <span class='ln'> 90</span>     assert rules[&quot;agent_h&quot;][&quot;recheck_remote_lease_before_every_place_option_order&quot;] is True
-<span class='ln'> 91</span>     assert rules[&quot;agent_h&quot;][&quot;scheduler_must_enforce_max_concurrent_runs&quot;] == 1
-<span class='ln'> 92</span>     assert rules[&quot;agent_h&quot;][&quot;apply_both_fee_ceilings_on_every_trade&quot;] is True
-<span class='ln'> 93</span>     assert rules[&quot;agent_h&quot;][&quot;bod_nlv_unavailable_means_no_new_entry&quot;] is True
-<span class='ln'> 94</span>     assert rules[&quot;priority_does_not_authorize_agent_h_equity&quot;] is True
-<span class='ln'> 95</span>     assert rules[&quot;agent_h&quot;][&quot;session_start_required_for_new_entry&quot;] == [
-<span class='ln'> 96</span>         &quot;et_trading_date&quot;,
-<span class='ln'> 97</span>         &quot;first_valid_rth_timestamp_et&quot;,
-<span class='ln'> 98</span>         &quot;account&quot;,
-<span class='ln'> 99</span>         &quot;bod_nlv&quot;,
-<span class='ln'>100</span>         &quot;bod_nlv_field&quot;,
-<span class='ln'>101</span>         &quot;daily_loss_limit_usd&quot;,
-<span class='ln'>102</span>     ]
-<span class='ln'>103</span>     assert rules[&quot;agent_h&quot;][&quot;session_start_diagnostic_only_fields&quot;] == [&quot;first_fire_baseline_nlv&quot;]
-<span class='ln'>104</span>     assert (
-<span class='ln'>105</span>         rules[&quot;agent_h&quot;][&quot;forced_liquidation&quot;][&quot;leftover_4_to_7_dte_while_overnight_disabled&quot;]
-<span class='ln'>106</span>         == &quot;treat_as_dte_1_to_3_begin_1540&quot;
-<span class='ln'>107</span>     )
-<span class='ln'>108</span>     assert rules[&quot;agent_h&quot;][&quot;protective_stop&quot;][&quot;time_in_force&quot;] == &quot;gtc&quot;
-<span class='ln'>109</span>     assert rules[&quot;agent_h&quot;][&quot;cancel_lifecycle&quot;][&quot;never_assume_cancel_means_zero_fill&quot;] is True
-<span class='ln'>110</span>     assert rules[&quot;agent_h&quot;][&quot;entry_order&quot;][&quot;cancel_confirm_before_replacement&quot;] is True
-<span class='ln'>111</span>     assert rules[&quot;agent_h&quot;][&quot;take_profit&quot;][&quot;cancel_existing_stop_and_confirm_before_tp&quot;] is True
-<span class='ln'>112</span>     assert rules[&quot;agent_h&quot;][&quot;take_profit&quot;][&quot;cancel_unfilled_replacement_seconds_after_initial_tp&quot;] == 30
-<span class='ln'>113</span>     assert rules[&quot;agent_h&quot;][&quot;forced_liquidation&quot;][&quot;dte_1_to_3_begin&quot;] == &quot;15:40&quot;
-<span class='ln'>114</span>     assert rules[&quot;agent_h&quot;][&quot;patterns&quot;][&quot;daily_neckline_governs_10m_breakout&quot;] is True
-<span class='ln'>115</span>     assert rules[&quot;agent_h&quot;][&quot;patterns&quot;][&quot;overlapping_rank&quot;][0] == &quot;hs_then_double_triple_then_triangle&quot;
-<span class='ln'>116</span>     assert rules[&quot;agent_h&quot;][&quot;patterns&quot;][&quot;earliest_practical_entry_after_retest_et&quot;] == &quot;13:10&quot;
-<span class='ln'>117</span>     assert rules[&quot;agent_h&quot;][&quot;expiration_selection&quot;][&quot;same_day_group_dte&quot;] == [2, 3]
-<span class='ln'>118</span>     assert rules[&quot;options&quot;][&quot;strike&quot;][&quot;put_delta_min&quot;] == -0.5
-<span class='ln'>119</span>     assert rules[&quot;options&quot;][&quot;strike&quot;][&quot;call_otm&quot;] == &quot;exactly_one_listed_strike_above_atm&quot;
-<span class='ln'>120</span>     assert &quot;get_realized_pnl&quot; in rules[&quot;agent_h&quot;][&quot;required_tools&quot;]
-<span class='ln'>121</span>     assert &quot;get_earnings_calendar&quot; in rules[&quot;agent_h&quot;][&quot;required_tools&quot;]
-<span class='ln'>122</span>     assert rules[&quot;agent_h&quot;][&quot;patterns&quot;][&quot;breakout_volume_multiple_of_median&quot;] == 1.5
-<span class='ln'>123</span>     assert rules[&quot;agent_h&quot;][&quot;patterns&quot;][&quot;retest_tolerance_pct&quot;] == 0.002
-<span class='ln'>124</span>     assert rules[&quot;agent_h&quot;][&quot;patterns&quot;][&quot;live_trigger_beyond_breakout_pct&quot;] == 0.001
-<span class='ln'>125</span>     assert rules[&quot;agent_h&quot;][&quot;patterns&quot;][&quot;volume_statistic&quot;] == &quot;median&quot;
-<span class='ln'>126</span>     assert rules[&quot;agent_h&quot;][&quot;estimated_round_trip_fees&quot;] == &quot;3 * entry_fee_from_review&quot;
-<span class='ln'>127</span>     assert rules[&quot;agent_h&quot;][&quot;entry_fee_source_hierarchy&quot;][0] == &quot;valid_positive_total_fee_only&quot;
-<span class='ln'>128</span>     assert rules[&quot;agent_h&quot;][&quot;entry_fee_source_hierarchy&quot;][1] == &quot;zero_total_plus_positive_component_is_fee_conflict&quot;
-<span class='ln'>129</span>     assert rules[&quot;agent_h&quot;][&quot;entry_fee_source_hierarchy&quot;][2] == &quot;zero_total_and_zero_or_absent_components_is_explicit_zero&quot;
-<span class='ln'>130</span>     assert rules[&quot;agent_h&quot;][&quot;journal_fee_conflict&quot;] is True
-<span class='ln'>131</span>     assert rules[&quot;agent_h&quot;][&quot;journal_entry_fee_source&quot;] is True
-<span class='ln'>132</span>     assert rules[&quot;agent_h&quot;][&quot;fee_status_values&quot;] == [
-<span class='ln'>133</span>         &quot;quoted&quot;,
-<span class='ln'>134</span>         &quot;explicit_zero&quot;,
-<span class='ln'>135</span>         &quot;ambiguous&quot;,
-<span class='ln'>136</span>         &quot;unavailable&quot;,
-<span class='ln'>137</span>     ]
-<span class='ln'>138</span>     assert rules[&quot;agent_h&quot;][&quot;zero_total_plus_positive_component&quot;][&quot;fee_status&quot;] == &quot;ambiguous&quot;
-<span class='ln'>139</span>     assert rules[&quot;agent_h&quot;][&quot;zero_total_plus_positive_component&quot;][&quot;journal&quot;] == &quot;fee_conflict&quot;
-<span class='ln'>140</span>     assert rules[&quot;agent_h&quot;][&quot;zero_total_plus_positive_component&quot;][&quot;do_not_sum_or_select_estimate&quot;] is True
-<span class='ln'>141</span>     assert rules[&quot;agent_h&quot;][&quot;do_not_apply_049_ceiling_when_positive_fee_included&quot;] is False
-<span class='ln'>142</span>     assert rules[&quot;agent_h&quot;][&quot;universal_fee_gate&quot;] == [
-<span class='ln'>143</span>         &quot;planned_loss &lt;= 0.49% current NLV&quot;,
-<span class='ln'>144</span>         &quot;planned_loss + estimated_round_trip_fees &lt;= 0.50% current NLV&quot;,
-<span class='ln'>145</span>     ]
-<span class='ln'>146</span>     assert rules[&quot;agent_h&quot;][&quot;closed_trade_uses_actual_net_pnl_not_estimated_fees&quot;] is True
-<span class='ln'>147</span>     assert rules[&quot;agent_h&quot;][&quot;allow_0dte&quot;] is False
-<span class='ln'>148</span>     assert rules[&quot;universe&quot;][&quot;include_index_options&quot;] is False
-<span class='ln'>149</span>     assert rules[&quot;options&quot;][&quot;min_dte&quot;] == 2
-<span class='ln'>150</span> 
-<span class='ln'>151</span> 
-<span class='ln'>152</span> def test_permissions_is_kill_switch_not_a_rules_copy():
-<span class='ln'>153</span>     import json
-<span class='ln'>154</span>     from pathlib import Path
-<span class='ln'>155</span> 
-<span class='ln'>156</span>     perms = json.loads((Path(__file__).resolve().parents[2] / &quot;config&quot; / &quot;autonomous_permissions.json&quot;).read_text())
-<span class='ln'>157</span>     assert perms[&quot;status&quot;] == &quot;ACTIVE&quot;
-<span class='ln'>158</span>     assert perms[&quot;rules_path&quot;] == &quot;config/rules.json&quot;
-<span class='ln'>159</span>     assert &quot;universe&quot; not in perms
-<span class='ln'>160</span>     assert &quot;risk&quot; not in perms
-<span class='ln'>161</span>     assert &quot;patterns&quot; not in perms
-<span class='ln'>162</span> 
-<span class='ln'>163</span> 
-<span class='ln'>164</span> def test_agent_h_prompt_locks_schema_and_live_safety():
-<span class='ln'>165</span>     from pathlib import Path
-<span class='ln'>166</span> 
-<span class='ln'>167</span>     prompt = (Path(__file__).resolve().parents[2] / &quot;playbooks&quot; / &quot;agent_h_autonomous.PROMPT.md&quot;).read_text()
-<span class='ln'>168</span>     assert &quot;2026-09-05.2&quot; in prompt
-<span class='ln'>169</span>     assert &quot;A lease is valid only after that commit successfully pushes to `origin/main`&quot; in prompt
-<span class='ln'>170</span>     assert &quot;time_in_force=gtc&quot; in prompt
-<span class='ln'>171</span>     assert &quot;09:30–09:44:59&quot; in prompt
-<span class='ln'>172</span>     assert &quot;approximately **13:10–15:45 ET**&quot; in prompt
-<span class='ln'>173</span>     assert &quot;Call delta: **+0.40 through +0.50 inclusive**&quot; in prompt
-<span class='ln'>174</span>     assert &quot;Put delta: **−0.50 through −0.40 inclusive**&quot; in prompt
-<span class='ln'>175</span>     assert &quot;planned_loss` ≤ **0.49% of current NLV**&quot; in prompt
-<span class='ln'>176</span>     assert &quot;bod_nlv_unavailable&quot; in prompt
-<span class='ln'>177</span>     assert &quot;maximum concurrent runs = 1&quot; in prompt
-<span class='ln'>178</span> 
-<span class='ln'>179</span> 
-<span class='ln'>180</span> def test_inverse_etf_denylist_has_no_duplicate_twm():
-<span class='ln'>181</span>     from pathlib import Path
-<span class='ln'>182</span> 
-<span class='ln'>183</span>     src = Path(__file__).resolve().parents[1] / &quot;equity_day_trade.py&quot;
-<span class='ln'>184</span>     assert src.read_text(encoding=&quot;utf-8&quot;).count(&#x27;&quot;TWM&quot;&#x27;) == 1
-<span class='ln'>185</span>     assert &quot;TWM&quot; in INVERSE_ETF_SYMBOLS
+<span class='ln'> 91</span>     assert rules[&quot;agent_h&quot;][&quot;scheduler_must_enforce_max_concurrent_runs&quot;] is False
+<span class='ln'> 92</span>     assert rules[&quot;agent_h&quot;][&quot;git_lease_is_the_concurrency_gate&quot;] is True
+<span class='ln'> 93</span>     assert rules[&quot;agent_h&quot;][&quot;lease_acquire_before_account_or_scan&quot;] is True
+<span class='ln'> 94</span>     assert rules[&quot;agent_h&quot;][&quot;lease_ttl_minutes&quot;] == 12
+<span class='ln'> 95</span>     assert rules[&quot;agent_h&quot;][&quot;lease_renew_if_fewer_than_minutes_remaining&quot;] == 3
+<span class='ln'> 96</span>     assert rules[&quot;agent_h&quot;][&quot;never_force_push_or_overwrite_conflicting_lease&quot;] is True
+<span class='ln'> 97</span>     assert rules[&quot;agent_h&quot;][&quot;failed_lease_acquire_must_not_modify_or_clear_lease&quot;] is True
+<span class='ln'> 98</span>     assert rules[&quot;agent_h&quot;][&quot;only_matching_run_id_may_renew_or_release_lease&quot;] is True
+<span class='ln'> 99</span>     assert rules[&quot;agent_h&quot;][&quot;remote_lease_must_contain_exact_fields&quot;] == [
+<span class='ln'>100</span>         &quot;automation_id&quot;,
+<span class='ln'>101</span>         &quot;run_id&quot;,
+<span class='ln'>102</span>         &quot;started_et&quot;,
+<span class='ln'>103</span>         &quot;expires_et&quot;,
+<span class='ln'>104</span>     ]
+<span class='ln'>105</span>     assert rules[&quot;agent_h&quot;][&quot;no_review_or_place_until_remote_lease_verified&quot;] is True
+<span class='ln'>106</span>     assert rules[&quot;agent_h&quot;][&quot;apply_both_fee_ceilings_on_every_trade&quot;] is True
+<span class='ln'>107</span>     assert rules[&quot;agent_h&quot;][&quot;bod_nlv_unavailable_means_no_new_entry&quot;] is True
+<span class='ln'>108</span>     assert rules[&quot;priority_does_not_authorize_agent_h_equity&quot;] is True
+<span class='ln'>109</span>     assert rules[&quot;agent_h&quot;][&quot;session_start_required_for_new_entry&quot;] == [
+<span class='ln'>110</span>         &quot;et_trading_date&quot;,
+<span class='ln'>111</span>         &quot;first_valid_rth_timestamp_et&quot;,
+<span class='ln'>112</span>         &quot;account&quot;,
+<span class='ln'>113</span>         &quot;bod_nlv&quot;,
+<span class='ln'>114</span>         &quot;bod_nlv_field&quot;,
+<span class='ln'>115</span>         &quot;daily_loss_limit_usd&quot;,
+<span class='ln'>116</span>     ]
+<span class='ln'>117</span>     assert rules[&quot;agent_h&quot;][&quot;session_start_diagnostic_only_fields&quot;] == [&quot;first_fire_baseline_nlv&quot;]
+<span class='ln'>118</span>     assert (
+<span class='ln'>119</span>         rules[&quot;agent_h&quot;][&quot;forced_liquidation&quot;][&quot;leftover_4_to_7_dte_while_overnight_disabled&quot;]
+<span class='ln'>120</span>         == &quot;treat_as_dte_1_to_3_begin_1540&quot;
+<span class='ln'>121</span>     )
+<span class='ln'>122</span>     assert rules[&quot;agent_h&quot;][&quot;protective_stop&quot;][&quot;time_in_force&quot;] == &quot;gtc&quot;
+<span class='ln'>123</span>     assert rules[&quot;agent_h&quot;][&quot;cancel_lifecycle&quot;][&quot;never_assume_cancel_means_zero_fill&quot;] is True
+<span class='ln'>124</span>     assert rules[&quot;agent_h&quot;][&quot;entry_order&quot;][&quot;cancel_confirm_before_replacement&quot;] is True
+<span class='ln'>125</span>     assert rules[&quot;agent_h&quot;][&quot;take_profit&quot;][&quot;cancel_existing_stop_and_confirm_before_tp&quot;] is True
+<span class='ln'>126</span>     assert rules[&quot;agent_h&quot;][&quot;take_profit&quot;][&quot;cancel_unfilled_replacement_seconds_after_initial_tp&quot;] == 30
+<span class='ln'>127</span>     assert rules[&quot;agent_h&quot;][&quot;forced_liquidation&quot;][&quot;dte_1_to_3_begin&quot;] == &quot;15:40&quot;
+<span class='ln'>128</span>     assert rules[&quot;agent_h&quot;][&quot;patterns&quot;][&quot;daily_neckline_governs_10m_breakout&quot;] is True
+<span class='ln'>129</span>     assert rules[&quot;agent_h&quot;][&quot;patterns&quot;][&quot;overlapping_rank&quot;][0] == &quot;hs_then_double_triple_then_triangle&quot;
+<span class='ln'>130</span>     assert rules[&quot;agent_h&quot;][&quot;patterns&quot;][&quot;earliest_practical_entry_after_retest_et&quot;] == &quot;13:10&quot;
+<span class='ln'>131</span>     assert rules[&quot;agent_h&quot;][&quot;expiration_selection&quot;][&quot;same_day_group_dte&quot;] == [2, 3]
+<span class='ln'>132</span>     assert rules[&quot;options&quot;][&quot;strike&quot;][&quot;put_delta_min&quot;] == -0.5
+<span class='ln'>133</span>     assert rules[&quot;options&quot;][&quot;strike&quot;][&quot;call_otm&quot;] == &quot;exactly_one_listed_strike_above_atm&quot;
+<span class='ln'>134</span>     assert &quot;get_realized_pnl&quot; in rules[&quot;agent_h&quot;][&quot;required_tools&quot;]
+<span class='ln'>135</span>     assert &quot;get_earnings_calendar&quot; in rules[&quot;agent_h&quot;][&quot;required_tools&quot;]
+<span class='ln'>136</span>     assert rules[&quot;agent_h&quot;][&quot;patterns&quot;][&quot;breakout_volume_multiple_of_median&quot;] == 1.5
+<span class='ln'>137</span>     assert rules[&quot;agent_h&quot;][&quot;patterns&quot;][&quot;retest_tolerance_pct&quot;] == 0.002
+<span class='ln'>138</span>     assert rules[&quot;agent_h&quot;][&quot;patterns&quot;][&quot;live_trigger_beyond_breakout_pct&quot;] == 0.001
+<span class='ln'>139</span>     assert rules[&quot;agent_h&quot;][&quot;patterns&quot;][&quot;volume_statistic&quot;] == &quot;median&quot;
+<span class='ln'>140</span>     assert rules[&quot;agent_h&quot;][&quot;estimated_round_trip_fees&quot;] == &quot;3 * entry_fee_from_review&quot;
+<span class='ln'>141</span>     assert rules[&quot;agent_h&quot;][&quot;entry_fee_source_hierarchy&quot;][0] == &quot;valid_positive_total_fee_only&quot;
+<span class='ln'>142</span>     assert rules[&quot;agent_h&quot;][&quot;entry_fee_source_hierarchy&quot;][1] == &quot;zero_total_plus_positive_component_is_fee_conflict&quot;
+<span class='ln'>143</span>     assert rules[&quot;agent_h&quot;][&quot;entry_fee_source_hierarchy&quot;][2] == &quot;zero_total_and_zero_or_absent_components_is_explicit_zero&quot;
+<span class='ln'>144</span>     assert rules[&quot;agent_h&quot;][&quot;journal_fee_conflict&quot;] is True
+<span class='ln'>145</span>     assert rules[&quot;agent_h&quot;][&quot;journal_entry_fee_source&quot;] is True
+<span class='ln'>146</span>     assert rules[&quot;agent_h&quot;][&quot;fee_status_values&quot;] == [
+<span class='ln'>147</span>         &quot;quoted&quot;,
+<span class='ln'>148</span>         &quot;explicit_zero&quot;,
+<span class='ln'>149</span>         &quot;ambiguous&quot;,
+<span class='ln'>150</span>         &quot;unavailable&quot;,
+<span class='ln'>151</span>     ]
+<span class='ln'>152</span>     assert rules[&quot;agent_h&quot;][&quot;zero_total_plus_positive_component&quot;][&quot;fee_status&quot;] == &quot;ambiguous&quot;
+<span class='ln'>153</span>     assert rules[&quot;agent_h&quot;][&quot;zero_total_plus_positive_component&quot;][&quot;journal&quot;] == &quot;fee_conflict&quot;
+<span class='ln'>154</span>     assert rules[&quot;agent_h&quot;][&quot;zero_total_plus_positive_component&quot;][&quot;do_not_sum_or_select_estimate&quot;] is True
+<span class='ln'>155</span>     assert rules[&quot;agent_h&quot;][&quot;do_not_apply_049_ceiling_when_positive_fee_included&quot;] is False
+<span class='ln'>156</span>     assert rules[&quot;agent_h&quot;][&quot;universal_fee_gate&quot;] == [
+<span class='ln'>157</span>         &quot;planned_loss &lt;= 0.49% current NLV&quot;,
+<span class='ln'>158</span>         &quot;planned_loss + estimated_round_trip_fees &lt;= 0.50% current NLV&quot;,
+<span class='ln'>159</span>     ]
+<span class='ln'>160</span>     assert rules[&quot;agent_h&quot;][&quot;closed_trade_uses_actual_net_pnl_not_estimated_fees&quot;] is True
+<span class='ln'>161</span>     assert rules[&quot;agent_h&quot;][&quot;allow_0dte&quot;] is False
+<span class='ln'>162</span>     assert rules[&quot;universe&quot;][&quot;include_index_options&quot;] is False
+<span class='ln'>163</span>     assert rules[&quot;options&quot;][&quot;min_dte&quot;] == 2
+<span class='ln'>164</span> 
+<span class='ln'>165</span> 
+<span class='ln'>166</span> def test_permissions_is_kill_switch_not_a_rules_copy():
+<span class='ln'>167</span>     import json
+<span class='ln'>168</span>     from pathlib import Path
+<span class='ln'>169</span> 
+<span class='ln'>170</span>     perms = json.loads((Path(__file__).resolve().parents[2] / &quot;config&quot; / &quot;autonomous_permissions.json&quot;).read_text())
+<span class='ln'>171</span>     assert perms[&quot;status&quot;] == &quot;ACTIVE&quot;
+<span class='ln'>172</span>     assert perms[&quot;rules_path&quot;] == &quot;config/rules.json&quot;
+<span class='ln'>173</span>     assert &quot;universe&quot; not in perms
+<span class='ln'>174</span>     assert &quot;risk&quot; not in perms
+<span class='ln'>175</span>     assert &quot;patterns&quot; not in perms
+<span class='ln'>176</span> 
+<span class='ln'>177</span> 
+<span class='ln'>178</span> def test_agent_h_prompt_locks_schema_and_live_safety():
+<span class='ln'>179</span>     from pathlib import Path
+<span class='ln'>180</span> 
+<span class='ln'>181</span>     prompt = (Path(__file__).resolve().parents[2] / &quot;playbooks&quot; / &quot;agent_h_autonomous.PROMPT.md&quot;).read_text()
+<span class='ln'>182</span>     assert &quot;2026-09-05.3&quot; in prompt
+<span class='ln'>183</span>     assert &quot;The lease is not acquired unless its commit successfully pushes to&quot; in prompt
+<span class='ln'>184</span>     assert &quot;journal/h_lease.json` from `origin/main`, not merely the local checkout.&quot; in prompt
+<span class='ln'>185</span>     assert &quot;Never force-push or overwrite a conflicting lease.&quot; in prompt
+<span class='ln'>186</span>     assert &quot;A run that failed to acquire the lease must not clear or modify the lease.&quot; in prompt
+<span class='ln'>187</span>     assert &quot;Only the run whose `run_id` matches the remote lease may release it.&quot; in prompt
+<span class='ln'>188</span>     assert &quot;renew the lease before it has fewer than&quot; in prompt
+<span class='ln'>189</span>     assert &quot;## Cursor/Grok concurrency rule&quot; in prompt
+<span class='ln'>190</span>     assert &quot;**A. Clock.** Now in `America/New_York`. Clock only. **No RH calls.**&quot; in prompt
+<span class='ln'>191</span>     assert &quot;Git on `origin/main` is the required concurrency&quot; in prompt
+<span class='ln'>192</span>     assert &quot;acquire and remotely verify lease&quot; in prompt
+<span class='ln'>193</span>     assert &quot;time_in_force=gtc&quot; in prompt
+<span class='ln'>194</span>     assert &quot;09:30–09:44:59&quot; in prompt
+<span class='ln'>195</span>     assert &quot;approximately **13:10–15:45 ET**&quot; in prompt
+<span class='ln'>196</span>     assert &quot;Call delta: **+0.40 through +0.50 inclusive**&quot; in prompt
+<span class='ln'>197</span>     assert &quot;Put delta: **−0.50 through −0.40 inclusive**&quot; in prompt
+<span class='ln'>198</span>     assert &quot;planned_loss` ≤ **0.49% of current NLV**&quot; in prompt
+<span class='ln'>199</span>     assert &quot;bod_nlv_unavailable&quot; in prompt
+<span class='ln'>200</span>     assert &quot;maximum concurrent runs = 1&quot; not in prompt
+<span class='ln'>201</span> 
+<span class='ln'>202</span> 
+<span class='ln'>203</span> def test_inverse_etf_denylist_has_no_duplicate_twm():
+<span class='ln'>204</span>     from pathlib import Path
+<span class='ln'>205</span> 
+<span class='ln'>206</span>     src = Path(__file__).resolve().parents[1] / &quot;equity_day_trade.py&quot;
+<span class='ln'>207</span>     assert src.read_text(encoding=&quot;utf-8&quot;).count(&#x27;&quot;TWM&quot;&#x27;) == 1
+<span class='ln'>208</span>     assert &quot;TWM&quot; in INVERSE_ETF_SYMBOLS
 </pre></section><section class='file' id='pipeline-tests-test_fees-py'><h2>pipeline/tests/test_fees.py</h2><p class='meta'><strong>11 · Tests</strong> · CI / F · 92 lines · Dual NLV fee ceilings</p><pre class='source'><span class='ln'>  1</span> from pipeline.fees import classify_review_fees, fee_aware_planned_loss_ok
 <span class='ln'>  2</span> 
 <span class='ln'>  3</span> 
@@ -4128,7 +4151,7 @@
 <span class='ln'>145</span>     )
 <span class='ln'>146</span>     assert load_latest_option_candidates()[0][&quot;symbol&quot;] == &quot;NU&quot;
 </pre></section>
-    <p class="footer">Agentic Python source book · 2026-09-05 23:42 UTC · 4020 lines in 23 files ·
+    <p class="footer">Agentic Python source book · 2026-09-06 00:02 UTC · 4043 lines in 23 files ·
     print from this HTML or open <code>docs/agentic_python_source_book.py</code>.</p>
   </div>
 </body>

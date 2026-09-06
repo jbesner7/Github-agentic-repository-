@@ -7,7 +7,7 @@ Agent H (autonomous Agentic bot) share this Python pipeline.
 Live place_* is Robinhood MCP, not a side effect of this code.
 H's standing prompt is playbooks/agent_h_autonomous.PROMPT.md (not Python).
 
-Generated: 2026-09-05T23:42:32+00:00
+Generated: 2026-09-06T00:02:28+00:00
 Print companion: docs/agentic-python-source-printable.html
 """
 
@@ -3374,7 +3374,7 @@ def test_rules_json_matches_working_states_and_10minute():
     assert rules["agent_h"]["no_1m_3m_autonomous_noise"] is True
     assert rules["agent_h"]["no_5m_stateless_inconsistency"] is True
     assert rules["agent_h"]["include_index_options"] is False
-    assert rules["agent_h"]["schema_version"] == "2026-09-05.2"
+    assert rules["agent_h"]["schema_version"] == "2026-09-05.3"
     assert rules["agent_h"]["overnight"]["evaluate"] == "current_dte_each_run"
     assert rules["agent_h"]["overnight"]["current_dte_lte_3_flatten_by"] == "15:45"
     assert rules["agent_h"]["overnight"]["current_dte_gte_4_overnight_with_stop"] is False
@@ -3384,7 +3384,21 @@ def test_rules_json_matches_working_states_and_10minute():
     assert rules["agent_h"]["overnight"]["dte_1_to_3_liquidation_begin"] == "15:40"
     assert rules["agent_h"]["lease_valid_only_after_successful_push_to_origin_main"] is True
     assert rules["agent_h"]["recheck_remote_lease_before_every_place_option_order"] is True
-    assert rules["agent_h"]["scheduler_must_enforce_max_concurrent_runs"] == 1
+    assert rules["agent_h"]["scheduler_must_enforce_max_concurrent_runs"] is False
+    assert rules["agent_h"]["git_lease_is_the_concurrency_gate"] is True
+    assert rules["agent_h"]["lease_acquire_before_account_or_scan"] is True
+    assert rules["agent_h"]["lease_ttl_minutes"] == 12
+    assert rules["agent_h"]["lease_renew_if_fewer_than_minutes_remaining"] == 3
+    assert rules["agent_h"]["never_force_push_or_overwrite_conflicting_lease"] is True
+    assert rules["agent_h"]["failed_lease_acquire_must_not_modify_or_clear_lease"] is True
+    assert rules["agent_h"]["only_matching_run_id_may_renew_or_release_lease"] is True
+    assert rules["agent_h"]["remote_lease_must_contain_exact_fields"] == [
+        "automation_id",
+        "run_id",
+        "started_et",
+        "expires_et",
+    ]
+    assert rules["agent_h"]["no_review_or_place_until_remote_lease_verified"] is True
     assert rules["agent_h"]["apply_both_fee_ceilings_on_every_trade"] is True
     assert rules["agent_h"]["bod_nlv_unavailable_means_no_new_entry"] is True
     assert rules["priority_does_not_authorize_agent_h_equity"] is True
@@ -3461,8 +3475,17 @@ def test_agent_h_prompt_locks_schema_and_live_safety():
     from pathlib import Path
 
     prompt = (Path(__file__).resolve().parents[2] / "playbooks" / "agent_h_autonomous.PROMPT.md").read_text()
-    assert "2026-09-05.2" in prompt
-    assert "A lease is valid only after that commit successfully pushes to `origin/main`" in prompt
+    assert "2026-09-05.3" in prompt
+    assert "The lease is not acquired unless its commit successfully pushes to" in prompt
+    assert "journal/h_lease.json` from `origin/main`, not merely the local checkout." in prompt
+    assert "Never force-push or overwrite a conflicting lease." in prompt
+    assert "A run that failed to acquire the lease must not clear or modify the lease." in prompt
+    assert "Only the run whose `run_id` matches the remote lease may release it." in prompt
+    assert "renew the lease before it has fewer than" in prompt
+    assert "## Cursor/Grok concurrency rule" in prompt
+    assert "**A. Clock.** Now in `America/New_York`. Clock only. **No RH calls.**" in prompt
+    assert "Git on `origin/main` is the required concurrency" in prompt
+    assert "acquire and remotely verify lease" in prompt
     assert "time_in_force=gtc" in prompt
     assert "09:30–09:44:59" in prompt
     assert "approximately **13:10–15:45 ET**" in prompt
@@ -3470,7 +3493,7 @@ def test_agent_h_prompt_locks_schema_and_live_safety():
     assert "Put delta: **−0.50 through −0.40 inclusive**" in prompt
     assert "planned_loss` ≤ **0.49% of current NLV**" in prompt
     assert "bod_nlv_unavailable" in prompt
-    assert "maximum concurrent runs = 1" in prompt
+    assert "maximum concurrent runs = 1" not in prompt
 
 
 def test_inverse_etf_denylist_has_no_duplicate_twm():
