@@ -11,7 +11,7 @@ Operator notes for agents: [`AGENTS.md`](AGENTS.md).
 | Who | When it may `place_*` |
 |---|---|
 | **Agent F** (this Cursor chat) | Only after an explicit confirm of a **specific** order. Blocked during RTH while H is enabled. Never from stale `signals/*`. |
-| **Agent H** (Cursor Automation [Agentic AI Bot](https://cursor.com/automations/9af478e7-a454-11f1-a7d1-d6b4613131ce)) | Standing prompt is the permission. Disable the Automation (or delete the permissions file) to stop. |
+| **Agent H** (Cursor Automation [Agentic AI Bot](https://cursor.com/automations/9af478e7-a454-11f1-a7d1-d6b4613131ce)) | Standing prompt is the permission. Disable the Automation to stop new entries. Deleting the permissions file also blocks new entries; leftover exposure may still be flattened unless the owner says stop all order activity, including exits. |
 
 Do not run two place-capable Automations. Git updates do **not** change the pasted Automation prompt — re-paste [`playbooks/agent_h_autonomous.PROMPT.md`](playbooks/agent_h_autonomous.PROMPT.md) after prompt edits.
 
@@ -41,4 +41,4 @@ python3 -m pytest pipeline/tests -q
 
 ## Kill switch
 
-Disable Agentic AI Bot, or delete `config/autonomous_permissions.json`.
+Disable Agentic AI Bot to stop new unsupervised entries. Deleting `config/autonomous_permissions.json` (or setting `status` not `ACTIVE`) blocks new entries only; existing exposure may still be cancelled, protected, reduced, or closed unless the owner says **stop all order activity, including exits**.

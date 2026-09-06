@@ -123,8 +123,8 @@
     "proposal_ttl": "until_next_loop"
   },
   "agent_h": {
-    "schema_version": "2026-09-06.3",
-    "prompt_expected_schema_version": "2026-09-06.3",
+    "schema_version": "2026-09-06.4",
+    "prompt_expected_schema_version": "2026-09-06.4",
     "numeric_thresholds_are_schema_invariants": true,
     "rules_prompt_mismatch_means_place_nothing": true,
     "invariants_module": "pipeline/h_invariants.py",
@@ -160,6 +160,8 @@
     "lease_acquire_before_account_or_scan": true,
     "account_selection_before_exposure_reconciliation": true,
     "core_recovery_capability_before_full_required_tools": true,
+    "read_rules_permissions_playbook_before_any_place": true,
+    "schema_or_rules_prompt_mismatch_blocks_all_orders_including_exits": true,
     "core_recovery_tools": [
       "get_accounts",
       "get_option_positions",

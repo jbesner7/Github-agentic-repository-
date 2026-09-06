@@ -101,14 +101,20 @@ CORE_RECOVERY_TOOLS = (
 RUN_ORDER_AFTER_LEASE = (
     "account_selection",
     "core_recovery_capability",
+    "read_rules_permissions_playbook",
     "exposure_and_working_orders",
     "if_exposure_protect_or_flatten_only",
     "if_flat_permissions_bod_session_full_capability_scan",
 )
 
 
-def renew_lease_immediately_before_entry_placement() -> bool:
+def reverify_remote_lease_immediately_before_every_place() -> bool:
     return True
+
+
+def renew_lease_immediately_before_entry_placement(*, minutes_remaining: float) -> bool:
+    """Run this check immediately before entry. Renew only if the 6/3-minute rule says so."""
+    return must_renew_lease(minutes_remaining=minutes_remaining, before_entry=True)
 
 
 def must_renew_lease(*, minutes_remaining: float, before_entry: bool) -> bool:
@@ -183,7 +189,7 @@ def permissions_allow(
 
 
 def post_lease_priority(*, has_option_position: bool, has_working_order: bool) -> str:
-    """After account + recovery tools: exposure beats scan, BOD, and new-entry checks."""
+    """After files: exposure beats scan, BOD, and new-entry checks. Files still precede any place."""
     if has_option_position or has_working_order:
         return "exposure_only_no_scan"
     return "may_scan_if_other_gates_pass"

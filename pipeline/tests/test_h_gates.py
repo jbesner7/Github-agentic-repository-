@@ -7,11 +7,14 @@ from pipeline.h_gates import (
     may_place_option_order,
     may_try_one_otm,
     must_renew_lease,
+    never_place_from_momentary_absent_other_lease,
     permissions_allow,
     post_lease_priority,
     recovery_action,
     replacement_policy,
     required_stop_time_in_force,
+    renew_lease_immediately_before_entry_placement,
+    reverify_remote_lease_immediately_before_every_place,
 )
 from pipeline.patterns import retest_confirms, retest_invalidated
 
@@ -33,6 +36,8 @@ def test_every_place_requires_valid_remote_lease():
         assert reason == "lease_must_reacquire_before_place"
     ok, reason = may_place_option_order(OTHER_HOLDER, kind="protect")
     assert ok is False and reason == "lease_held_after_fill"
+    ok, reason = may_place_option_order(OTHER_HOLDER, kind="entry")
+    assert ok is False and reason == "lease_held"
     ok, reason = may_place_option_order(UNREADABLE, kind="flatten")
     assert ok is False and reason == "lease_unreadable"
 
@@ -42,6 +47,7 @@ def test_recovery_never_places_from_momentary_absent_other_lease():
     assert recovery_action(EXPIRED_OWN_STALE) == "reacquire_then_recover"
     assert recovery_action(OTHER_HOLDER) == "place_nothing_new_owner_manages"
     assert recovery_action(OWNED) == "recover_now"
+    assert never_place_from_momentary_absent_other_lease() is True
 
 
 def test_atm_fallback_is_any_contract_rule_but_not_order_checks():
@@ -86,6 +92,10 @@ def test_inactive_permissions_allow_exits_not_new_entries():
         assert ok is True and reason == "inactive_permissions_exits_only"
     ok, reason = permissions_allow(status="ACTIVE", owner_stop_all_including_exits=True, intent="close")
     assert ok is False and reason == "owner_revoked_all_order_activity"
+    ok, reason = permissions_allow(status="INACTIVE", owner_stop_all_including_exits=False, intent="increase")
+    assert ok is False and reason == "inactive_permissions_block_new_entry"
+    ok, reason = permissions_allow(status="INACTIVE", owner_stop_all_including_exits=False, intent="unknown")
+    assert ok is False and reason == "inactive_permissions_block_increase"
 
 
 def test_new_owner_exposure_blocks_scan():
@@ -94,7 +104,8 @@ def test_new_owner_exposure_blocks_scan():
     assert post_lease_priority(has_option_position=False, has_working_order=False) == "may_scan_if_other_gates_pass"
     assert RUN_ORDER_AFTER_LEASE[0] == "account_selection"
     assert RUN_ORDER_AFTER_LEASE[1] == "core_recovery_capability"
-    assert RUN_ORDER_AFTER_LEASE[2] == "exposure_and_working_orders"
+    assert RUN_ORDER_AFTER_LEASE[2] == "read_rules_permissions_playbook"
+    assert RUN_ORDER_AFTER_LEASE[3] == "exposure_and_working_orders"
 
 
 def test_renew_lease_before_entry_unless_six_minutes_remain():
@@ -102,6 +113,9 @@ def test_renew_lease_before_entry_unless_six_minutes_remain():
     assert must_renew_lease(minutes_remaining=5.9, before_entry=True) is True
     assert must_renew_lease(minutes_remaining=5.0, before_entry=False) is False
     assert must_renew_lease(minutes_remaining=2.9, before_entry=False) is True
+    assert reverify_remote_lease_immediately_before_every_place() is True
+    assert renew_lease_immediately_before_entry_placement(minutes_remaining=6.0) is False
+    assert renew_lease_immediately_before_entry_placement(minutes_remaining=5.9) is True
 
 
 def test_core_recovery_tools_are_checked_before_full_required_list():

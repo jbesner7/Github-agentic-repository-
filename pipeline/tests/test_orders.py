@@ -78,8 +78,10 @@ def test_rules_json_matches_working_states_and_10minute():
     assert rules["agent_h"]["no_1m_3m_autonomous_noise"] is True
     assert rules["agent_h"]["no_5m_stateless_inconsistency"] is True
     assert rules["agent_h"]["include_index_options"] is False
-    assert rules["agent_h"]["schema_version"] == "2026-09-06.3"
-    assert rules["agent_h"]["prompt_expected_schema_version"] == "2026-09-06.3"
+    assert rules["agent_h"]["schema_version"] == "2026-09-06.4"
+    assert rules["agent_h"]["prompt_expected_schema_version"] == "2026-09-06.4"
+    assert rules["agent_h"]["read_rules_permissions_playbook_before_any_place"] is True
+    assert rules["agent_h"]["schema_or_rules_prompt_mismatch_blocks_all_orders_including_exits"] is True
     assert rules["agent_h"]["numeric_thresholds_are_schema_invariants"] is True
     assert rules["agent_h"]["rules_prompt_mismatch_means_place_nothing"] is True
     assert rules["agent_h"]["lease_renew_before_entry_unless_minutes_remaining"] == 6
@@ -241,7 +243,8 @@ def test_agent_h_prompt_locks_schema_and_live_safety():
     from pathlib import Path
 
     prompt = (Path(__file__).resolve().parents[2] / "playbooks" / "agent_h_autonomous.PROMPT.md").read_text()
-    assert "2026-09-06.3" in prompt
+    assert "2026-09-06.4" in prompt
+    assert "2026-09-06.3" not in prompt
     assert "2026-09-06.2" not in prompt
     assert "2026-09-06.1" not in prompt
     assert "2026-09-05.6" not in prompt
@@ -264,7 +267,9 @@ def test_agent_h_prompt_locks_schema_and_live_safety():
     assert "without modifying `journal/h_lease.json`" in prompt
     assert "journal `lease_held_after_fill`" in prompt
     assert "must own a currently valid remotely verified lease" in prompt
-    assert "A4.5 Account, recovery tools, then exposure" in prompt
+    assert "A4.5 Account, recovery tools, files, then exposure" in prompt
+    assert "It does **not** outrank the file gates above." in prompt
+    assert "including leftover protection" in prompt
     assert "rules_prompt_mismatch" in prompt
     assert "unless at least **6 minutes** remain" in prompt
     assert "rounded **up** to the next valid broker tick" in prompt
