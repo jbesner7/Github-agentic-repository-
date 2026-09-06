@@ -78,8 +78,14 @@ def test_rules_json_matches_working_states_and_10minute():
     assert rules["agent_h"]["no_1m_3m_autonomous_noise"] is True
     assert rules["agent_h"]["no_5m_stateless_inconsistency"] is True
     assert rules["agent_h"]["include_index_options"] is False
-    assert rules["agent_h"]["schema_version"] == "2026-09-06.2"
-    assert rules["agent_h"]["prompt_expected_schema_version"] == "2026-09-06.2"
+    assert rules["agent_h"]["schema_version"] == "2026-09-06.3"
+    assert rules["agent_h"]["prompt_expected_schema_version"] == "2026-09-06.3"
+    assert rules["agent_h"]["numeric_thresholds_are_schema_invariants"] is True
+    assert rules["agent_h"]["rules_prompt_mismatch_means_place_nothing"] is True
+    assert rules["agent_h"]["lease_renew_before_entry_unless_minutes_remaining"] == 6
+    assert rules["agent_h"]["account_selection_before_exposure_reconciliation"] is True
+    assert rules["agent_h"]["core_recovery_capability_before_full_required_tools"] is True
+    assert rules["agent_h"]["take_profit"]["round_threshold_up_to_next_valid_tick"] is True
     assert rules["agent_h"]["overnight"]["evaluate"] == "current_dte_each_run"
     assert rules["agent_h"]["overnight"]["current_dte_lte_3_flatten_by"] == "15:45"
     assert rules["agent_h"]["overnight"]["current_dte_gte_4_overnight_with_stop"] is False
@@ -235,7 +241,8 @@ def test_agent_h_prompt_locks_schema_and_live_safety():
     from pathlib import Path
 
     prompt = (Path(__file__).resolve().parents[2] / "playbooks" / "agent_h_autonomous.PROMPT.md").read_text()
-    assert "2026-09-06.2" in prompt
+    assert "2026-09-06.3" in prompt
+    assert "2026-09-06.2" not in prompt
     assert "2026-09-06.1" not in prompt
     assert "2026-09-05.6" not in prompt
     assert "2026-09-05.5" not in prompt
@@ -257,7 +264,11 @@ def test_agent_h_prompt_locks_schema_and_live_safety():
     assert "without modifying `journal/h_lease.json`" in prompt
     assert "journal `lease_held_after_fill`" in prompt
     assert "must own a currently valid remotely verified lease" in prompt
-    assert "A4.5 Exposure first" in prompt
+    assert "A4.5 Account, recovery tools, then exposure" in prompt
+    assert "rules_prompt_mismatch" in prompt
+    assert "unless at least **6 minutes** remain" in prompt
+    assert "rounded **up** to the next valid broker tick" in prompt
+    assert "core recovery tools" in prompt
     assert "Existing exposure may only be cancelled, protected, reduced, or closed" in prompt
     assert "stop all order activity, including exits" in prompt
     assert "Bullish call trigger: use the live underlying **ask**" in prompt

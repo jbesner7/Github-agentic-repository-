@@ -123,8 +123,11 @@
     "proposal_ttl": "until_next_loop"
   },
   "agent_h": {
-    "schema_version": "2026-09-06.2",
-    "prompt_expected_schema_version": "2026-09-06.2",
+    "schema_version": "2026-09-06.3",
+    "prompt_expected_schema_version": "2026-09-06.3",
+    "numeric_thresholds_are_schema_invariants": true,
+    "rules_prompt_mismatch_means_place_nothing": true,
+    "invariants_module": "pipeline/h_invariants.py",
     "trading_parameters_source": "rules.json.agent_h_only",
     "prompt_defines": "workflow_and_prohibitions",
     "grok_decides": ["pattern", "direction", "candidate"],
@@ -153,7 +156,19 @@
     "lease_path": "journal/h_lease.json",
     "lease_ttl_minutes": 12,
     "lease_renew_if_fewer_than_minutes_remaining": 3,
+    "lease_renew_before_entry_unless_minutes_remaining": 6,
     "lease_acquire_before_account_or_scan": true,
+    "account_selection_before_exposure_reconciliation": true,
+    "core_recovery_capability_before_full_required_tools": true,
+    "core_recovery_tools": [
+      "get_accounts",
+      "get_option_positions",
+      "get_option_orders",
+      "get_option_quotes",
+      "review_option_order",
+      "place_option_order",
+      "cancel_option_order"
+    ],
     "exposure_reconciliation_before_scan_session_bod_or_new_entry_capability": true,
     "lease_valid_only_after_successful_push_to_origin_main": true,
     "failed_lease_push_means_place_nothing_and_exit": false,
@@ -568,6 +583,7 @@
     },
     "take_profit": {
       "threshold_multiple_of_average_fill": 1.4,
+      "round_threshold_up_to_next_valid_tick": true,
       "trigger": "live_bid_gte_threshold",
       "not_mark_or_last": true,
       "re_quote_before_review": true,
