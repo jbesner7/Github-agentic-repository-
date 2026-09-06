@@ -1,12 +1,12 @@
 # Options Day Trading Playbook
 
-**Status: RELEASED** (owner approved 2026-08-30), with **2026-09-06.10 Agent H live-safety locks** (`schema_version` 2026-09-06.10).
+**Status: RELEASED** (owner approved 2026-08-30). Live numbers: `config/rules.json` → `agent_h`.
 
-Live `place_*` from **this Cursor chat (Agent F)** still requires an explicit confirm of a **specific** order.
+Live `place_*` from **this Cursor chat (Agent F)** still requires an explicit confirm of a **specific** order. If H is enabled during RTH: **place nothing**.
 
-Autonomous placing is a **separate** Cursor Automation (Agent H). Owner activated **Agentic AI Bot** on 2026-08-30: https://cursor.com/automations/9af478e7-a454-11f1-a7d1-d6b4613131ce. Disable that Automation to turn H OFF. That prompt is the standing place-permission; this chat is not. Cursor may start overlapping H runs; the Git lease on `origin/main` is the concurrency gate. Do not assume a scheduler concurrency setting exists.
+Autonomous placing is Agent H. That prompt is the standing place-permission; this chat is not.
 
-Agent H mandate: **long call or long put only** on liquid optionable equities and non-inverse ETFs. No equity fallback. No index options at launch.
+Mandate: **long call or long put only** on liquid optionable equities and non-inverse ETFs. No equity fallback. No index options.
 
 ## Locked rules
 
