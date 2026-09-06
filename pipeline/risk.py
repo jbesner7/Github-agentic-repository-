@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import Any
 
+from pipeline.ticks import EQUITY_TICK, protective_stop_price
+
 OPTIONS_SL_PCT_MIN = 0.20
 OPTIONS_SL_PCT_MAX = 0.50
 OPTIONS_TP_PCT_MIN = 0.30
@@ -82,6 +84,9 @@ def equity_risk_plan(
         plan["shares"] = int(shares)
     if limit_price is not None:
         plan["limit_price"] = limit_price
-        plan["stop_price"] = limit_price * (1.0 - stop_loss_pct)
+        rounded_stop = protective_stop_price(
+            limit_price, EQUITY_TICK, stop_frac=(1.0 - stop_loss_pct), asset="equity"
+        )
+        plan["stop_price"] = float(rounded_stop) if rounded_stop is not None else limit_price * (1.0 - stop_loss_pct)
         plan["take_profit_price"] = limit_price * (1.0 + take_profit_pct)
     return plan

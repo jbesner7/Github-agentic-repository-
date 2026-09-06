@@ -243,13 +243,34 @@ def test_atm_tie_and_otm_are_measured_from_atm():
     assert call_above_spot[1]["instrument"]["id"] == "higher"
 
 
-def test_expiration_rank_uses_same_day_group_when_overnight_off():
-    dates = ["2026-09-07", "2026-09-08", "2026-09-09", "2026-09-11"]
+def test_expiration_rank_uses_same_day_order_when_overnight_off():
+    dates = [
+        "2026-09-07",
+        "2026-09-08",
+        "2026-09-09",
+        "2026-09-10",
+        "2026-09-11",
+        "2026-09-12",
+    ]
     as_of = date(2026, 9, 5)
+    # 2, 3, 4, 5, 6, 7 DTE ranked 4, 5, 6, 7, 3, 2.
     same_day = rank_expirations(dates, overnight_holding_enabled=False, as_of=as_of)
-    assert same_day == ["2026-09-07", "2026-09-08"]
+    assert same_day == [
+        "2026-09-09",
+        "2026-09-10",
+        "2026-09-11",
+        "2026-09-12",
+        "2026-09-08",
+        "2026-09-07",
+    ]
     overnight = rank_expirations(dates, overnight_holding_enabled=True, as_of=as_of)
-    assert overnight == ["2026-09-09", "2026-09-11"]
+    assert overnight == ["2026-09-09", "2026-09-10", "2026-09-11", "2026-09-12"]
+    missing_mid = rank_expirations(
+        ["2026-09-07", "2026-09-08", "2026-09-11"],
+        overnight_holding_enabled=False,
+        as_of=as_of,
+    )
+    assert missing_mid == ["2026-09-11", "2026-09-08", "2026-09-07"]
 
 
 def test_underlying_quote_and_bod_nlv_helpers():
@@ -260,15 +281,20 @@ def test_underlying_quote_and_bod_nlv_helpers():
         "last_trade_price": "10.04",
         "updated_at": "2026-09-04T17:29:58Z",
     }
-    price, reason = executable_underlying_price(fresh, now=now)
-    assert reason is None
-    assert price == 10.04
+    call_px, call_reason = executable_underlying_price(fresh, direction="call", now=now)
+    assert call_reason is None
+    assert call_px == 10.10
+    put_px, put_reason = executable_underlying_price(fresh, direction="put", now=now)
+    assert put_reason is None
+    assert put_px == 10.00
     outside = dict(fresh, last_trade_price="10.50")
-    mid, mid_reason = executable_underlying_price(outside, now=now)
-    assert mid_reason is None
-    assert mid == 10.05
+    still_ask, still_ask_reason = executable_underlying_price(outside, direction="bullish", now=now)
+    assert still_ask_reason is None
+    assert still_ask == 10.10
+    missing_dir, missing_reason = executable_underlying_price(fresh, direction="", now=now)
+    assert missing_dir is None and missing_reason == "underlying_direction_missing"
     stale, stale_reason = executable_underlying_price(
-        dict(fresh, updated_at="2026-09-04T17:29:50Z"), now=now
+        dict(fresh, updated_at="2026-09-04T17:29:50Z"), direction="call", now=now
     )
     assert stale is None and stale_reason == "underlying_quote_stale"
     amount, field = extract_bod_nlv({"start_of_day_equity": "1500.00", "total_value": "1512"})
