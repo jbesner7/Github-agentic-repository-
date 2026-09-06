@@ -333,6 +333,64 @@ def detect_patterns(ohlc: list[dict[str, Any]], *, timeframe: str) -> list[dict[
     return hits
 
 
+def retest_zone(level: float, tolerance_pct: float = 0.002) -> tuple[float, float]:
+    """Inclusive ±tolerance band around the broken daily level."""
+    width = abs(float(level)) * float(tolerance_pct)
+    return float(level) - width, float(level) + width
+
+
+def retest_invalidated(
+    bar: dict[str, Any],
+    level: float,
+    *,
+    bias: str,
+) -> bool:
+    """A completed close through the level against the trade kills the setup."""
+    close = float(bar["close"])
+    side = (bias or "").strip().lower()
+    if side in ("bullish", "call", "long_call"):
+        return close < float(level)
+    if side in ("bearish", "put", "long_put"):
+        return close > float(level)
+    return True
+
+
+def retest_confirms(
+    bar: dict[str, Any],
+    level: float,
+    *,
+    bias: str,
+    tolerance_pct: float = 0.002,
+) -> tuple[bool, str | None]:
+    """Completed 10-minute retest after a daily-level breakout.
+
+    Bullish: the retest bar's low must enter the ±tolerance zone around the
+    broken daily level, and its completed close must finish above that level.
+    Bearish: the retest bar's high must enter the zone, and its completed
+    close must finish below that level.
+    """
+    if retest_invalidated(bar, level, bias=bias):
+        return False, "retest_invalidated_close_through_level"
+    lo = float(bar.get("low", bar["close"]))
+    hi = float(bar.get("high", bar["close"]))
+    close = float(bar["close"])
+    zone_lo, zone_hi = retest_zone(level, tolerance_pct)
+    side = (bias or "").strip().lower()
+    if side in ("bullish", "call", "long_call"):
+        if not (zone_lo <= lo <= zone_hi):
+            return False, "retest_low_missed_zone"
+        if close <= float(level):
+            return False, "retest_close_not_above_level"
+        return True, None
+    if side in ("bearish", "put", "long_put"):
+        if not (zone_lo <= hi <= zone_hi):
+            return False, "retest_high_missed_zone"
+        if close >= float(level):
+            return False, "retest_close_not_below_level"
+        return True, None
+    return False, "retest_bias_missing"
+
+
 def collect_pattern_hits(
     historicals_for_symbol: dict[str, Any],
     timeframes: list[str],
