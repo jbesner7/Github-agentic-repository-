@@ -76,7 +76,7 @@ def inject_git_outage_then_protect(
 ) -> dict[str, Any]:
     """Git fetch/push timed out. Emergency protection still places."""
     mode = reconstruct_run_mode(has_option_position=broker.positions > 0, has_working_order=False)
-    handoff = handoff_after_lease_loss(lease, git_status="outage", this_run_filled=True, kind="protect")
+    handoff = handoff_after_lease_loss(lease, git_status="outage", kind="protect")
     placed = broker.place(kind="protect", quantity=quantity, lease=lease, git_status="outage")
     return {"mode": mode, "handoff": handoff, "placed": placed}
 

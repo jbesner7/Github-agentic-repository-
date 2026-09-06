@@ -16,23 +16,6 @@ from dataclasses import dataclass
 from typing import Any
 
 
-CONTRACT_ELIGIBILITY_FAILURES = frozenset(
-    {
-        "quote_age",
-        "bid_ask",
-        "sizes",
-        "spread",
-        "delta",
-        "iv",
-        "volume",
-        "open_interest",
-        "tick_validity",
-        "debit_cap",
-        "fee_cap",
-        "buying_power",
-    }
-)
-
 REVIEW_ORDER_CHECK_FAILURES = frozenset(
     {
         "review_order_checks",
@@ -111,10 +94,6 @@ def recovery_action(lease: RemoteLease, *, git_status: str = "ok", kind: str = "
     return "recover_now"
 
 
-def never_place_from_momentary_absent_other_lease() -> bool:
-    return True
-
-
 ENTRY_LEASE_RENEW_MINUTES = 6
 MIDRUN_LEASE_RENEW_MINUTES = 3
 
@@ -138,21 +117,9 @@ RUN_ORDER_AFTER_LEASE = (
 )
 
 
-def reverify_remote_lease_immediately_before_every_place() -> bool:
-    """Default: new entries and Git-up recovery still re-verify. Emergency is the exception."""
-    return True
-
-
 def must_reverify_remote_lease_before_place(*, kind: str, git_status: str = "ok") -> bool:
     """Emergency protection does not wait on Git fetch/push/lease verify."""
-    if is_emergency_kind(kind) and is_git_unavailable(git_status):
-        return False
-    return True
-
-
-def renew_lease_immediately_before_entry_placement(*, minutes_remaining: float) -> bool:
-    """Run this check immediately before entry. Renew only if the 6/3-minute rule says so."""
-    return must_renew_lease(minutes_remaining=minutes_remaining, before_entry=True)
+    return not (is_emergency_kind(kind) and is_git_unavailable(git_status))
 
 
 def must_renew_lease(*, minutes_remaining: float, before_entry: bool) -> bool:
@@ -171,15 +138,8 @@ def core_recovery_tools_present(available: set[str] | list[str] | tuple[str, ...
 
 
 def may_try_one_otm(atm_failure: str) -> bool:
-    """ATM may fall back to exactly one OTM on any contract-level eligibility miss.
-
-    A review `order_checks` block is a broker refusal. Do not try another contract
-    to circumvent it.
-    """
-    reason = (atm_failure or "").strip().lower()
-    if reason in REVIEW_ORDER_CHECK_FAILURES:
-        return False
-    return True
+    """ATM may fall back to one OTM except after a broker `order_checks` block."""
+    return (atm_failure or "").strip().lower() not in REVIEW_ORDER_CHECK_FAILURES
 
 
 def replacement_policy(intent: str) -> dict[str, Any]:

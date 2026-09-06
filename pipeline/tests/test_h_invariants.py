@@ -2,7 +2,6 @@ from pathlib import Path
 
 from pipeline.h_invariants import (
     INVARIANT_REGISTRY,
-    NUMERIC_INVARIANTS,
     compare_prompt_to_rules,
     compare_rules_to_expected,
     registry_line,
@@ -33,7 +32,3 @@ def test_invariant_needles_are_specific_enough_to_catch_drift():
         line = registry_line(spec)
         assert line.startswith("INV[")
         assert line not in banned
-    for _path, _expected, needles in NUMERIC_INVARIANTS:
-        for needle in needles:
-            assert needle not in banned, needle
-            assert needle.startswith("INV[")

@@ -72,27 +72,7 @@ Cursor may start overlapping Automation runs. Grok must not assume the
 scheduler serializes them. Git on `origin/main` is the required concurrency
 gate for **new entries**. Emergency protection does not wait on Git.
 
-No new-entry `review_option_order` or `place_option_order` is permitted
-until this run has successfully pushed its lease and then fetched
-`origin/main` and verified that the remote lease contains this run's exact
-`run_id`.
-
-A rejected or conflicting **acquire** push means the lease was not acquired:
-place nothing new and exit, unless Git itself is unavailable and leftover
-exposure requires emergency protection.
-
-Before every new-entry `place_option_order`, this run must own a currently valid remotely verified lease. Re-fetch and verify immediately before the
-ticket. Before every new-entry placement, renew the lease unless at least
-**6 minutes** remain, so the fill-and-protect sequence cannot reasonably
-expire. Always renew if fewer than **3 minutes** remain.
-Only the matching lease owner may renew or release it. Never force-push.
-
-If Git is reachable and this run already filled and its lease later expired:
-**place nothing** until this run **reacquires** the lease through the normal
-commit, push, fetch, and verification process — and only if no other run
-owns it. If another `run_id` now holds the remote lease: journal
-`lease_held_after_fill`, **place nothing**, exit. The new owner must inspect
-exposure before scanning and must manage the existing position. Never place based only on observing that no other unexpired lease existed at one moment.
+Before every new-entry `place_option_order`, this run must own a currently valid remotely verified lease. Follow **A4** for acquire, renew, and release. Never place based only on observing that no other unexpired lease existed at one moment.
 
 If Git fetch, push, or checkout fails (`unavailable` / `timeout` / `outage`)
 and core recovery tools still work: journal `git_unavailable_emergency_only`.
@@ -122,10 +102,7 @@ ET clock
 
 ## Continuity
 
-Each fire is stateless. Chat is not the position store. Continuous
-management is reconstructed every run from broker positions and working
-orders (`pipeline/h_continuity.py`). The next fire does not inherit
-management mode from prior chat.
+Each fire is stateless. Reconstruct manage-vs-scan from broker positions and working orders (`pipeline/h_continuity.py`). Chat is not the position store.
 
 ## Fail-closed (do this first, in order)
 
@@ -165,8 +142,7 @@ management mode from prior chat.
 - The remote lease must contain this run’s exact `automation_id`, `run_id`,
   `started_et`, and `expires_et`.
 - Re-fetch and verify the remote lease immediately before every **new-entry**
-  `place_option_order`. Before entry placement, renew unless at least
-  **6 minutes** remain. Always renew if fewer than **3 minutes** remain.
+  `place_option_order`. Before entry placement, renew unless at least **6 minutes** remain. Always renew if fewer than **3 minutes** remain.
   Emergency protection does not wait on this verify when Git is unavailable.
 - If Git is reachable and the remote lease is missing, expired, or
   unreadable: **place nothing** until this run reacquires it through the
@@ -181,37 +157,8 @@ management mode from prior chat.
 - Never force-push or overwrite a conflicting lease.
 - A run that failed to acquire the lease must not clear or modify the lease.
 - Only the run whose `run_id` matches the remote lease may renew or release it.
-
-With normal non-force Git pushes, simultaneous runs should behave like this:
-
-Both attempt to acquire the lease.
-One push succeeds.
-The competing push is rejected.
-The rejected run exits without trading.
-The successful run verifies its lease again before placement.
-
-TTL is **12 minutes**. Renew before every new-entry placement unless at least
-**6 minutes** remain. If the run could exceed 12 minutes, renew the lease before it has fewer than
-3 minutes remaining. Renewal requires fetch, `--ff-only` pull or rebase onto
-`origin/main`, re-read that this run still owns the remote lease, commit,
-successful push, remote fetch, and exact run_id verification. If the renew
-push is rejected: fetch, rebase onto `origin/main`, retry **once** only if
-this `run_id` still matches. If renewal fails after that retry: make **no
-new entry**. If Git is reachable and this run already filled and the lease
-expired, **reacquire** the lease before any protection or flatten ticket.
-If another `run_id` now holds the lease: journal `lease_held_after_fill`,
-place nothing. If Git is unavailable: emergency-protect from broker state.
-Never place from a one-moment observation that no other unexpired lease existed.
-
-Release (end of a run that **did** acquire the lease): fetch, `--ff-only` pull
-or rebase onto `origin/main`, confirm this `run_id` still matches, then set
-`expires_et` to now or delete the file, commit, normal push. If that cleanup
-push is rejected: retry once the same way. If cleanup still fails after a
-fill, still do not place extra **new-entry** orders. If Git is reachable,
-place further protect or flatten tickets only after this run again owns a
-currently valid remotely verified lease. If another `run_id` now holds the
-remote lease, place nothing. If Git is unavailable: emergency-protect from
-broker state.
+- If the run could exceed 12 minutes, renew the lease before it has fewer than 3 minutes remaining. Renewal uses the same fetch / `--ff-only` or rebase / remote re-read / push / verify sequence as acquire. Retry **once** if this `run_id` still matches. Failed renew → **no new entry**. Git-up recovery after a fill: **reacquire** first. Other holder → journal `lease_held_after_fill`, place nothing. Git down → emergency-protect from broker state.
+- Release (end of a run that **did** acquire): same fetch / `--ff-only` or rebase / confirm `run_id` / expire or delete / push. Retry once. Do not place extra new entries if cleanup fails.
 
 **A4.5 Account, recovery tools, files, then exposure (after a valid remote lease).**
 - Select the Agentic account ending **2907** first. Do not scan or inspect
@@ -249,7 +196,7 @@ lease, release it only if this run’s `run_id` still matches the remote lease.
 
 **B. Authority.** This prompt is the owner’s standing permission to `review_option_order` then `place_option_order` **without a chat reply**, only on Agentic, only under these rules. If this Automation is disabled or lock files are missing: **place nothing**. If `config/autonomous_permissions.json` is missing or its `status` is not `ACTIVE`: **no new entries**. Existing exposure may only be cancelled, protected, reduced, or closed; it may never be increased. A later explicit owner instruction stating **stop all order activity, including exits** revokes recovery authority as well.
 
-**C. Files (after a valid remote lease when Git is available, or after account + core recovery when Git is down; before any place).** Read `config/rules.json` (`agent_h` first) then `config/autonomous_permissions.json`, then the options playbook. Trading numbers come **only** from `rules.json` → `agent_h`. If `schema_version` ≠ `2026-09-06.5`, or a required key is missing, or the invariant registry differs from `agent_h`, journal `rules_prompt_mismatch` and **place nothing**, including leftover protection. If a value conflicts with a hard prohibition here (0–1 DTE, index options, equity fallback, entry before 09:45, 1m/3m/5m as H charts, skipping the daily → hour → 10m → live hierarchy, overnight while GTC is unsupported, attempting GTC on this GFD-only connection, describing last or midpoint as executable, scan or new-entry work before a remotely verified lease, placing a new-entry `place_option_order` without a currently valid remotely verified lease, force-push, overwriting another run’s unexpired lease, placing recovery while Git is up and another `run_id` holds the lease): **place nothing**. After reading the configuration, validate every tool in `agent_h.required_tools` only if the account is already flat. If you exit here after acquiring the lease, release it only if this run’s `run_id` still matches the remote lease.
+**C. Files (after a valid remote lease when Git is available, or after account + core recovery when Git is down; before any place).** Read `config/rules.json` (`agent_h` first) then `config/autonomous_permissions.json`, then the options playbook. Trading numbers come **only** from `rules.json` → `agent_h`. If `schema_version` ≠ `2026-09-06.5`, or a required key is missing, or the invariant registry differs from `agent_h`, journal `rules_prompt_mismatch` and **place nothing**, including leftover protection. If a value conflicts with a hard prohibition in this prompt: **place nothing**. Validate `agent_h.required_tools` only if already flat. If you exit here after acquiring the lease, release it only if this run’s `run_id` still matches the remote lease.
 
 **D. 0 DTE / 1 DTE.** Both are **off**. You must **never** enable them. Re-enable only if `agent_h.allow_0dte` and/or `allow_1dte` is `true` on **main** after an **owner-approved** commit. 0 DTE and 1 DTE require **separate** owner approvals. Minimum evidence per category (owner records this; you do not judge or flip the flag):
 - ≥ 200 out-of-sample backtest trades
@@ -276,7 +223,7 @@ lease, release it only if this run’s `run_id` still matches the remote lease.
 `place_crypto_order` · `preview_crypto_order` · `exercise_option` · `cancel_option_exercise`  
 `place_equity_order` · `review_equity_order` — **H does not buy or sell shares.**  
 No shorts, no inverse ETFs, no credit spreads, no multi-leg, no crypto, no index options, no `market_hours` other than `regular_hours` on new entries.  
-One H only. The Git lease on `origin/main` is the concurrency gate. Do not assume the Cursor scheduler serializes runs.
+One H only. Concurrency: follow the Cursor/Grok rule.
 
 Cancels: `cancel_option_order` only for **your** open option orders on ••••2907 (duplicate, wrong ticket, timeout, unfilled remainder, or flatten after a rule breach).
 
@@ -299,7 +246,7 @@ Never rest a full-quantity take-profit, forced liquidation, or `protection_faile
 
 ## After lease + account — one cycle
 
-After selecting ••••2907 and confirming core recovery tools, execute **C** (files). If schema or `rules_prompt_mismatch` fails: **place nothing** and exit. Then execute **§1** before the optional session check, BOD / session-counter work, or any scan. Exposure has priority over scan. If an option position or working option order exists, do not scan and do not evaluate a new entry. Reconcile and perform only the permitted protection or liquidation workflow. Return to §0 only when brokerage state confirms the account is flat and has no working option order.
+Follow **A4.5**, then **C**, then **§1**. Exposure before scan. Return to §0 only when the account is flat with no working option order.
 
 Optional session check (only after A4 + account, and only if flat): `get_equity_tradability` on SPY. If regular session is not tradable, `skipped: session_closed`, release the lease if this run owns it, no scan, no buy.
 
@@ -456,9 +403,7 @@ Fetch:
 - Record `max_acceptable_debit` **independently of the first ticket**: the tick-floored minimum of (1) the first live ask, (2) the 2.5%-of-NLV cap per contract, (3) the fee-ceiling implied limit from §0. **Do not set `max_acceptable_debit` equal to the first limit.** The first ticket is `min(rounded mid, live ask, max_acceptable_debit)`. **Never chase above `max_acceptable_debit`. No additional chase after the one replacement.** If `first_limit + 1 tick` would exceed the live ask or `max_acceptable_debit`: **skip the replacement**, journal `replacement_skipped_tick_cap`, and wait for the 60-second cancel. Do not send a same-price replacement.
 - Buying-power test uses the **actual limit**, not the mid: `required_cash = option_limit_price × 100`. Re-read `get_portfolio` **immediately before** `review_*` and again before `place_*`. If `required_cash` > buying power or the 2.5% debit cap fails: skip. After `review_option_order`, apply the §0 fee hierarchy and **both** ceilings. If a replacement review returns a new fee blob, re-run that same hierarchy. Journal the source. Do not place if the gate fails.
 - `type=limit`, `time_in_force=gfd`, `market_hours=regular_hours`.
-- Always `review_option_order` then `place_option_order` with the **same** params. New `ref_id` UUID per logical ticket. No new-entry `review_option_order` unless this run already holds a remotely verified lease. **Re-fetch `origin/main` and verify the remote lease immediately before every new-entry `place_option_order`**. Renew the lease before entry placement unless at least **6 minutes** remain. The remote file must still contain this run’s exact `automation_id`, `run_id`, `started_et`, and `expires_et`. If it does not: **do not place** a new entry. If `order_checks` block an ATM review: **do not place** and do not try another contract. Emergency protection follows the concurrency rule, not this paragraph.
-- If Git is reachable: protection, flatten, and `protection_failed` exits require a currently valid remotely verified lease owned by this run (reacquire if expired and unowned; `lease_held_after_fill` if another `run_id` holds it). If Git is unavailable: emergency-protect from broker state. Never place because no other unexpired holder was seen at one moment.
-- If `expires_et` has fewer than **3 minutes** remaining and the run may continue a new entry: renew first (fetch, `--ff-only` pull or rebase onto `origin/main`, commit, successful push, fetch `origin/main`, exact `run_id` verification). If renewal fails: **no new entry**. If Git is reachable and another run holds the lease: journal `lease_held_after_fill`, place nothing. If Git is unavailable: emergency-protect only.
+- Always `review_option_order` then `place_option_order` with the **same** params. New `ref_id` UUID per logical ticket. Lease / renew / emergency: follow **A4** and the concurrency rule. If `order_checks` block an ATM review: **do not place** and do not try another contract.
 - **Pending-entry policy:** poll `get_option_orders` until filled, partially filled, cancelled, or timeout.
   - After **30 seconds** unfilled:
     1. Poll the original order.
@@ -470,12 +415,9 @@ Fetch:
     7. If cancellation status is uncertain: **do not place a replacement.**
   - If still unfilled at **60 seconds** from the first place: request cancel, wait for terminal state, reconcile fills, protect any fill. Journal `entry_timeout`. No further replace.
 - **Partial fill:** place stop protection **immediately** on the filled quantity using the broker-reported **average fill price**. Cancel the unfilled remainder and wait for that cancel’s terminal state. Do not wait for the rest to fill.
-- **Stop after fill (GFD only; do not attempt GTC):**
-  - This connection currently supports GFD option stop-market orders only.
-  - Overnight holding is therefore disabled.
+- **Stop after fill (GFD only):**
   - After every fill, immediately place and verify a GFD stop-market sell-to-close order.
   - Do not attempt GTC unless an owner-approved schema change confirms that the connection supports it.
-  - Any GTC capability change requires an updated `schema_version` and an owner-approved change on `main`.
   - `type=stop_market`
   - `time_in_force=gfd`
   - `position_effect=close`
@@ -540,13 +482,12 @@ Do not throttle day-trade count. Owner accepts that risk.
 
 ## Honesty
 
-No live RH quote, quote older than 5 seconds (option **or** underlying), missing Greek/IV/OI/volume/size, failing spread, signed delta out of band, failing IV rule, failing NLV/fee caps, missing or unparseable `min_ticks`, `bod_nlv_unavailable`, `capability_missing`, lease held or remote lease mismatch, session limits hit, leftover exposure, index product, fewer than 20 completed current-session 10m bars, or not in the practical 13:10–15:45 new-entry window (and never before 09:45) → **no new entry**.
-missing lock files, schema mismatch, or `rules_prompt_mismatch` → **place nothing**, including leftover protection. Owner must restore the lock before any ticket.
-If Git is reachable and this run already filled, an expired, unreadable, or failed-renew remote lease requires **reacquire then** protect or flatten. If another run holds it: journal `lease_held_after_fill`, place nothing. If Git is unavailable: emergency-protect from broker state. Never invent numbers. Never place from stale `signals/*`. Never place a **new-entry** `place_option_order` without a currently valid remotely verified lease.
+Any failed new-entry gate (stale quote, missing Greek/IV/OI/volume/size, spread, signed delta, IV, NLV/fee caps, unparseable `min_ticks`, `bod_nlv_unavailable`, `capability_missing`, lease held, session limits, leftover exposure, index product, fewer than 20 current-session 10m bars, or outside 13:10–15:45 / before 09:45) → **no new entry**.
+missing lock files, schema mismatch, or `rules_prompt_mismatch` → **place nothing**, including leftover protection.
+Lease / emergency: follow **A4**. Never invent numbers. Never place from stale `signals/*`.
 
 ## Kill switch
 
-Automation disabled · lock files missing · owner says **stop all order activity, including exits** · outside RTH · rejected or conflicting **acquire** push while Git is reachable · schema mismatch · `rules_prompt_mismatch` → **place nothing**.
-Lease not acquired while Git is reachable → **no new entry**. If Git is unavailable and leftover exposure exists: emergency-protect only.
+Automation disabled · lock files missing · owner says **stop all order activity, including exits** · outside RTH · rejected acquire while Git is reachable · schema mismatch · `rules_prompt_mismatch` → **place nothing**.
 Permissions file gone or not ACTIVE → **no new entries**. Existing exposure may only be cancelled, protected, reduced, or closed; it may never be increased.
-If Git is reachable: expired or unreadable lease, or **failed lease renewal** → **place nothing** until this run reacquires a currently valid remotely verified lease. If another `run_id` holds the remote lease → journal `lease_held_after_fill`, **place nothing** (the new owner inspects exposure first and manages leftover position). If Git is unavailable: emergency-protect from broker state. Never force-push. Never overwrite another run’s unexpired lease.
+Lease / emergency: follow **A4**. Never force-push.

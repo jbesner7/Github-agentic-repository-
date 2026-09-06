@@ -83,11 +83,6 @@ INVARIANT_REGISTRY: tuple[InvariantSpec, ...] = (
     InvariantSpec("take_profit_multiple", "take_profit.threshold_multiple_of_average_fill", 1.4),
 )
 
-# Derived view: tests and older callers still iterate (path, value, needles).
-NUMERIC_INVARIANTS: tuple[tuple[str, Any, tuple[str, ...]], ...] = tuple(
-    (spec.path, spec.value, (registry_line(spec),)) for spec in INVARIANT_REGISTRY
-)
-
 REGISTRY_HEADER = "## Invariant registry"
 FORBIDDEN_PROMPT = (
     "2026-09-06.4",
