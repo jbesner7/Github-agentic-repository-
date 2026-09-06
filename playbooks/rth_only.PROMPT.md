@@ -3,7 +3,7 @@
 Do **not** paste this file into an Automation.
 
 Canonical prompt: `playbooks/agent_h_autonomous.PROMPT.md`.
-Canonical rules: `config/rules.json` → `agent_h` (`schema_version` 2026-09-05.3). Git lease on `origin/main` is H’s concurrency gate.
+Canonical rules: `config/rules.json` → `agent_h` (`schema_version` 2026-09-05.4). Git lease on `origin/main` is H’s concurrency gate.
 
 RTH = Mon–Fri 09:30 inclusive–16:00 exclusive, `America/New_York`.
 No extended, overnight, or weekend **scan or buy**.

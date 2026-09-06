@@ -78,7 +78,7 @@ def test_rules_json_matches_working_states_and_10minute():
     assert rules["agent_h"]["no_1m_3m_autonomous_noise"] is True
     assert rules["agent_h"]["no_5m_stateless_inconsistency"] is True
     assert rules["agent_h"]["include_index_options"] is False
-    assert rules["agent_h"]["schema_version"] == "2026-09-05.3"
+    assert rules["agent_h"]["schema_version"] == "2026-09-05.4"
     assert rules["agent_h"]["overnight"]["evaluate"] == "current_dte_each_run"
     assert rules["agent_h"]["overnight"]["current_dte_lte_3_flatten_by"] == "15:45"
     assert rules["agent_h"]["overnight"]["current_dte_gte_4_overnight_with_stop"] is False
@@ -88,6 +88,13 @@ def test_rules_json_matches_working_states_and_10minute():
     assert rules["agent_h"]["overnight"]["dte_1_to_3_liquidation_begin"] == "15:40"
     assert rules["agent_h"]["lease_valid_only_after_successful_push_to_origin_main"] is True
     assert rules["agent_h"]["recheck_remote_lease_before_every_place_option_order"] is True
+    assert rules["agent_h"]["recheck_remote_lease_before_every_new_entry_place_option_order"] is True
+    assert rules["agent_h"]["failed_lease_renewal_blocks_new_entry_only"] is True
+    assert rules["agent_h"]["failed_lease_renewal_must_still_protect_or_flatten_this_run_fill"] is True
+    assert rules["agent_h"]["protection_or_flatten_of_this_run_fill_allowed_after_failed_renewal"] is True
+    assert rules["agent_h"]["pull_ff_only_or_rebase_onto_origin_main_before_every_main_journal_push"] is True
+    assert rules["agent_h"]["non_fast_forward_lease_or_journal_push_retry_once_after_rebase"] is True
+    assert rules["agent_h"]["never_force_push_on_non_fast_forward"] is True
     assert rules["agent_h"]["scheduler_must_enforce_max_concurrent_runs"] is False
     assert rules["agent_h"]["git_lease_is_the_concurrency_gate"] is True
     assert rules["agent_h"]["lease_acquire_before_account_or_scan"] is True
@@ -179,13 +186,18 @@ def test_agent_h_prompt_locks_schema_and_live_safety():
     from pathlib import Path
 
     prompt = (Path(__file__).resolve().parents[2] / "playbooks" / "agent_h_autonomous.PROMPT.md").read_text()
-    assert "2026-09-05.3" in prompt
+    assert "2026-09-05.4" in prompt
+    assert "2026-09-05.3" not in prompt
     assert "The lease is not acquired unless its commit successfully pushes to" in prompt
     assert "journal/h_lease.json` from `origin/main`, not merely the local checkout." in prompt
     assert "Never force-push or overwrite a conflicting lease." in prompt
     assert "A run that failed to acquire the lease must not clear or modify the lease." in prompt
-    assert "Only the run whose `run_id` matches the remote lease may release it." in prompt
+    assert "Only the run whose `run_id` matches the remote lease may renew or release it." in prompt
     assert "renew the lease before it has fewer than" in prompt
+    assert "git pull --ff-only origin main" in prompt
+    assert "rebase that commit onto `origin/main`" in prompt
+    assert "Failed renewal is not a kill-switch ban on those recovery tickets." in prompt
+    assert "you **must still** place protection or flatten for that fill" in prompt
     assert "## Cursor/Grok concurrency rule" in prompt
     assert "**A. Clock.** Now in `America/New_York`. Clock only. **No RH calls.**" in prompt
     assert "Git on `origin/main` is the required concurrency" in prompt

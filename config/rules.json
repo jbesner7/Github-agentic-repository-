@@ -123,8 +123,8 @@
     "proposal_ttl": "until_next_loop"
   },
   "agent_h": {
-    "schema_version": "2026-09-05.3",
-    "prompt_expected_schema_version": "2026-09-05.3",
+    "schema_version": "2026-09-05.4",
+    "prompt_expected_schema_version": "2026-09-05.4",
     "trading_parameters_source": "rules.json.agent_h_only",
     "prompt_defines": "workflow_and_prohibitions",
     "never_use_filesystem_timestamps_for_precedence": true,
@@ -145,7 +145,14 @@
     "failed_lease_acquire_must_not_modify_or_clear_lease": true,
     "never_force_push_or_overwrite_conflicting_lease": true,
     "only_matching_run_id_may_renew_or_release_lease": true,
+    "recheck_remote_lease_before_every_new_entry_place_option_order": true,
     "recheck_remote_lease_before_every_place_option_order": true,
+    "failed_lease_renewal_blocks_new_entry_only": true,
+    "failed_lease_renewal_must_still_protect_or_flatten_this_run_fill": true,
+    "protection_or_flatten_of_this_run_fill_allowed_after_failed_renewal": true,
+    "pull_ff_only_or_rebase_onto_origin_main_before_every_main_journal_push": true,
+    "non_fast_forward_lease_or_journal_push_retry_once_after_rebase": true,
+    "never_force_push_on_non_fast_forward": true,
     "remote_lease_read_from": "origin/main",
     "remote_lease_must_contain_this_run_id": true,
     "remote_lease_must_contain_exact_fields": [

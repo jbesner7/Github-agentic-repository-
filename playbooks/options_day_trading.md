@@ -1,6 +1,6 @@
 # Options Day Trading Playbook
 
-**Status: RELEASED** (owner approved 2026-08-30), with **2026-09-05 Agent H live-safety locks** (`schema_version` 2026-09-05.3).
+**Status: RELEASED** (owner approved 2026-08-30), with **2026-09-05 Agent H live-safety locks** (`schema_version` 2026-09-05.4).
 
 Live `place_*` from **this Cursor chat (Agent F)** still requires an explicit confirm of a **specific** order.
 
@@ -60,7 +60,7 @@ Agent H mandate: **long call or long put only** on liquid optionable equities an
 - If fill succeeds and stop review/place fails: immediate controlled sell-to-close, poll to completion, and journal `protection_failed`
 - Re-read buying power immediately before review and before place
 - Losing trade = fully closed trade with negative net realized P&L after fees. Break-even is not a loss
-- H lease: valid only after a successful push to `origin/main` and a fetch that confirms this run’s `run_id`. Recheck immediately before every `place_option_order`
+- H lease: valid only after a successful push to `origin/main` and a fetch that confirms this run’s `run_id`. Pull `--ff-only` or rebase onto `origin/main` before every `main` journal/lease push; retry a rejected push once; never force-push. Recheck immediately before every **new-entry** `place_option_order`. Failed renew: no new entry; still protect or flatten this run’s fill
 - BOD NLV: prefer a broker beginning-of-day field in `journal/h_session.json`. First-fire `total_value` is `first_fire_baseline_nlv` only. If genuine BOD NLV cannot be established: no new entry
 - Exhaust pagination before concluding: no working order, no earlier entry today, no stop-out, strikes bracket spot, or no duplicate account match
 - Confirm required MCP tools/fields at the start of RTH work; fail closed if any required capability is missing
