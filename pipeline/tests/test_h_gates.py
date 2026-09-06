@@ -7,14 +7,12 @@ from pipeline.h_gates import (
     may_place_option_order,
     may_try_one_otm,
     must_renew_lease,
-    never_place_from_momentary_absent_other_lease,
+    must_reverify_remote_lease_before_place,
     permissions_allow,
     post_lease_priority,
     recovery_action,
     replacement_policy,
     required_stop_time_in_force,
-    renew_lease_immediately_before_entry_placement,
-    reverify_remote_lease_immediately_before_every_place,
 )
 from pipeline.patterns import retest_confirms, retest_invalidated
 
@@ -30,24 +28,25 @@ def test_every_place_requires_valid_remote_lease():
     assert may_place_option_order(OWNED, kind="entry") == (True, "ok")
     assert may_place_option_order(OWNED, kind="protect") == (True, "ok")
     assert may_place_option_order(OWNED, kind="flatten") == (True, "ok")
-    for lease in (EXPIRED_UNOWNED, EXPIRED_OWN_STALE):
+    for lease in (EXPIRED_UNOWNED, EXPIRED_OWN_STALE, UNREADABLE):
         ok, reason = may_place_option_order(lease, kind="protect")
+        assert ok is True
+        assert reason == "emergency_protection_without_owned_lease"
+        ok, reason = may_place_option_order(lease, kind="entry")
         assert ok is False
-        assert reason == "lease_must_reacquire_before_place"
     ok, reason = may_place_option_order(OTHER_HOLDER, kind="protect")
     assert ok is False and reason == "lease_held_after_fill"
     ok, reason = may_place_option_order(OTHER_HOLDER, kind="entry")
     assert ok is False and reason == "lease_held"
-    ok, reason = may_place_option_order(UNREADABLE, kind="flatten")
-    assert ok is False and reason == "lease_unreadable"
 
 
 def test_recovery_never_places_from_momentary_absent_other_lease():
-    assert recovery_action(EXPIRED_UNOWNED) == "reacquire_then_recover"
-    assert recovery_action(EXPIRED_OWN_STALE) == "reacquire_then_recover"
+    assert recovery_action(EXPIRED_UNOWNED, kind="entry") == "reacquire_then_recover"
+    assert recovery_action(EXPIRED_OWN_STALE, kind="protect") == "emergency_protect_without_owned_lease"
     assert recovery_action(OTHER_HOLDER) == "place_nothing_new_owner_manages"
     assert recovery_action(OWNED) == "recover_now"
-    assert never_place_from_momentary_absent_other_lease() is True
+    ok, _reason = may_place_option_order(OTHER_HOLDER, kind="protect")
+    assert ok is False
 
 
 def test_atm_fallback_is_any_contract_rule_but_not_order_checks():
@@ -113,9 +112,23 @@ def test_renew_lease_before_entry_unless_six_minutes_remain():
     assert must_renew_lease(minutes_remaining=5.9, before_entry=True) is True
     assert must_renew_lease(minutes_remaining=5.0, before_entry=False) is False
     assert must_renew_lease(minutes_remaining=2.9, before_entry=False) is True
-    assert reverify_remote_lease_immediately_before_every_place() is True
-    assert renew_lease_immediately_before_entry_placement(minutes_remaining=6.0) is False
-    assert renew_lease_immediately_before_entry_placement(minutes_remaining=5.9) is True
+
+
+def test_emergency_protection_does_not_require_git():
+    ok, reason = may_place_option_order(UNREADABLE, kind="protect", git_status="outage")
+    assert ok is True and reason == "emergency_protection_without_git"
+    ok, reason = may_place_option_order(EXPIRED_OWN_STALE, kind="flatten", git_status="timeout")
+    assert ok is True
+    ok, reason = may_place_option_order(UNREADABLE, kind="entry", git_status="outage")
+    assert ok is False
+    assert must_reverify_remote_lease_before_place(kind="protect", git_status="outage") is False
+    assert must_reverify_remote_lease_before_place(kind="entry", git_status="outage") is True
+    assert must_reverify_remote_lease_before_place(kind="protect", git_status="ok") is False
+    assert recovery_action(UNREADABLE, git_status="outage", kind="protect") == "emergency_protect_without_owned_lease"
+    assert recovery_action(OTHER_HOLDER, git_status="ok", kind="protect") == "place_nothing_new_owner_manages"
+    ok, reason = may_place_option_order(OTHER_HOLDER, kind="protect", git_status="outage")
+    assert ok is False and reason == "lease_held_after_fill"
+    assert recovery_action(OTHER_HOLDER, git_status="outage", kind="protect") == "place_nothing_new_owner_manages"
 
 
 def test_core_recovery_tools_are_checked_before_full_required_list():
