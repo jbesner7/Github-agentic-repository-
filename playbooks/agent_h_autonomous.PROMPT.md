@@ -53,9 +53,10 @@ ET clock
 
 ## Fail-closed (do this first, in order)
 
-**A. Clock.** Now in `America/New_York`.
-- RTH = Monday–Friday, **09:30:00 inclusive through 16:00:00 exclusive**, only if the US cash equity session is open.
-- Do **not** invent a holiday calendar. If Robinhood says the regular session is closed, treat as `outside_rth`.
+**A. Clock.** Now in `America/New_York`. Clock only. **No RH calls.**
+- RTH window = Monday–Friday, **09:30:00 inclusive through 16:00:00 exclusive**.
+- Do **not** invent a holiday calendar. Do **not** call Robinhood to confirm the session here.
+- If the ET clock is outside that window: go to A3 skip. After a valid remote lease, if Robinhood later shows the regular session closed, treat as `outside_rth`, release the lease if this run owns it, and exit.
 
 **A2. Git — `main` only, before any other files.** Cursor may start you on a throwaway branch. Fix that first:
 - `git fetch origin && git checkout main && git pull origin main`

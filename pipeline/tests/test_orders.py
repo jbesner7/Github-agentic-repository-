@@ -187,6 +187,7 @@ def test_agent_h_prompt_locks_schema_and_live_safety():
     assert "Only the run whose `run_id` matches the remote lease may release it." in prompt
     assert "renew the lease before it has fewer than" in prompt
     assert "## Cursor/Grok concurrency rule" in prompt
+    assert "**A. Clock.** Now in `America/New_York`. Clock only. **No RH calls.**" in prompt
     assert "Git on `origin/main` is the required concurrency" in prompt
     assert "acquire and remotely verify lease" in prompt
     assert "time_in_force=gtc" in prompt
