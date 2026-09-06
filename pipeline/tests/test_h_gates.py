@@ -7,6 +7,7 @@ from pipeline.h_gates import (
     may_place_option_order,
     may_try_one_otm,
     must_renew_lease,
+    must_reverify_remote_lease_before_place,
     never_place_from_momentary_absent_other_lease,
     permissions_allow,
     post_lease_priority,
@@ -116,6 +117,20 @@ def test_renew_lease_before_entry_unless_six_minutes_remain():
     assert reverify_remote_lease_immediately_before_every_place() is True
     assert renew_lease_immediately_before_entry_placement(minutes_remaining=6.0) is False
     assert renew_lease_immediately_before_entry_placement(minutes_remaining=5.9) is True
+
+
+def test_emergency_protection_does_not_require_git():
+    ok, reason = may_place_option_order(UNREADABLE, kind="protect", git_status="outage")
+    assert ok is True and reason == "emergency_protection_without_git"
+    ok, reason = may_place_option_order(EXPIRED_OWN_STALE, kind="flatten", git_status="timeout")
+    assert ok is True
+    ok, reason = may_place_option_order(UNREADABLE, kind="entry", git_status="outage")
+    assert ok is False
+    assert must_reverify_remote_lease_before_place(kind="protect", git_status="outage") is False
+    assert must_reverify_remote_lease_before_place(kind="entry", git_status="outage") is True
+    assert must_reverify_remote_lease_before_place(kind="protect", git_status="ok") is True
+    assert recovery_action(UNREADABLE, git_status="outage", kind="protect") == "emergency_protect_without_git"
+    assert recovery_action(OTHER_HOLDER, git_status="ok", kind="protect") == "place_nothing_new_owner_manages"
 
 
 def test_core_recovery_tools_are_checked_before_full_required_list():

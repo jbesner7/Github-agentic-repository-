@@ -78,8 +78,12 @@ def test_rules_json_matches_working_states_and_10minute():
     assert rules["agent_h"]["no_1m_3m_autonomous_noise"] is True
     assert rules["agent_h"]["no_5m_stateless_inconsistency"] is True
     assert rules["agent_h"]["include_index_options"] is False
-    assert rules["agent_h"]["schema_version"] == "2026-09-06.4"
-    assert rules["agent_h"]["prompt_expected_schema_version"] == "2026-09-06.4"
+    assert rules["agent_h"]["schema_version"] == "2026-09-06.5"
+    assert rules["agent_h"]["prompt_expected_schema_version"] == "2026-09-06.5"
+    assert rules["agent_h"]["emergency_protection_path_does_not_require_git"] is True
+    assert rules["agent_h"]["git_unavailable_allows_emergency_protection_without_lease"] is True
+    assert rules["agent_h"]["continuity_store"] == "broker_positions_and_working_orders"
+    assert rules["agent_h"]["patterns"]["hour_trend_lookback_completed"] == 20
     assert rules["agent_h"]["read_rules_permissions_playbook_before_any_place"] is True
     assert rules["agent_h"]["schema_or_rules_prompt_mismatch_blocks_all_orders_including_exits"] is True
     assert rules["agent_h"]["numeric_thresholds_are_schema_invariants"] is True
@@ -96,7 +100,7 @@ def test_rules_json_matches_working_states_and_10minute():
     assert rules["agent_h"]["overnight"]["expiration_day_absolute_deadline"] == "15:45"
     assert rules["agent_h"]["overnight"]["dte_1_to_3_liquidation_begin"] == "15:40"
     assert rules["agent_h"]["lease_valid_only_after_successful_push_to_origin_main"] is True
-    assert rules["agent_h"]["recheck_remote_lease_before_every_place_option_order"] is True
+    assert rules["agent_h"]["recheck_remote_lease_before_every_place_option_order"] is False
     assert rules["agent_h"]["recheck_remote_lease_before_every_new_entry_place_option_order"] is True
     assert rules["agent_h"]["reacquire_lease_before_any_place_if_expired_and_unowned"] is True
     assert rules["agent_h"]["never_place_from_momentary_absent_other_lease"] is True
@@ -109,14 +113,14 @@ def test_rules_json_matches_working_states_and_10minute():
     assert rules["agent_h"]["failed_lease_acquire_push_means_place_nothing_and_exit"] is True
     assert rules["agent_h"]["rejected_lease_push_means_place_nothing_and_exit"] is False
     assert rules["agent_h"]["rejected_lease_acquire_push_means_place_nothing_and_exit"] is True
-    assert rules["agent_h"]["no_review_or_place_until_remote_lease_verified"] is True
+    assert rules["agent_h"]["no_review_or_place_until_remote_lease_verified"] is False
     assert rules["agent_h"]["no_new_entry_review_or_place_until_remote_lease_verified"] is True
     assert rules["agent_h"]["failed_lease_renewal_blocks_new_entry_only"] is False
     assert rules["agent_h"]["failed_lease_renewal_must_still_protect_or_flatten_this_run_fill"] is False
     assert rules["agent_h"]["protection_or_flatten_of_this_run_fill_allowed_after_failed_renewal"] is False
     assert rules["agent_h"]["this_run_fill_must_protect_or_flatten_even_if_remote_lease_mismatched_or_expired"] is False
     assert rules["agent_h"]["this_run_fill_must_protect_or_flatten_if_lease_expired_or_unreadable_and_no_other_run_holds_it"] is False
-    assert rules["agent_h"]["no_review_or_place_until_remote_lease_verified"] is True
+    assert rules["agent_h"]["no_review_or_place_until_remote_lease_verified"] is False
     assert rules["agent_h"]["this_run_fill_must_not_place_if_another_run_id_holds_remote_lease"] is True
     assert rules["agent_h"]["other_run_lease_owner_handles_leftover_exposure"] is True
     assert rules["agent_h"]["entry_order"]["max_acceptable_debit_is_not_first_limit"] is True
@@ -243,8 +247,12 @@ def test_agent_h_prompt_locks_schema_and_live_safety():
     from pathlib import Path
 
     prompt = (Path(__file__).resolve().parents[2] / "playbooks" / "agent_h_autonomous.PROMPT.md").read_text()
-    assert "2026-09-06.4" in prompt
+    assert "2026-09-06.5" in prompt
+    assert "2026-09-06.4" not in prompt
     assert "2026-09-06.3" not in prompt
+    assert "## Invariant registry" in prompt
+    assert "git_unavailable_emergency_only" in prompt
+    assert "## Continuity" in prompt
     assert "2026-09-06.2" not in prompt
     assert "2026-09-06.1" not in prompt
     assert "2026-09-05.6" not in prompt

@@ -23,5 +23,5 @@ Agent H hierarchy (do not skip): **daily setup → 1-hour confirmation → compl
 
 ## Detection notes
 - Implemented as deterministic OHLCV heuristics in `pipeline/patterns.py`.
-- Dominant bias requires a strict majority of bullish vs bearish hits across timeframes.
+- Agent H hour confirmation is not a majority vote. `classify_hour_bias` uses completed hour hits only (`bullish` / `bearish` / `mixed` / `none`). `hour_trend` compares the last completed hour close to the median of the last 20 completed hour closes. Both must equal the daily winner.
 - Neutral-only or bearish results → no long-share day trade. Bearish goes to the options put path. Neutral → skip.

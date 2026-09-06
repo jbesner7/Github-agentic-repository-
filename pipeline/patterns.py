@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from statistics import median
 from typing import Any
 
 import numpy as np
@@ -55,6 +56,130 @@ MAX_PATTERN_BARS = {
 }
 TRIANGLE_TOUCH_PCT = 0.005
 TRIANGLE_MIN_TOUCHES_PER_SIDE = 2
+HOUR_TREND_LOOKBACK = 20
+BREAKOUT_CLOSE_BEYOND_PCT = 0.001
+LIVE_TRIGGER_BEYOND_PCT = 0.001
+BREAKOUT_VOLUME_MULTIPLE = 1.5
+RETEST_TOLERANCE_PCT = 0.002
+
+
+def _directional(bias: str) -> str | None:
+    side = (bias or "").strip().lower()
+    if side in ("bullish", "call", "long_call"):
+        return "bullish"
+    if side in ("bearish", "put", "long_put"):
+        return "bearish"
+    return None
+
+
+def classify_hour_bias(hour_hits: list[dict[str, Any]]) -> str:
+    """Hour pattern bias from completed hour hits only.
+
+    none    = no directional hour hit
+    mixed   = both bullish and bearish hour hits
+    bullish / bearish = exactly one directional set
+    """
+    dirs = {
+        str(hit.get("bias"))
+        for hit in hour_hits
+        if hit.get("timeframe") in ("hour", "1hour") and hit.get("bias") in ("bullish", "bearish")
+    }
+    if dirs == {"bullish"}:
+        return "bullish"
+    if dirs == {"bearish"}:
+        return "bearish"
+    if len(dirs) == 2:
+        return "mixed"
+    return "none"
+
+
+def hour_trend(hour_bars: list[dict[str, Any]], *, lookback: int = HOUR_TREND_LOOKBACK) -> str:
+    """Broader intraday trend: last completed hour close vs median of last N completed hour closes.
+
+    bullish if C[-1] > median(C[-N:]); bearish if C[-1] < median; none if equal or short.
+    """
+    closes = [float(bar["close"]) for bar in hour_bars if bar.get("close") is not None]
+    if len(closes) < max(2, lookback):
+        return "none"
+    window = closes[-lookback:]
+    last = window[-1]
+    mid = float(median(window))
+    if last > mid:
+        return "bullish"
+    if last < mid:
+        return "bearish"
+    return "none"
+
+
+def hour_confirms_daily(
+    daily_bias: str,
+    hour_hits: list[dict[str, Any]],
+    hour_bars: list[dict[str, Any]] | None = None,
+    *,
+    lookback: int = HOUR_TREND_LOOKBACK,
+) -> tuple[bool, str]:
+    """Hour confirms daily iff pattern hour_bias == daily_bias and hour_trend == daily_bias."""
+    daily = _directional(daily_bias)
+    if daily is None:
+        return False, "daily_bias_missing"
+    pattern_bias = classify_hour_bias(hour_hits)
+    if pattern_bias in ("none", "mixed"):
+        return False, f"hour_bias_{pattern_bias}"
+    if pattern_bias != daily:
+        return False, "hour_daily_pattern_conflict"
+    if hour_bars is not None:
+        trend = hour_trend(hour_bars, lookback=lookback)
+        if trend != daily:
+            return False, "hour_trend_conflict" if trend in ("bullish", "bearish") else "hour_trend_none"
+    return True, "ok"
+
+
+def breakout_confirms(
+    bar: dict[str, Any],
+    level: float,
+    *,
+    bias: str,
+    beyond_pct: float = BREAKOUT_CLOSE_BEYOND_PCT,
+) -> bool:
+    """Completed 10m close must finish beyond the daily level by beyond_pct."""
+    close = float(bar["close"])
+    side = _directional(bias)
+    lvl = float(level)
+    if side == "bullish":
+        return close >= lvl * (1.0 + beyond_pct)
+    if side == "bearish":
+        return close <= lvl * (1.0 - beyond_pct)
+    return False
+
+
+def breakout_volume_ok(
+    breakout_volume: float,
+    prior_volumes: list[float],
+    *,
+    multiple: float = BREAKOUT_VOLUME_MULTIPLE,
+) -> bool:
+    """Breakout bar volume >= multiple × median of the preceding completed 10m volumes."""
+    if not prior_volumes:
+        return False
+    return float(breakout_volume) >= float(multiple) * float(median(prior_volumes))
+
+
+def live_trigger_confirms(
+    executable_price: float,
+    breakout_level: float,
+    *,
+    bias: str,
+    beyond_pct: float = LIVE_TRIGGER_BEYOND_PCT,
+) -> bool:
+    """Live ask (call) or bid (put) must trade beyond the breakout level by beyond_pct."""
+    side = _directional(bias)
+    px = float(executable_price)
+    lvl = float(breakout_level)
+    if side == "bullish":
+        return px >= lvl * (1.0 + beyond_pct)
+    if side == "bearish":
+        return px <= lvl * (1.0 - beyond_pct)
+    return False
 
 
 def _max_pattern_bars(timeframe: str) -> int:

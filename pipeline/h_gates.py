@@ -61,8 +61,36 @@ class RemoteLease:
     readable: bool = True
 
 
-def may_place_option_order(lease: RemoteLease, *, kind: str = "any") -> tuple[bool, str]:
-    """Every place_option_order, including protection and liquidation, needs a live lease."""
+GIT_UNAVAILABLE = frozenset({"unavailable", "timeout", "outage"})
+EMERGENCY_KINDS = frozenset(
+    {
+        "protect",
+        "flatten",
+        "forced_liquidation",
+        "protection_failed",
+        "emergency_exit",
+        "missing_stop_flatten",
+    }
+)
+
+
+def is_emergency_kind(kind: str) -> bool:
+    return (kind or "").strip().lower() in EMERGENCY_KINDS
+
+
+def is_git_unavailable(git_status: str) -> bool:
+    return (git_status or "").strip().lower() in GIT_UNAVAILABLE
+
+
+def may_place_option_order(
+    lease: RemoteLease,
+    *,
+    kind: str = "any",
+    git_status: str = "ok",
+) -> tuple[bool, str]:
+    """New entries always need a live lease. Emergency protection does not need Git."""
+    if is_emergency_kind(kind) and is_git_unavailable(git_status):
+        return True, "emergency_protection_without_git"
     if not lease.readable:
         return False, "lease_unreadable"
     if lease.other_unexpired_holder:
@@ -72,8 +100,10 @@ def may_place_option_order(lease: RemoteLease, *, kind: str = "any") -> tuple[bo
     return True, "ok"
 
 
-def recovery_action(lease: RemoteLease) -> str:
-    """What a filled run may do after its lease expires or another run appears."""
+def recovery_action(lease: RemoteLease, *, git_status: str = "ok", kind: str = "protect") -> str:
+    """What a filled run may do after its lease expires, another run appears, or Git is down."""
+    if is_emergency_kind(kind) and is_git_unavailable(git_status):
+        return "emergency_protect_without_git"
     if lease.other_unexpired_holder:
         return "place_nothing_new_owner_manages"
     if not lease.readable or lease.expired or not lease.owned_by_this_run:
@@ -109,6 +139,14 @@ RUN_ORDER_AFTER_LEASE = (
 
 
 def reverify_remote_lease_immediately_before_every_place() -> bool:
+    """Default: new entries and Git-up recovery still re-verify. Emergency is the exception."""
+    return True
+
+
+def must_reverify_remote_lease_before_place(*, kind: str, git_status: str = "ok") -> bool:
+    """Emergency protection does not wait on Git fetch/push/lease verify."""
+    if is_emergency_kind(kind) and is_git_unavailable(git_status):
+        return False
     return True
 
 
