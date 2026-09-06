@@ -51,6 +51,7 @@ def leftover_close_plan(
     position_quantity: int,
     option_orders: list[dict[str, Any]] | None,
     session_date_et: str,
+    orders_complete: bool = True,
 ) -> dict[str, Any]:
     """Broker-side single closer. Two stateless fires must compute the same plan."""
     return decide_emergency_close(
@@ -58,6 +59,7 @@ def leftover_close_plan(
         position_quantity=position_quantity,
         option_orders=option_orders,
         session_date_et=session_date_et,
+        orders_complete=orders_complete,
     )
 
 

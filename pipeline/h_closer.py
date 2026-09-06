@@ -21,6 +21,7 @@ PLACE = "place_with_deterministic_ref_id"
 MONITOR = "already_covered_monitor_only"
 REUSE = "duplicate_ref_id_retry"
 NO_POSITION = "no_position_to_close"
+ORDERS_INCOMPLETE = "orders_incomplete"
 
 REPLACEMENT_TERMINAL_STATES = frozenset(
     {"cancelled", "canceled", "rejected", "failed", "voided"}
@@ -165,8 +166,11 @@ def decide_emergency_close(
     position_quantity: int,
     option_orders: Iterable[dict[str, Any]] | None,
     session_date_et: str,
+    orders_complete: bool = True,
 ) -> dict[str, Any]:
     """Occupy one closer per leftover. Place and reuse share one deterministic ref_id."""
+    if not orders_complete:
+        return {"action": "skip", "reason": ORDERS_INCOMPLETE, "ref_id": None, "uncovered": 0}
     qty = _int_qty(position_quantity)
     oid = (option_id or "").strip()
     if qty <= 0 or not oid:
