@@ -53,12 +53,20 @@ EMERGENCY_KINDS = frozenset(
         "protection_failed",
         "emergency_exit",
         "missing_stop_flatten",
+        "stop",
+        "stop_market",
+        "stop_limit",
     }
 )
+MANAGE_EXIT_KINDS = frozenset({"take_profit", "reduce", "close"})
 
 
 def is_emergency_kind(kind: str) -> bool:
     return (kind or "").strip().lower() in EMERGENCY_KINDS
+
+
+def is_manage_exit_kind(kind: str) -> bool:
+    return (kind or "").strip().lower() in MANAGE_EXIT_KINDS
 
 
 def is_git_unavailable(git_status: str) -> bool:
@@ -84,6 +92,12 @@ def may_place_option_order(
         if is_git_unavailable(git_status):
             return True, "emergency_protection_without_git"
         return True, "emergency_protection_without_owned_lease"
+    if is_manage_exit_kind(kind):
+        if is_git_unavailable(git_status):
+            return False, "git_unavailable_no_take_profit"
+        if lease.readable and lease.owned_by_this_run and not lease.expired:
+            return True, "ok"
+        return True, "manage_exit_without_owned_lease"
     if not lease.readable:
         return False, "lease_unreadable"
     if lease.expired or not lease.owned_by_this_run:
@@ -99,6 +113,12 @@ def recovery_action(lease: RemoteLease, *, git_status: str = "ok", kind: str = "
         if lease.readable and lease.owned_by_this_run and not lease.expired:
             return "recover_now"
         return "emergency_protect_without_owned_lease"
+    if is_manage_exit_kind(kind):
+        if is_git_unavailable(git_status):
+            return "place_nothing_git_unavailable"
+        if lease.readable and lease.owned_by_this_run and not lease.expired:
+            return "recover_now"
+        return "manage_exit_without_owned_lease"
     if not lease.readable or lease.expired or not lease.owned_by_this_run:
         return "reacquire_then_recover"
     return "recover_now"
@@ -123,6 +143,7 @@ RUN_ORDER_AFTER_LEASE = (
     "read_rules_permissions_playbook",
     "exposure_and_working_orders",
     "classify_fire_mode_from_clock_and_exposure",
+    "run_h_dispatch_print_card",
     "if_exposure_continuity_and_section_8_only",
     "if_flat_before_scan_window_no_scan",
     "if_scan_acquire_lease_then_permissions_bod_session_full_capability_scan",
@@ -130,8 +151,8 @@ RUN_ORDER_AFTER_LEASE = (
 
 
 def must_reverify_remote_lease_before_place(*, kind: str, git_status: str = "ok") -> bool:
-    """Emergency protection does not wait on Git fetch/push/lease verify."""
-    return not is_emergency_kind(kind)
+    """New entries wait on Git lease verify. Emergency and manage exits do not."""
+    return not (is_emergency_kind(kind) or is_manage_exit_kind(kind))
 
 
 def must_renew_lease(*, minutes_remaining: float, before_entry: bool) -> bool:

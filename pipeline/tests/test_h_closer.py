@@ -154,3 +154,67 @@ def test_filled_close_covers_stale_position_and_nested_option_id():
         session_date_et=session,
     )
     assert working_nested["action"] == "monitor"
+
+
+def test_prior_same_day_fill_does_not_cover_later_sequential_open():
+    session = "2026-09-08"
+    orders = [
+        {
+            "option_id": "opt-a",
+            "state": "filled",
+            "side": "buy",
+            "position_effect": "open",
+            "quantity": 1,
+            "filled_quantity": 1,
+        },
+        {
+            "option_id": "opt-a",
+            "state": "filled",
+            "side": "sell",
+            "position_effect": "close",
+            "quantity": 1,
+            "filled_quantity": 1,
+        },
+        {
+            "option_id": "opt-a",
+            "state": "filled",
+            "side": "buy",
+            "position_effect": "open",
+            "quantity": 1,
+            "filled_quantity": 1,
+        },
+    ]
+    second = decide_emergency_close(
+        option_id="opt-a",
+        position_quantity=1,
+        option_orders=orders,
+        session_date_et=session,
+    )
+    assert second["action"] == "place"
+    assert second["uncovered"] == 1
+    stale_after_flat = decide_emergency_close(
+        option_id="opt-a",
+        position_quantity=1,
+        option_orders=orders[:2],
+        session_date_et=session,
+    )
+    assert stale_after_flat["action"] == "monitor"
+
+
+def test_working_take_profit_covers_leftover_quantity():
+    session = "2026-09-08"
+    covered = decide_emergency_close(
+        option_id="opt-a",
+        position_quantity=1,
+        option_orders=[
+            {
+                "option_id": "opt-a",
+                "state": "confirmed",
+                "kind": "take_profit",
+                "quantity": 1,
+                "filled_quantity": 0,
+            }
+        ],
+        session_date_et=session,
+    )
+    assert covered["action"] == "monitor" and covered["reason"] == MONITOR

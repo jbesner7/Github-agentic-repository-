@@ -32,6 +32,14 @@ def test_manage_fire_cannot_execute_scan_or_entry_sections():
     assert leftover_take_profit_allowed(MANAGE, other_holder=False) is True
     assert leftover_take_profit_allowed(MANAGE, other_holder=True) is False
     assert leftover_take_profit_allowed(SCAN, other_holder=False) is False
+    ok, reason = place_authority(kind="take_profit", lease=EXPIRED)
+    assert ok is True and reason == "manage_exit_without_owned_lease"
+    assert place_authority(kind="take_profit", lease=EXPIRED, git_status="outage")[0] is False
+    assert place_authority(kind="take_profit", lease=OTHER)[0] is False
+    assert place_authority(
+        kind="take_profit", lease=EXPIRED, permissions_status="INACTIVE"
+    )[0] is True
+    assert place_authority(kind="stop_market", lease=EXPIRED)[0] is True
 
 
 def test_scan_only_and_outside_rth_scopes():

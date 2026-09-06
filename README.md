@@ -28,7 +28,7 @@ Do not run two place-capable Automations. Git updates do **not** change the stor
 
 ## H schedule
 
-Schedule the Automation every **15 minutes** if you want. Each fire **exits before any market work** if it is not RTH. Skip journals **append on `main`** — do not open a new PR per skip. H must `checkout` + `pull` `main` before reading lock files. Cursor may start overlapping H runs; **`journal/h_lease.json` on `origin/main` is the concurrency gate for new entries.** Emergency protection does not wait on Git. Duplicate leftover closes are blocked by broker occupancy and a deterministic `ref_id`, not by the lease. Outside RTH is clock-only. Full scan runs only 13:10–15:45 when flat. Never force-push. Schema **2026-09-06.8**.
+Schedule the Automation every **15 minutes** if you want. Each fire **exits before any market work** if it is not RTH. Skip journals **append on `main`** — do not open a new PR per skip. H must `checkout` + `pull` `main` before reading lock files. Cursor may start overlapping H runs; **`journal/h_lease.json` on `origin/main` is the concurrency gate for new entries.** Emergency protection does not wait on Git. Duplicate leftover closes are blocked by broker occupancy and a deterministic `ref_id`, not by the lease. Outside RTH is clock-only. Full scan runs only 13:10–15:45 when flat. Never force-push. Schema **2026-09-06.10**. After clock + exposure H runs `pipeline.h_dispatch.print_card` and executes only that card.
 
 ## Read-only pipeline
 
