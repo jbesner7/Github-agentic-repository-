@@ -17,6 +17,7 @@ from pipeline.h_budget import (
 from pipeline.h_gates import (
     RemoteLease,
     is_emergency_kind,
+    is_manage_exit_kind,
     may_place_option_order,
     permissions_allow,
 )
@@ -135,10 +136,11 @@ def place_authority(
         return False, "automation_disabled"
     if not schema_ok:
         return False, "rules_prompt_mismatch"
+    exit_intent = is_emergency_kind(kind) or is_manage_exit_kind(kind)
     allowed, reason = permissions_allow(
         status=permissions_status,
         owner_stop_all_including_exits=owner_stop_all,
-        intent="close" if is_emergency_kind(kind) else "new_entry",
+        intent="close" if exit_intent else "new_entry",
     )
     if not allowed:
         return False, reason

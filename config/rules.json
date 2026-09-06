@@ -123,8 +123,8 @@
     "proposal_ttl": "until_next_loop"
   },
   "agent_h": {
-    "schema_version": "2026-09-06.8",
-    "prompt_expected_schema_version": "2026-09-06.8",
+    "schema_version": "2026-09-06.9",
+    "prompt_expected_schema_version": "2026-09-06.9",
     "numeric_thresholds_are_schema_invariants": true,
     "rules_prompt_mismatch_means_place_nothing": true,
     "invariants_module": "pipeline/h_invariants.py",
@@ -199,6 +199,10 @@
     "overlapping_stateless_runs_must_not_submit_duplicate_closes": true,
     "known_other_lease_holder_blocks_emergency_even_if_git_unavailable": true,
     "emergency_kinds_may_place_without_owned_lease_if_no_other_holder": true,
+    "take_profit_may_place_without_owned_lease_if_git_up_and_no_other_holder": true,
+    "git_unavailable_blocks_take_profit": true,
+    "stop_market_is_emergency_kind": true,
+    "prior_same_day_filled_close_does_not_cover_later_sequential_open": true,
     "fire_budget": {
       "cadence_minutes": 15,
       "outside_rth_is_clock_only": true,

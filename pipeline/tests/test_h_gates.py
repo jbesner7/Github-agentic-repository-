@@ -28,6 +28,13 @@ def test_every_place_requires_valid_remote_lease():
     assert may_place_option_order(OWNED, kind="entry") == (True, "ok")
     assert may_place_option_order(OWNED, kind="protect") == (True, "ok")
     assert may_place_option_order(OWNED, kind="flatten") == (True, "ok")
+    assert may_place_option_order(OWNED, kind="take_profit") == (True, "ok")
+    assert may_place_option_order(EXPIRED_UNOWNED, kind="take_profit") == (
+        True,
+        "manage_exit_without_owned_lease",
+    )
+    assert may_place_option_order(EXPIRED_UNOWNED, kind="take_profit", git_status="outage")[0] is False
+    assert may_place_option_order(EXPIRED_UNOWNED, kind="stop_market")[0] is True
     for lease in (EXPIRED_UNOWNED, EXPIRED_OWN_STALE, UNREADABLE):
         ok, reason = may_place_option_order(lease, kind="protect")
         assert ok is True

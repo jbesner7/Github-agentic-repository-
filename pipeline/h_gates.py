@@ -53,12 +53,20 @@ EMERGENCY_KINDS = frozenset(
         "protection_failed",
         "emergency_exit",
         "missing_stop_flatten",
+        "stop",
+        "stop_market",
+        "stop_limit",
     }
 )
+MANAGE_EXIT_KINDS = frozenset({"take_profit", "reduce", "close"})
 
 
 def is_emergency_kind(kind: str) -> bool:
     return (kind or "").strip().lower() in EMERGENCY_KINDS
+
+
+def is_manage_exit_kind(kind: str) -> bool:
+    return (kind or "").strip().lower() in MANAGE_EXIT_KINDS
 
 
 def is_git_unavailable(git_status: str) -> bool:
@@ -84,6 +92,12 @@ def may_place_option_order(
         if is_git_unavailable(git_status):
             return True, "emergency_protection_without_git"
         return True, "emergency_protection_without_owned_lease"
+    if is_manage_exit_kind(kind):
+        if is_git_unavailable(git_status):
+            return False, "git_unavailable_no_take_profit"
+        if lease.readable and lease.owned_by_this_run and not lease.expired:
+            return True, "ok"
+        return True, "manage_exit_without_owned_lease"
     if not lease.readable:
         return False, "lease_unreadable"
     if lease.expired or not lease.owned_by_this_run:

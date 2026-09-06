@@ -1,6 +1,6 @@
 # Options Day Trading Playbook
 
-**Status: RELEASED** (owner approved 2026-08-30), with **2026-09-06.8 Agent H live-safety locks** (`schema_version` 2026-09-06.8).
+**Status: RELEASED** (owner approved 2026-08-30), with **2026-09-06.9 Agent H live-safety locks** (`schema_version` 2026-09-06.9).
 
 Live `place_*` from **this Cursor chat (Agent F)** still requires an explicit confirm of a **specific** order.
 

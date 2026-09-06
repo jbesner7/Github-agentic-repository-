@@ -41,8 +41,8 @@ def registry_line(spec: InvariantSpec) -> str:
 
 
 INVARIANT_REGISTRY: tuple[InvariantSpec, ...] = (
-    InvariantSpec("schema_version", "schema_version", "2026-09-06.8"),
-    InvariantSpec("prompt_expected_schema_version", "prompt_expected_schema_version", "2026-09-06.8"),
+    InvariantSpec("schema_version", "schema_version", "2026-09-06.9"),
+    InvariantSpec("prompt_expected_schema_version", "prompt_expected_schema_version", "2026-09-06.9"),
     InvariantSpec("no_new_entries_before", "no_new_entries_before", "09:45"),
     InvariantSpec("no_new_entries_after", "no_new_entries_after", "15:45"),
     InvariantSpec("dte_0_liquidation_begin", "overnight.dte_0_liquidation_begin", "15:30"),
@@ -89,6 +89,7 @@ INVARIANT_REGISTRY: tuple[InvariantSpec, ...] = (
 
 REGISTRY_HEADER = "## Invariant registry"
 FORBIDDEN_PROMPT = (
+    "2026-09-06.8",
     "2026-09-06.7",
     "2026-09-06.6",
     "2026-09-06.5",
