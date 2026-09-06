@@ -16,23 +16,6 @@ from dataclasses import dataclass
 from typing import Any
 
 
-CONTRACT_ELIGIBILITY_FAILURES = frozenset(
-    {
-        "quote_age",
-        "bid_ask",
-        "sizes",
-        "spread",
-        "delta",
-        "iv",
-        "volume",
-        "open_interest",
-        "tick_validity",
-        "debit_cap",
-        "fee_cap",
-        "buying_power",
-    }
-)
-
 REVIEW_ORDER_CHECK_FAILURES = frozenset(
     {
         "review_order_checks",
@@ -61,28 +44,64 @@ class RemoteLease:
     readable: bool = True
 
 
-def may_place_option_order(lease: RemoteLease, *, kind: str = "any") -> tuple[bool, str]:
-    """Every place_option_order, including protection and liquidation, needs a live lease."""
-    if not lease.readable:
-        return False, "lease_unreadable"
+GIT_UNAVAILABLE = frozenset({"unavailable", "timeout", "outage"})
+EMERGENCY_KINDS = frozenset(
+    {
+        "protect",
+        "flatten",
+        "forced_liquidation",
+        "protection_failed",
+        "emergency_exit",
+        "missing_stop_flatten",
+    }
+)
+
+
+def is_emergency_kind(kind: str) -> bool:
+    return (kind or "").strip().lower() in EMERGENCY_KINDS
+
+
+def is_git_unavailable(git_status: str) -> bool:
+    return (git_status or "").strip().lower() in GIT_UNAVAILABLE
+
+
+def may_place_option_order(
+    lease: RemoteLease,
+    *,
+    kind: str = "any",
+    git_status: str = "ok",
+) -> tuple[bool, str]:
+    """New entries always need a live lease. Emergency protection does not need Git.
+
+    A known other lease holder still blocks. Emergency place is still subject
+    to `pipeline.h_closer.decide_emergency_close`.
+    """
     if lease.other_unexpired_holder:
         return False, "lease_held_after_fill" if kind != "entry" else "lease_held"
+    if is_emergency_kind(kind):
+        if lease.readable and lease.owned_by_this_run and not lease.expired:
+            return True, "ok"
+        if is_git_unavailable(git_status):
+            return True, "emergency_protection_without_git"
+        return True, "emergency_protection_without_owned_lease"
+    if not lease.readable:
+        return False, "lease_unreadable"
     if lease.expired or not lease.owned_by_this_run:
         return False, "lease_must_reacquire_before_place"
     return True, "ok"
 
 
-def recovery_action(lease: RemoteLease) -> str:
-    """What a filled run may do after its lease expires or another run appears."""
+def recovery_action(lease: RemoteLease, *, git_status: str = "ok", kind: str = "protect") -> str:
+    """What a filled run may do after its lease expires, another run appears, or Git is down."""
     if lease.other_unexpired_holder:
         return "place_nothing_new_owner_manages"
+    if is_emergency_kind(kind):
+        if lease.readable and lease.owned_by_this_run and not lease.expired:
+            return "recover_now"
+        return "emergency_protect_without_owned_lease"
     if not lease.readable or lease.expired or not lease.owned_by_this_run:
         return "reacquire_then_recover"
     return "recover_now"
-
-
-def never_place_from_momentary_absent_other_lease() -> bool:
-    return True
 
 
 ENTRY_LEASE_RENEW_MINUTES = 6
@@ -103,18 +122,16 @@ RUN_ORDER_AFTER_LEASE = (
     "core_recovery_capability",
     "read_rules_permissions_playbook",
     "exposure_and_working_orders",
-    "if_exposure_protect_or_flatten_only",
-    "if_flat_permissions_bod_session_full_capability_scan",
+    "classify_fire_mode_from_clock_and_exposure",
+    "if_exposure_continuity_and_section_8_only",
+    "if_flat_before_scan_window_no_scan",
+    "if_scan_acquire_lease_then_permissions_bod_session_full_capability_scan",
 )
 
 
-def reverify_remote_lease_immediately_before_every_place() -> bool:
-    return True
-
-
-def renew_lease_immediately_before_entry_placement(*, minutes_remaining: float) -> bool:
-    """Run this check immediately before entry. Renew only if the 6/3-minute rule says so."""
-    return must_renew_lease(minutes_remaining=minutes_remaining, before_entry=True)
+def must_reverify_remote_lease_before_place(*, kind: str, git_status: str = "ok") -> bool:
+    """Emergency protection does not wait on Git fetch/push/lease verify."""
+    return not is_emergency_kind(kind)
 
 
 def must_renew_lease(*, minutes_remaining: float, before_entry: bool) -> bool:
@@ -133,15 +150,8 @@ def core_recovery_tools_present(available: set[str] | list[str] | tuple[str, ...
 
 
 def may_try_one_otm(atm_failure: str) -> bool:
-    """ATM may fall back to exactly one OTM on any contract-level eligibility miss.
-
-    A review `order_checks` block is a broker refusal. Do not try another contract
-    to circumvent it.
-    """
-    reason = (atm_failure or "").strip().lower()
-    if reason in REVIEW_ORDER_CHECK_FAILURES:
-        return False
-    return True
+    """ATM may fall back to one OTM except after a broker `order_checks` block."""
+    return (atm_failure or "").strip().lower() not in REVIEW_ORDER_CHECK_FAILURES
 
 
 def replacement_policy(intent: str) -> dict[str, Any]:

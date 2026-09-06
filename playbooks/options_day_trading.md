@@ -1,6 +1,6 @@
 # Options Day Trading Playbook
 
-**Status: RELEASED** (owner approved 2026-08-30), with **2026-09-06.4 Agent H live-safety locks** (`schema_version` 2026-09-06.4).
+**Status: RELEASED** (owner approved 2026-08-30), with **2026-09-06.8 Agent H live-safety locks** (`schema_version` 2026-09-06.8).
 
 Live `place_*` from **this Cursor chat (Agent F)** still requires an explicit confirm of a **specific** order.
 
@@ -48,7 +48,7 @@ Agent H mandate: **long call or long put only** on liquid optionable equities an
   - Full debit = `option_limit_price × 100` ≤ **2.5% of current NLV**
 - H graphs on the underlying stock or ETF, in this order only: **daily setup → 1-hour confirmation → completed 10-minute trigger → live quote → option review**
   - Daily: major trend, support/resistance, and chart pattern. Daily neckline governs the 10m breakout
-  - 1-hour: confirm direction; reject trades that conflict with the broader intraday trend
+  - 1-hour: confirm direction mathematically — `classify_hour_bias` and `hour_trend` (last completed hour close vs median of last 20 completed hour closes) must both equal the daily winner; mixed/none/conflict → skip
   - 10-minute: confirm breakout, volume, retest, and entry trigger
   - Live quote: validate the underlying trigger and price the option immediately before ordering
 - Pattern math is locked in `rules.json` `agent_h.patterns` and `pipeline/patterns.py`: H&S order and 1.5% head prominence, 3-bar pivot separation, max duration 60 daily / 40 hour bars on every named-pivot pattern including doubles/triples, triangle OLS plus 2 touches/side, overlapping rank is H&S then double/triple then triangle (triangle last-touch, never window end)
@@ -60,7 +60,7 @@ Agent H mandate: **long call or long put only** on liquid optionable equities an
 - If fill succeeds and stop review/place fails: immediate controlled sell-to-close, poll to completion, and journal `protection_failed`
 - Re-read buying power immediately before review and before place
 - Losing trade = fully closed trade with negative net realized P&L after fees. Break-even is not a loss
-- H lease: valid only after a successful push to `origin/main` and a fetch that confirms this run’s `run_id`. Pull `--ff-only` or rebase onto `origin/main` before every `main` journal/lease push, then re-read **only** `origin/main:journal/h_lease.json` to decide if the lease is free. A pulled-in other-run lease is held — do not overwrite it. This run’s own working-tree lease write after rebase does not block a retry. Retry a rejected push once; never force-push. Recheck immediately before **every** `place_option_order`, including protection and liquidation. After acquire: select ••••2907, confirm core recovery tools, read `rules.json` / permissions / playbook, then reconcile exposure before scan/BOD/new-entry checks. Schema or `rules_prompt_mismatch` means place nothing, including leftover protection. Renew before a new entry unless at least **6 minutes** remain. After this run fills: if the lease expires, reacquire it through commit/push/fetch/verify before any recovery ticket. Never place from a one-moment observation that no other unexpired lease existed. If another run holds it: journal `lease_held_after_fill`, place nothing. A new lease owner inspects exposure before scanning. Numeric thresholds in the H prompt must match `rules.json` → `agent_h` exactly (`rules_prompt_mismatch` otherwise).
+- H lease, continuity, Git-independent single closer, fire budget, and the `INV[key]=value` registry: follow `playbooks/agent_h_autonomous.PROMPT.md`. Do not keep a second copy here.
 - BOD NLV: prefer a broker beginning-of-day field in `journal/h_session.json`. First-fire `total_value` is `first_fire_baseline_nlv` only. If genuine BOD NLV cannot be established: no new entry
 - Exhaust pagination before concluding: no working order, no earlier entry today, no stop-out, strikes bracket spot, or no duplicate account match
 - Confirm required MCP tools/fields at the start of RTH work; fail closed if any required capability is missing

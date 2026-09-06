@@ -13,7 +13,7 @@ Operator notes for agents: [`AGENTS.md`](AGENTS.md).
 | **Agent F** (this Cursor chat) | Only after an explicit confirm of a **specific** order. Blocked during RTH while H is enabled. Never from stale `signals/*`. |
 | **Agent H** (Cursor Automation [Agentic AI Bot](https://cursor.com/automations/9af478e7-a454-11f1-a7d1-d6b4613131ce)) | Standing prompt is the permission. Disable the Automation to stop new entries. Deleting the permissions file also blocks new entries; leftover exposure may still be flattened unless the owner says stop all order activity, including exits. |
 
-Do not run two place-capable Automations. Git updates do **not** change the pasted Automation prompt — re-paste [`playbooks/agent_h_autonomous.PROMPT.md`](playbooks/agent_h_autonomous.PROMPT.md) after prompt edits.
+Do not run two place-capable Automations. Git updates do **not** change the stored Automation prompt. Paste instructions: [`playbooks/agent_h_autonomous.PROMPT.md`](playbooks/agent_h_autonomous.PROMPT.md) — copy from `BEGIN AGENT H PROMPT` through the end into [Agentic AI Bot](https://cursor.com/automations/9af478e7-a454-11f1-a7d1-d6b4613131ce). Re-paste after every prompt change.
 
 ## Locked rules (summary)
 
@@ -28,7 +28,7 @@ Do not run two place-capable Automations. Git updates do **not** change the past
 
 ## H schedule
 
-Schedule the Automation every **15 minutes** if you want. Each fire **exits before any market work** if it is not RTH. Skip journals **append on `main`** — do not open a new PR per skip. H must `checkout` + `pull` `main` before reading lock files. Cursor may start overlapping H runs; **`journal/h_lease.json` on `origin/main` is the concurrency gate.** Never force-push.
+Schedule the Automation every **15 minutes** if you want. Each fire **exits before any market work** if it is not RTH. Skip journals **append on `main`** — do not open a new PR per skip. H must `checkout` + `pull` `main` before reading lock files. Cursor may start overlapping H runs; **`journal/h_lease.json` on `origin/main` is the concurrency gate for new entries.** Emergency protection does not wait on Git. Duplicate leftover closes are blocked by broker occupancy and a deterministic `ref_id`, not by the lease. Outside RTH is clock-only. Full scan runs only 13:10–15:45 when flat. Never force-push. Schema **2026-09-06.8**.
 
 ## Read-only pipeline
 

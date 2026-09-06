@@ -78,8 +78,25 @@ def test_rules_json_matches_working_states_and_10minute():
     assert rules["agent_h"]["no_1m_3m_autonomous_noise"] is True
     assert rules["agent_h"]["no_5m_stateless_inconsistency"] is True
     assert rules["agent_h"]["include_index_options"] is False
-    assert rules["agent_h"]["schema_version"] == "2026-09-06.4"
-    assert rules["agent_h"]["prompt_expected_schema_version"] == "2026-09-06.4"
+    assert rules["agent_h"]["schema_version"] == "2026-09-06.8"
+    assert rules["agent_h"]["prompt_expected_schema_version"] == "2026-09-06.8"
+    assert rules["agent_h"]["fire_budget"]["outside_rth_no_git_no_journal_no_rh"] is True
+    assert rules["agent_h"]["fire_budget"]["lease_acquire_only_for_scan_new_entry"] is True
+    assert rules["agent_h"]["fire_budget"]["max_daily_historicals_per_fire"] == 8
+    assert rules["agent_h"]["fire_budget"]["option_chain_only_after_live_trigger"] is True
+    assert rules["agent_h"]["pagination"]["stop_after_positive_match_except"] == ["no_duplicate_account_match"]
+    assert rules["agent_h"]["emergency_protection_path_does_not_require_git"] is True
+    assert rules["agent_h"]["git_unavailable_allows_emergency_protection_without_lease"] is True
+    assert rules["agent_h"]["emergency_close_serialized_by_broker_not_git"] is True
+    assert rules["agent_h"]["one_working_sell_to_close_per_option_position"] is True
+    assert rules["agent_h"]["emergency_close_uses_deterministic_ref_id"] is True
+    assert rules["agent_h"]["duplicate_emergency_ref_id_is_retry_not_new_order"] is True
+    assert rules["agent_h"]["overlapping_stateless_runs_must_not_submit_duplicate_closes"] is True
+    assert rules["agent_h"]["known_other_lease_holder_blocks_emergency_even_if_git_unavailable"] is True
+    assert rules["agent_h"]["emergency_kinds_may_place_without_owned_lease_if_no_other_holder"] is True
+    assert rules["agent_h"]["entry_order"]["skip_if_required_cash_exceeds_buying_power"] is True
+    assert rules["agent_h"]["continuity_store"] == "broker_positions_and_working_orders"
+    assert rules["agent_h"]["patterns"]["hour_trend_lookback_completed"] == 20
     assert rules["agent_h"]["read_rules_permissions_playbook_before_any_place"] is True
     assert rules["agent_h"]["schema_or_rules_prompt_mismatch_blocks_all_orders_including_exits"] is True
     assert rules["agent_h"]["numeric_thresholds_are_schema_invariants"] is True
@@ -96,9 +113,8 @@ def test_rules_json_matches_working_states_and_10minute():
     assert rules["agent_h"]["overnight"]["expiration_day_absolute_deadline"] == "15:45"
     assert rules["agent_h"]["overnight"]["dte_1_to_3_liquidation_begin"] == "15:40"
     assert rules["agent_h"]["lease_valid_only_after_successful_push_to_origin_main"] is True
-    assert rules["agent_h"]["recheck_remote_lease_before_every_place_option_order"] is True
+    assert rules["agent_h"]["recheck_remote_lease_before_every_place_option_order"] is False
     assert rules["agent_h"]["recheck_remote_lease_before_every_new_entry_place_option_order"] is True
-    assert rules["agent_h"]["reacquire_lease_before_any_place_if_expired_and_unowned"] is True
     assert rules["agent_h"]["never_place_from_momentary_absent_other_lease"] is True
     assert rules["agent_h"]["renew_lease_immediately_before_entry_placement"] is True
     assert rules["agent_h"]["new_lease_owner_exposure_has_priority_over_scan"] is True
@@ -109,14 +125,16 @@ def test_rules_json_matches_working_states_and_10minute():
     assert rules["agent_h"]["failed_lease_acquire_push_means_place_nothing_and_exit"] is True
     assert rules["agent_h"]["rejected_lease_push_means_place_nothing_and_exit"] is False
     assert rules["agent_h"]["rejected_lease_acquire_push_means_place_nothing_and_exit"] is True
-    assert rules["agent_h"]["no_review_or_place_until_remote_lease_verified"] is True
+    assert rules["agent_h"]["no_review_or_place_until_remote_lease_verified"] is False
     assert rules["agent_h"]["no_new_entry_review_or_place_until_remote_lease_verified"] is True
-    assert rules["agent_h"]["failed_lease_renewal_blocks_new_entry_only"] is False
-    assert rules["agent_h"]["failed_lease_renewal_must_still_protect_or_flatten_this_run_fill"] is False
-    assert rules["agent_h"]["protection_or_flatten_of_this_run_fill_allowed_after_failed_renewal"] is False
+    assert rules["agent_h"]["failed_lease_renewal_blocks_new_entry_only"] is True
+    assert rules["agent_h"]["failed_lease_renewal_must_still_protect_or_flatten_this_run_fill"] is True
+    assert rules["agent_h"]["protection_or_flatten_of_this_run_fill_allowed_after_failed_renewal"] is True
     assert rules["agent_h"]["this_run_fill_must_protect_or_flatten_even_if_remote_lease_mismatched_or_expired"] is False
-    assert rules["agent_h"]["this_run_fill_must_protect_or_flatten_if_lease_expired_or_unreadable_and_no_other_run_holds_it"] is False
-    assert rules["agent_h"]["no_review_or_place_until_remote_lease_verified"] is True
+    assert rules["agent_h"]["this_run_fill_must_protect_or_flatten_if_lease_expired_or_unreadable_and_no_other_run_holds_it"] is True
+    assert rules["agent_h"]["reacquire_lease_before_any_place_if_expired_and_unowned"] is False
+    assert rules["agent_h"]["reacquire_lease_before_new_entry_if_expired_and_unowned"] is True
+    assert rules["agent_h"]["no_review_or_place_until_remote_lease_verified"] is False
     assert rules["agent_h"]["this_run_fill_must_not_place_if_another_run_id_holds_remote_lease"] is True
     assert rules["agent_h"]["other_run_lease_owner_handles_leftover_exposure"] is True
     assert rules["agent_h"]["entry_order"]["max_acceptable_debit_is_not_first_limit"] is True
@@ -137,7 +155,12 @@ def test_rules_json_matches_working_states_and_10minute():
     assert rules["agent_h"]["never_force_push_on_non_fast_forward"] is True
     assert rules["agent_h"]["scheduler_must_enforce_max_concurrent_runs"] is False
     assert rules["agent_h"]["git_lease_is_the_concurrency_gate"] is True
-    assert rules["agent_h"]["lease_acquire_before_account_or_scan"] is True
+    assert rules["agent_h"]["lease_acquire_before_account_or_scan"] is False
+    assert rules["agent_h"]["lease_read_before_account"] is True
+    assert rules["agent_h"]["lease_acquire_only_after_fire_mode_is_scan"] is True
+    assert rules["agent_h"]["attention_module"] == "pipeline.h_attention"
+    assert rules["agent_h"]["fire_budget"]["manage_executes_section_8_including_take_profit"] is True
+    assert rules["agent_h"]["fire_budget"]["incomplete_option_orders_pages_block_emergency_place"] is True
     assert rules["agent_h"]["lease_ttl_minutes"] == 12
     assert rules["agent_h"]["lease_renew_if_fewer_than_minutes_remaining"] == 3
     assert rules["agent_h"]["never_force_push_or_overwrite_conflicting_lease"] is True
@@ -243,8 +266,34 @@ def test_agent_h_prompt_locks_schema_and_live_safety():
     from pathlib import Path
 
     prompt = (Path(__file__).resolve().parents[2] / "playbooks" / "agent_h_autonomous.PROMPT.md").read_text()
-    assert "2026-09-06.4" in prompt
+    assert "2026-09-06.8" in prompt
+    assert "2026-09-06.7" not in prompt
+    assert "2026-09-06.6" not in prompt
+    assert "2026-09-06.5" not in prompt
+    assert "## Fire budget" in prompt
+    assert "## Place authority" in prompt
+    assert "## Section scope" in prompt
+    assert "SCAN ONLY" in prompt
+    assert "execute Continuity + §8 only" in prompt
+    assert "orders_incomplete" in prompt
+    assert "read remote lease only; do not acquire until mode is scan" in prompt
+    assert "read remote lease; acquire only in scan/new-entry mode" not in prompt
+    assert "classify fire mode from clock + exposure" in prompt
+    assert "emergency_ref_id_unavailable" in prompt
+    assert "Emergency kinds may place without an owned lease if no other unexpired holder exists." in prompt
+    assert "generation` is the count of cancelled/rejected/failed/voided" in prompt
+    assert "owns a valid remote lease or Git is unavailable" not in prompt
+    assert "outside_rth_clock_only" in prompt
+    assert "rate_limited" in prompt
+    assert "2026-09-06.4" not in prompt
     assert "2026-09-06.3" not in prompt
+    assert "## Invariant registry" in prompt
+    assert "git_unavailable_emergency_only" in prompt
+    assert "## Continuity" in prompt
+    assert "already_covered_monitor_only" in prompt
+    assert "emergency_close_ref_id" in prompt
+    assert "place nothing** even if Git later looks down" in prompt
+    assert "If `required_cash` > buying power or the 2.5% debit cap fails: skip." in prompt
     assert "2026-09-06.2" not in prompt
     assert "2026-09-06.1" not in prompt
     assert "2026-09-05.6" not in prompt
