@@ -29,6 +29,7 @@ CATALOG: list[tuple[str, str, str, str]] = [
     ("pipeline/options_structure.py", "5 · Agent D", "F + H", "Long call/put; ATM/OTM; 2–3 DTE while overnight off"),
     ("pipeline/equity_day_trade.py", "5 · Agent D", "F only", "Long shares only; inverse-ETF denylist; H has no equity fallback"),
     ("pipeline/greeks.py", "6 · Agent I", "F + H", "Copy RH Greeks only; signed call +0.40–+0.50 / put −0.50–−0.40"),
+    ("pipeline/ticks.py", "7 · Agent E", "F + H", "Tick-floor debit cap; +1 tick replace skip; stop rounds toward fill"),
     ("pipeline/risk.py", "7 · Agent E", "F + H", "Options −20%/+40%; equity −20%/+25%; stop first until OCO"),
     ("pipeline/orchestrator.py", "8 · Agent G", "F + H", "Phase 2 read-only snapshot; h_entry_ready is always false"),
     ("pipeline/execution.py", "9 · Agent F", "F (chat)", "Supervised place-gate: confirm, RTH, 09:45 options, H-owns-RTH"),
@@ -40,6 +41,7 @@ CATALOG: list[tuple[str, str, str, str]] = [
     ("pipeline/tests/test_session.py", "11 · Tests", "CI / F", "ET calendar date and flatten window"),
     ("pipeline/tests/test_equity_day_trade.py", "11 · Tests", "CI / F", "Long-only equity selection and Phase 2 snapshots"),
     ("pipeline/tests/test_execution.py", "11 · Tests", "CI / F", "F place-gate including 09:45 option lock"),
+    ("pipeline/tests/test_ticks.py", "11 · Tests", "CI / F", "Debit-cap tick floor, one-tick replace skip, stop rounding"),
 ]
 
 

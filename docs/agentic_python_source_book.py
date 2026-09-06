@@ -7,7 +7,7 @@ Agent H (autonomous Agentic bot) share this Python pipeline.
 Live place_* is Robinhood MCP, not a side effect of this code.
 H's standing prompt is playbooks/agent_h_autonomous.PROMPT.md (not Python).
 
-Generated: 2026-09-06T00:26:02+00:00
+Generated: 2026-09-06T01:31:06+00:00
 Print companion: docs/agentic-python-source-printable.html
 """
 
@@ -1759,6 +1759,183 @@ def delta_in_band(
     return False, "delta_option_type_required"
 
 # ========================================================================
+# pipeline/ticks.py
+# Part: 7 · Agent E
+# Used by: F + H
+# Tick-floor debit cap; +1 tick replace skip; stop rounds toward fill
+# ========================================================================
+
+"""Valid-tick rounding for option and equity prices.
+
+Robinhood option `min_ticks` is typically $0.01 below $3.00 and $0.05 at or
+above $3.00. Equity day-trade stops use a $0.01 tick. H and F must round
+before review — do not send a raw 80% stop.
+"""
+
+from __future__ import annotations
+
+from decimal import Decimal, ROUND_CEILING, ROUND_FLOOR, ROUND_HALF_EVEN
+from typing import Any
+
+
+OPTION_TICK_CUTOFF = Decimal("3.00")
+OPTION_TICK_BELOW = Decimal("0.01")
+OPTION_TICK_AT_OR_ABOVE = Decimal("0.05")
+EQUITY_TICK = Decimal("0.01")
+
+
+def _as_decimal(value: Any) -> Decimal | None:
+    if value in (None, ""):
+        return None
+    try:
+        amount = Decimal(str(value).replace("$", "").replace(",", "").strip())
+    except Exception:
+        return None
+    if amount != amount or amount <= 0:
+        return None
+    return amount
+
+
+def option_tick_size(price: Any, min_ticks: dict[str, Any] | None = None) -> Decimal | None:
+    """Tick for a premium. Prefer instrument `min_ticks`; else RH typical."""
+    px = _as_decimal(price)
+    if px is None:
+        return None
+    if isinstance(min_ticks, dict):
+        try:
+            cutoff = Decimal(str(min_ticks.get("cutoff_price", OPTION_TICK_CUTOFF)))
+            below = Decimal(str(min_ticks.get("below_tick", OPTION_TICK_BELOW)))
+            above = Decimal(str(min_ticks.get("above_tick", OPTION_TICK_AT_OR_ABOVE)))
+        except Exception:
+            return None
+        if below <= 0 or above <= 0:
+            return None
+        return below if px < cutoff else above
+    return OPTION_TICK_BELOW if px < OPTION_TICK_CUTOFF else OPTION_TICK_AT_OR_ABOVE
+
+
+def _quantize(price: Decimal, tick: Decimal, rounding) -> Decimal:
+    steps = (price / tick).quantize(Decimal("1"), rounding=rounding)
+    return (steps * tick).quantize(tick)
+
+
+def round_to_tick(
+    price: Any,
+    tick: Any,
+    *,
+    mode: str = "nearest",
+) -> Decimal | None:
+    """Round `price` onto `tick`.
+
+    mode:
+      nearest — half-even
+      toward_bid / down — floor (passive buy, or never exceed a cap)
+      toward_fill / up — ceil (tighter sell-to-close stop; never widen)
+    """
+    px = _as_decimal(price)
+    step = _as_decimal(tick)
+    if px is None or step is None:
+        return None
+    if mode in {"toward_fill", "up", "ceil"}:
+        return _quantize(px, step, ROUND_CEILING)
+    if mode in {"toward_bid", "down", "floor"}:
+        return _quantize(px, step, ROUND_FLOOR)
+    return _quantize(px, step, ROUND_HALF_EVEN)
+
+
+def entry_limit_from_mid(mid: Any, ask: Any, tick: Any) -> Decimal | None:
+    """Nearest tick; exact half-tick toward the bid; never above ask."""
+    mid_d = _as_decimal(mid)
+    ask_d = _as_decimal(ask)
+    step = _as_decimal(tick)
+    if mid_d is None or ask_d is None or step is None:
+        return None
+    steps = mid_d / step
+    frac = steps - steps.to_integral_value(rounding=ROUND_FLOOR)
+    if frac == Decimal("0.5"):
+        rounded = _quantize(mid_d, step, ROUND_FLOOR)
+    else:
+        rounded = _quantize(mid_d, step, ROUND_HALF_EVEN)
+    if rounded > ask_d:
+        return ask_d.quantize(step) if ask_d == _quantize(ask_d, step, ROUND_FLOOR) else _quantize(ask_d, step, ROUND_FLOOR)
+    return rounded
+
+
+def max_acceptable_debit_limit(
+    *caps: Any,
+    min_ticks: dict[str, Any] | None = None,
+    tick: Any = None,
+) -> Decimal | None:
+    """Independent chase cap: tick-floored min of ask, 2.5% NLV, and fee ceiling.
+
+    Floor so an off-grid NLV or fee cap cannot become the entry limit.
+    """
+    values = [v for v in (_as_decimal(c) for c in caps) if v is not None]
+    if not values:
+        return None
+    raw = min(values)
+    step = _as_decimal(tick)
+    if step is None:
+        step = option_tick_size(raw, min_ticks)
+    floored = round_to_tick(raw, step, mode="down")
+    if floored is None or floored <= 0:
+        return None
+    return floored
+
+
+def one_tick_replacement(
+    first_limit: Any,
+    live_ask: Any,
+    max_debit: Any,
+    tick: Any,
+) -> Decimal | None:
+    """First limit + 1 tick, or None if that would exceed live ask or max debit."""
+    first = _as_decimal(first_limit)
+    ask = _as_decimal(live_ask)
+    cap = _as_decimal(max_debit)
+    step = _as_decimal(tick)
+    if first is None or ask is None or cap is None or step is None:
+        return None
+    candidate = first + step
+    if candidate > ask or candidate > cap:
+        return None
+    return candidate.quantize(step)
+
+
+def protective_stop_price(
+    average_fill: Any,
+    tick: Any | None = None,
+    *,
+    stop_frac: Any = "0.80",
+    min_ticks: dict[str, Any] | None = None,
+    asset: str = "option",
+) -> Decimal | None:
+    """80% of fill, rounded toward the fill (tighter). Never widen past 20%."""
+    fill = _as_decimal(average_fill)
+    frac = _as_decimal(stop_frac)
+    if fill is None or frac is None:
+        return None
+    raw = fill * frac
+    step = _as_decimal(tick)
+    if step is None:
+        if asset == "equity":
+            step = EQUITY_TICK
+        else:
+            step = option_tick_size(raw, min_ticks)
+    if step is None:
+        return None
+    return round_to_tick(raw, step, mode="toward_fill")
+
+
+def as_price_str(value: Decimal | None) -> str | None:
+    if value is None:
+        return None
+    text = format(value, "f")
+    if "." in text:
+        text = text.rstrip("0").rstrip(".")
+    return text if text else "0"
+
+# ========================================================================
 # pipeline/risk.py
 # Part: 7 · Agent E
 # Used by: F + H
@@ -1768,6 +1945,8 @@ def delta_in_band(
 from __future__ import annotations
 
 from typing import Any
+
+from pipeline.ticks import EQUITY_TICK, protective_stop_price
 
 OPTIONS_SL_PCT_MIN = 0.20
 OPTIONS_SL_PCT_MAX = 0.50
@@ -1849,7 +2028,10 @@ def equity_risk_plan(
         plan["shares"] = int(shares)
     if limit_price is not None:
         plan["limit_price"] = limit_price
-        plan["stop_price"] = limit_price * (1.0 - stop_loss_pct)
+        rounded_stop = protective_stop_price(
+            limit_price, EQUITY_TICK, stop_frac=(1.0 - stop_loss_pct), asset="equity"
+        )
+        plan["stop_price"] = float(rounded_stop) if rounded_stop is not None else limit_price * (1.0 - stop_loss_pct)
         plan["take_profit_price"] = limit_price * (1.0 + take_profit_pct)
     return plan
 
@@ -2327,6 +2509,7 @@ from datetime import datetime
 from typing import Any
 
 from pipeline.io_util import JOURNAL, SIGNALS, append_jsonl, load_rules, read_json, utc_now_iso, write_json
+from pipeline.ticks import EQUITY_TICK, protective_stop_price
 from pipeline.session import (
     NO_NEW_OPTION_ENTRIES_BEFORE,
     entries_open,
@@ -2440,6 +2623,7 @@ def build_equity_entry_proposal(
     fill = float(price)
     stop_pct = float((candidate.get("risk") or {}).get("stop_loss_pct") or 0.2)
     tp_pct = float((candidate.get("risk") or {}).get("take_profit_pct") or 0.25)
+    stop_after_fill = protective_stop_price(price, EQUITY_TICK, stop_frac=(1.0 - stop_pct), asset="equity")
     return {
         "agent": "F_supervised_execution",
         "mode": "dry_review_until_confirm",
@@ -2457,7 +2641,7 @@ def build_equity_entry_proposal(
         "market_hours": "regular_hours",
         "stop_loss_pct": stop_pct,
         "take_profit_pct": tp_pct,
-        "stop_price_after_fill": fill * (1.0 - stop_pct),
+        "stop_price_after_fill": float(stop_after_fill) if stop_after_fill is not None else fill * (1.0 - stop_pct),
         "take_profit_price": fill * (1.0 + tp_pct),
         "playbook_status": candidate.get("playbook_status"),
         "places_order": False,
@@ -2579,6 +2763,7 @@ CATALOG: list[tuple[str, str, str, str]] = [
     ("pipeline/options_structure.py", "5 · Agent D", "F + H", "Long call/put; ATM/OTM; 2–3 DTE while overnight off"),
     ("pipeline/equity_day_trade.py", "5 · Agent D", "F only", "Long shares only; inverse-ETF denylist; H has no equity fallback"),
     ("pipeline/greeks.py", "6 · Agent I", "F + H", "Copy RH Greeks only; signed call +0.40–+0.50 / put −0.50–−0.40"),
+    ("pipeline/ticks.py", "7 · Agent E", "F + H", "Tick-floor debit cap; +1 tick replace skip; stop rounds toward fill"),
     ("pipeline/risk.py", "7 · Agent E", "F + H", "Options −20%/+40%; equity −20%/+25%; stop first until OCO"),
     ("pipeline/orchestrator.py", "8 · Agent G", "F + H", "Phase 2 read-only snapshot; h_entry_ready is always false"),
     ("pipeline/execution.py", "9 · Agent F", "F (chat)", "Supervised place-gate: confirm, RTH, 09:45 options, H-owns-RTH"),
@@ -2590,6 +2775,7 @@ CATALOG: list[tuple[str, str, str, str]] = [
     ("pipeline/tests/test_session.py", "11 · Tests", "CI / F", "ET calendar date and flatten window"),
     ("pipeline/tests/test_equity_day_trade.py", "11 · Tests", "CI / F", "Long-only equity selection and Phase 2 snapshots"),
     ("pipeline/tests/test_execution.py", "11 · Tests", "CI / F", "F place-gate including 09:45 option lock"),
+    ("pipeline/tests/test_ticks.py", "11 · Tests", "CI / F", "Debit-cap tick floor, one-tick replace skip, stop rounding"),
 ]
 
 
@@ -3374,7 +3560,8 @@ def test_rules_json_matches_working_states_and_10minute():
     assert rules["agent_h"]["no_1m_3m_autonomous_noise"] is True
     assert rules["agent_h"]["no_5m_stateless_inconsistency"] is True
     assert rules["agent_h"]["include_index_options"] is False
-    assert rules["agent_h"]["schema_version"] == "2026-09-05.6"
+    assert rules["agent_h"]["schema_version"] == "2026-09-06.1"
+    assert rules["agent_h"]["prompt_expected_schema_version"] == "2026-09-06.1"
     assert rules["agent_h"]["overnight"]["evaluate"] == "current_dte_each_run"
     assert rules["agent_h"]["overnight"]["current_dte_lte_3_flatten_by"] == "15:45"
     assert rules["agent_h"]["overnight"]["current_dte_gte_4_overnight_with_stop"] is False
@@ -3394,7 +3581,18 @@ def test_rules_json_matches_working_states_and_10minute():
     assert rules["agent_h"]["failed_lease_renewal_blocks_new_entry_only"] is True
     assert rules["agent_h"]["failed_lease_renewal_must_still_protect_or_flatten_this_run_fill"] is True
     assert rules["agent_h"]["protection_or_flatten_of_this_run_fill_allowed_after_failed_renewal"] is True
-    assert rules["agent_h"]["this_run_fill_must_protect_or_flatten_even_if_remote_lease_mismatched_or_expired"] is True
+    assert rules["agent_h"]["this_run_fill_must_protect_or_flatten_even_if_remote_lease_mismatched_or_expired"] is False
+    assert rules["agent_h"]["this_run_fill_must_protect_or_flatten_if_lease_expired_or_unreadable_and_no_other_run_holds_it"] is True
+    assert rules["agent_h"]["this_run_fill_must_not_place_if_another_run_id_holds_remote_lease"] is True
+    assert rules["agent_h"]["other_run_lease_owner_handles_leftover_exposure"] is True
+    assert rules["agent_h"]["entry_order"]["max_acceptable_debit_is_not_first_limit"] is True
+    assert rules["agent_h"]["entry_order"]["max_acceptable_debit_is_tick_floored"] is True
+    assert rules["agent_h"]["entry_order"]["max_acceptable_debit"].startswith("tick_floor(")
+    assert rules["agent_h"]["entry_order"]["skip_replacement_if_plus_one_tick_exceeds_max_or_live_ask"] is True
+    assert rules["agent_h"]["protective_stop"]["round_trigger_to_min_ticks"] is True
+    assert rules["agent_h"]["protective_stop"]["never_round_stop_away_from_fill"] is True
+    assert rules["agent_h"]["forced_liquidation"]["do_not_restore_stop_during_forced_liquidation"] is True
+    assert rules["agent_h"]["forced_liquidation"]["restore_protective_stop_if_unfilled"] is False
     assert rules["agent_h"]["after_pull_or_rebase_reread_remote_lease_before_writing_h_lease"] is True
     assert rules["agent_h"]["acquire_retry_uses_remote_lease_only_not_this_run_working_tree_write"] is True
     assert rules["agent_h"]["this_run_working_tree_lease_write_does_not_block_acquire_retry"] is True
@@ -3493,7 +3691,8 @@ def test_agent_h_prompt_locks_schema_and_live_safety():
     from pathlib import Path
 
     prompt = (Path(__file__).resolve().parents[2] / "playbooks" / "agent_h_autonomous.PROMPT.md").read_text()
-    assert "2026-09-05.6" in prompt
+    assert "2026-09-06.1" in prompt
+    assert "2026-09-05.6" not in prompt
     assert "2026-09-05.5" not in prompt
     assert "2026-09-05.4" not in prompt
     assert "2026-09-05.3" not in prompt
@@ -3505,13 +3704,20 @@ def test_agent_h_prompt_locks_schema_and_live_safety():
     assert "renew the lease before it has fewer than" in prompt
     assert "git pull --ff-only origin main" in prompt
     assert "rebase that commit onto `origin/main`" in prompt
-    assert "Failed renewal is not a kill-switch ban on those recovery tickets." in prompt
+    assert "Failed renewal is not a kill-switch" in prompt
+    assert "unless another run owns the lease" in prompt
     assert "A fast-forward pull that brought in another run’s lease is a **held** lease" in prompt or "if **another** unexpired `run_id` is there, that is a **held** lease" in prompt
     assert "**does not** block the retry" in prompt
     assert "re-read **only** `origin/main:journal/h_lease.json`" in prompt
     assert "without modifying `journal/h_lease.json`" in prompt
-    assert "including when the" in prompt and "lease expired, is unreadable, another `run_id` now holds it" in prompt
+    assert "journal `lease_held_after_fill`" in prompt
+    assert "only if no other unexpired `run_id` holds the lease" in prompt
     assert "you **must still** place protection or flatten for that fill" in prompt
+    assert "replacement_skipped_tick_cap" in prompt
+    assert "the tick-floored minimum" in prompt
+    assert "Round that trigger to a valid `min_ticks` increment toward the fill" in prompt
+    assert "**Do not restore the protective stop** during forced liquidation." in prompt
+    assert "**Take-profit only:**" in prompt
     assert "## Cursor/Grok concurrency rule" in prompt
     assert "**A. Clock.** Now in `America/New_York`. Clock only. **No RH calls.**" in prompt
     assert "Git on `origin/main` is the required concurrency" in prompt
@@ -4267,4 +4473,91 @@ def test_load_latest_skips_historical_do_not_place(tmp_path, monkeypatch):
         json.dumps({"candidates": [{"symbol": "NU"}]})
     )
     assert load_latest_option_candidates()[0]["symbol"] == "NU"
+
+# ========================================================================
+# pipeline/tests/test_ticks.py
+# Part: 11 · Tests
+# Used by: CI / F
+# Debit-cap tick floor, one-tick replace skip, stop rounding
+# ========================================================================
+
+from decimal import Decimal
+
+from pipeline.ticks import (
+    EQUITY_TICK,
+    as_price_str,
+    entry_limit_from_mid,
+    max_acceptable_debit_limit,
+    one_tick_replacement,
+    option_tick_size,
+    protective_stop_price,
+    round_to_tick,
+)
+
+
+def test_option_tick_size_typical_and_min_ticks():
+    assert option_tick_size("2.99") == Decimal("0.01")
+    assert option_tick_size("3.00") == Decimal("0.05")
+    assert option_tick_size("4.13") == Decimal("0.05")
+    custom = {"cutoff_price": "1.00", "below_tick": "0.01", "above_tick": "0.05"}
+    assert option_tick_size("0.90", custom) == Decimal("0.01")
+    assert option_tick_size("1.00", custom) == Decimal("0.05")
+    assert option_tick_size(None) is None
+
+
+def test_one_tick_replacement_skips_when_plus_one_exceeds_cap_or_ask():
+    # Mid entry at 1.10, max/ask 1.15: +1 penny is legal.
+    assert one_tick_replacement("1.10", "1.15", "1.15", "0.01") == Decimal("1.11")
+    # First ticket already at max: +1 tick is impossible.
+    assert one_tick_replacement("1.15", "1.20", "1.15", "0.01") is None
+    # First ticket already at live ask: +1 tick exceeds ask.
+    assert one_tick_replacement("2.00", "2.00", "2.10", "0.01") is None
+    # Nickel option above $3.
+    assert one_tick_replacement("3.10", "3.20", "3.20", "0.05") == Decimal("3.15")
+    assert one_tick_replacement("3.20", "3.20", "3.20", "0.05") is None
+
+
+def test_max_acceptable_debit_is_independent_of_first_limit():
+    assert max_acceptable_debit_limit("1.20", "1.50", "1.10") == Decimal("1.10")
+    assert max_acceptable_debit_limit(None, "1.10") == Decimal("1.10")
+    assert max_acceptable_debit_limit() is None
+
+
+def test_max_acceptable_debit_tick_floors_off_grid_nlv_or_fee_cap():
+    # Binding NLV/fee cap $3.02: nickel tick at/above $3 → floor to $3.00, not $3.02.
+    assert max_acceptable_debit_limit("3.10", "3.02") == Decimal("3.00")
+    # Below $3: penny tick. $1.114 floors to $1.11.
+    assert max_acceptable_debit_limit("1.20", "1.114") == Decimal("1.11")
+    # Already on a tick: unchanged.
+    assert max_acceptable_debit_limit("1.15", "1.20") == Decimal("1.15")
+    # Custom instrument ticks.
+    custom = {"cutoff_price": "1.00", "below_tick": "0.01", "above_tick": "0.05"}
+    assert max_acceptable_debit_limit("1.07", "1.20", min_ticks=custom) == Decimal("1.05")
+    # Floor to zero is not a legal limit.
+    assert max_acceptable_debit_limit("0.004") is None
+
+
+def test_entry_limit_half_tick_toward_bid_never_above_ask():
+    assert entry_limit_from_mid("1.105", "1.20", "0.01") == Decimal("1.10")
+    assert entry_limit_from_mid("1.104", "1.20", "0.01") == Decimal("1.10")
+    assert entry_limit_from_mid("1.106", "1.20", "0.01") == Decimal("1.11")
+    assert entry_limit_from_mid("1.19", "1.18", "0.01") == Decimal("1.18")
+
+
+def test_protective_stop_rounds_toward_fill_never_widens():
+    # $4.13 fill * 0.80 = $3.304. Nickel tick. Toward fill = $3.35, not $3.30.
+    assert protective_stop_price("4.13") == Decimal("3.35")
+    # $2.47 fill * 0.80 = $1.976. Penny tick. Toward fill = $1.98.
+    assert protective_stop_price("2.47") == Decimal("1.98")
+    # Already on a tick: keep it.
+    assert protective_stop_price("1.00") == Decimal("0.80")
+    # Equity $0.01.
+    assert protective_stop_price("100", EQUITY_TICK, asset="equity") == Decimal("80.00")
+    assert as_price_str(protective_stop_price("4.13")) == "3.35"
+
+
+def test_round_to_tick_modes():
+    assert round_to_tick("3.304", "0.05", mode="nearest") == Decimal("3.30")
+    assert round_to_tick("3.304", "0.05", mode="toward_fill") == Decimal("3.35")
+    assert round_to_tick("3.304", "0.05", mode="toward_bid") == Decimal("3.30")
 

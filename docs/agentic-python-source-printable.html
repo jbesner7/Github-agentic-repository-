@@ -68,17 +68,17 @@
 <body>
   <div class="toolbar no-print">
     <button type="button" onclick="window.print()">Print / Save as PDF</button>
-    <span>Agentic Python source — Letter portrait · 4073 lines · 23 files</span>
+    <span>Agentic Python source — Letter portrait · 4350 lines · 25 files</span>
   </div>
   <div class="page">
     <p class="kicker">Jarrod Besner · Agentic ••••2907</p>
     <h1>Python source book</h1>
     <div class="rule"></div>
     <p class="meta">Chat agent <strong>F</strong> and autonomous bot <strong>H</strong> share this pipeline.
-    Generated 2026-09-06 00:26 UTC. Companion file: <code>docs/agentic_python_source_book.py</code>.</p>
+    Generated 2026-09-06 01:31 UTC. Companion file: <code>docs/agentic_python_source_book.py</code>.</p>
     <div class="badge-row">
-      <span class="badge">23 Python files</span>
-      <span class="badge">4073 lines</span>
+      <span class="badge">25 Python files</span>
+      <span class="badge">4350 lines</span>
       <span class="badge">Language: Python 3</span>
       <span class="badge">Does not place orders</span>
     </div>
@@ -103,7 +103,7 @@
     <table>
       <thead><tr><th>Part</th><th>File</th><th>Used by</th><th>Lines</th><th>Role</th></tr></thead>
       <tbody>
-        <tr><td>0 · Package</td><td><a href='#pipeline-__init__-py'><code>pipeline/__init__.py</code></a></td><td>F + H</td><td>3</td><td>Pipeline package marker</td></tr><tr><td>1 · Shared</td><td><a href='#pipeline-io_util-py'><code>pipeline/io_util.py</code></a></td><td>F + H</td><td>38</td><td>Paths, rules.json loader, journal helpers</td></tr><tr><td>1 · Shared</td><td><a href='#pipeline-session-py'><code>pipeline/session.py</code></a></td><td>F + H</td><td>90</td><td>RTH clock; option entries 09:45–15:45; H lease is on origin/main</td></tr><tr><td>1 · Shared</td><td><a href='#pipeline-orders-py'><code>pipeline/orders.py</code></a></td><td>F + H</td><td>44</td><td>Working-order states for Robinhood MCP (no open=true)</td></tr><tr><td>1 · Shared</td><td><a href='#pipeline-quotes-py'><code>pipeline/quotes.py</code></a></td><td>F + H</td><td>102</td><td>5s underlying executable price; BOD NLV field extract</td></tr><tr><td>1 · Shared</td><td><a href='#pipeline-fees-py'><code>pipeline/fees.py</code></a></td><td>F + H</td><td>330</td><td>Dual fee ceilings: 0.49% planned loss and 0.50% with fees</td></tr><tr><td>2 · Agent A</td><td><a href='#pipeline-universe-py'><code>pipeline/universe.py</code></a></td><td>F + H</td><td>199</td><td>Watchlist extract, crypto drop, inverse-ETF reject, ADV ≥ 2,000,000</td></tr><tr><td>3 · Agent B</td><td><a href='#pipeline-patterns-py'><code>pipeline/patterns.py</code></a></td><td>F + H</td><td>353</td><td>Daily-first H&amp;S / double-triple / triangle; no 1m/3m/5m</td></tr><tr><td>4 · Agent C</td><td><a href='#pipeline-news-py'><code>pipeline/news.py</code></a></td><td>F + H</td><td>31</td><td>Factual RH news/earnings pack; no invented sentiment</td></tr><tr><td>5 · Agent D</td><td><a href='#pipeline-options_structure-py'><code>pipeline/options_structure.py</code></a></td><td>F + H</td><td>166</td><td>Long call/put; ATM/OTM; 2–3 DTE while overnight off</td></tr><tr><td>5 · Agent D</td><td><a href='#pipeline-equity_day_trade-py'><code>pipeline/equity_day_trade.py</code></a></td><td>F only</td><td>245</td><td>Long shares only; inverse-ETF denylist; H has no equity fallback</td></tr><tr><td>6 · Agent I</td><td><a href='#pipeline-greeks-py'><code>pipeline/greeks.py</code></a></td><td>F + H</td><td>50</td><td>Copy RH Greeks only; signed call +0.40–+0.50 / put −0.50–−0.40</td></tr><tr><td>7 · Agent E</td><td><a href='#pipeline-risk-py'><code>pipeline/risk.py</code></a></td><td>F + H</td><td>87</td><td>Options −20%/+40%; equity −20%/+25%; stop first until OCO</td></tr><tr><td>8 · Agent G</td><td><a href='#pipeline-orchestrator-py'><code>pipeline/orchestrator.py</code></a></td><td>F + H</td><td>453</td><td>Phase 2 read-only snapshot; h_entry_ready is always false</td></tr><tr><td>9 · Agent F</td><td><a href='#pipeline-execution-py'><code>pipeline/execution.py</code></a></td><td>F (chat)</td><td>173</td><td>Supervised place-gate: confirm, RTH, 09:45 options, H-owns-RTH</td></tr><tr><td>10 · CLI</td><td><a href='#scripts-run_phase2_cycle-py'><code>scripts/run_phase2_cycle.py</code></a></td><td>F + H</td><td>38</td><td>Load data/raw/latest_raw.json and run the orchestrator</td></tr><tr><td>10 · CLI</td><td><a href='#scripts-build_python_source_book-py'><code>scripts/build_python_source_book.py</code></a></td><td>docs</td><td>394</td><td>This generator — rebuilds the printable source book</td></tr><tr><td>11 · Tests</td><td><a href='#pipeline-tests-test_phase2-py'><code>pipeline/tests/test_phase2.py</code></a></td><td>CI / F</td><td>336</td><td>Universe, liquidity, signed delta, ATM/OTM, expiration rank</td></tr><tr><td>11 · Tests</td><td><a href='#pipeline-tests-test_orders-py'><code>pipeline/tests/test_orders.py</code></a></td><td>CI / F</td><td>238</td><td>Working states and locked agent_h schema</td></tr><tr><td>11 · Tests</td><td><a href='#pipeline-tests-test_fees-py'><code>pipeline/tests/test_fees.py</code></a></td><td>CI / F</td><td>92</td><td>Dual NLV fee ceilings</td></tr><tr><td>11 · Tests</td><td><a href='#pipeline-tests-test_session-py'><code>pipeline/tests/test_session.py</code></a></td><td>CI / F</td><td>15</td><td>ET calendar date and flatten window</td></tr><tr><td>11 · Tests</td><td><a href='#pipeline-tests-test_equity_day_trade-py'><code>pipeline/tests/test_equity_day_trade.py</code></a></td><td>CI / F</td><td>450</td><td>Long-only equity selection and Phase 2 snapshots</td></tr><tr><td>11 · Tests</td><td><a href='#pipeline-tests-test_execution-py'><code>pipeline/tests/test_execution.py</code></a></td><td>CI / F</td><td>146</td><td>F place-gate including 09:45 option lock</td></tr>
+        <tr><td>0 · Package</td><td><a href='#pipeline-__init__-py'><code>pipeline/__init__.py</code></a></td><td>F + H</td><td>3</td><td>Pipeline package marker</td></tr><tr><td>1 · Shared</td><td><a href='#pipeline-io_util-py'><code>pipeline/io_util.py</code></a></td><td>F + H</td><td>38</td><td>Paths, rules.json loader, journal helpers</td></tr><tr><td>1 · Shared</td><td><a href='#pipeline-session-py'><code>pipeline/session.py</code></a></td><td>F + H</td><td>90</td><td>RTH clock; option entries 09:45–15:45; H lease is on origin/main</td></tr><tr><td>1 · Shared</td><td><a href='#pipeline-orders-py'><code>pipeline/orders.py</code></a></td><td>F + H</td><td>44</td><td>Working-order states for Robinhood MCP (no open=true)</td></tr><tr><td>1 · Shared</td><td><a href='#pipeline-quotes-py'><code>pipeline/quotes.py</code></a></td><td>F + H</td><td>102</td><td>5s underlying executable price; BOD NLV field extract</td></tr><tr><td>1 · Shared</td><td><a href='#pipeline-fees-py'><code>pipeline/fees.py</code></a></td><td>F + H</td><td>330</td><td>Dual fee ceilings: 0.49% planned loss and 0.50% with fees</td></tr><tr><td>2 · Agent A</td><td><a href='#pipeline-universe-py'><code>pipeline/universe.py</code></a></td><td>F + H</td><td>199</td><td>Watchlist extract, crypto drop, inverse-ETF reject, ADV ≥ 2,000,000</td></tr><tr><td>3 · Agent B</td><td><a href='#pipeline-patterns-py'><code>pipeline/patterns.py</code></a></td><td>F + H</td><td>353</td><td>Daily-first H&amp;S / double-triple / triangle; no 1m/3m/5m</td></tr><tr><td>4 · Agent C</td><td><a href='#pipeline-news-py'><code>pipeline/news.py</code></a></td><td>F + H</td><td>31</td><td>Factual RH news/earnings pack; no invented sentiment</td></tr><tr><td>5 · Agent D</td><td><a href='#pipeline-options_structure-py'><code>pipeline/options_structure.py</code></a></td><td>F + H</td><td>166</td><td>Long call/put; ATM/OTM; 2–3 DTE while overnight off</td></tr><tr><td>5 · Agent D</td><td><a href='#pipeline-equity_day_trade-py'><code>pipeline/equity_day_trade.py</code></a></td><td>F only</td><td>245</td><td>Long shares only; inverse-ETF denylist; H has no equity fallback</td></tr><tr><td>6 · Agent I</td><td><a href='#pipeline-greeks-py'><code>pipeline/greeks.py</code></a></td><td>F + H</td><td>50</td><td>Copy RH Greeks only; signed call +0.40–+0.50 / put −0.50–−0.40</td></tr><tr><td>7 · Agent E</td><td><a href='#pipeline-ticks-py'><code>pipeline/ticks.py</code></a></td><td>F + H</td><td>169</td><td>Tick-floor debit cap; +1 tick replace skip; stop rounds toward fill</td></tr><tr><td>7 · Agent E</td><td><a href='#pipeline-risk-py'><code>pipeline/risk.py</code></a></td><td>F + H</td><td>92</td><td>Options −20%/+40%; equity −20%/+25%; stop first until OCO</td></tr><tr><td>8 · Agent G</td><td><a href='#pipeline-orchestrator-py'><code>pipeline/orchestrator.py</code></a></td><td>F + H</td><td>453</td><td>Phase 2 read-only snapshot; h_entry_ready is always false</td></tr><tr><td>9 · Agent F</td><td><a href='#pipeline-execution-py'><code>pipeline/execution.py</code></a></td><td>F (chat)</td><td>175</td><td>Supervised place-gate: confirm, RTH, 09:45 options, H-owns-RTH</td></tr><tr><td>10 · CLI</td><td><a href='#scripts-run_phase2_cycle-py'><code>scripts/run_phase2_cycle.py</code></a></td><td>F + H</td><td>38</td><td>Load data/raw/latest_raw.json and run the orchestrator</td></tr><tr><td>10 · CLI</td><td><a href='#scripts-build_python_source_book-py'><code>scripts/build_python_source_book.py</code></a></td><td>docs</td><td>396</td><td>This generator — rebuilds the printable source book</td></tr><tr><td>11 · Tests</td><td><a href='#pipeline-tests-test_phase2-py'><code>pipeline/tests/test_phase2.py</code></a></td><td>CI / F</td><td>336</td><td>Universe, liquidity, signed delta, ATM/OTM, expiration rank</td></tr><tr><td>11 · Tests</td><td><a href='#pipeline-tests-test_orders-py'><code>pipeline/tests/test_orders.py</code></a></td><td>CI / F</td><td>258</td><td>Working states and locked agent_h schema</td></tr><tr><td>11 · Tests</td><td><a href='#pipeline-tests-test_fees-py'><code>pipeline/tests/test_fees.py</code></a></td><td>CI / F</td><td>92</td><td>Dual NLV fee ceilings</td></tr><tr><td>11 · Tests</td><td><a href='#pipeline-tests-test_session-py'><code>pipeline/tests/test_session.py</code></a></td><td>CI / F</td><td>15</td><td>ET calendar date and flatten window</td></tr><tr><td>11 · Tests</td><td><a href='#pipeline-tests-test_equity_day_trade-py'><code>pipeline/tests/test_equity_day_trade.py</code></a></td><td>CI / F</td><td>450</td><td>Long-only equity selection and Phase 2 snapshots</td></tr><tr><td>11 · Tests</td><td><a href='#pipeline-tests-test_execution-py'><code>pipeline/tests/test_execution.py</code></a></td><td>CI / F</td><td>146</td><td>F place-gate including 09:45 option lock</td></tr><tr><td>11 · Tests</td><td><a href='#pipeline-tests-test_ticks-py'><code>pipeline/tests/test_ticks.py</code></a></td><td>CI / F</td><td>79</td><td>Debit-cap tick floor, one-tick replace skip, stop rounding</td></tr>
       </tbody>
     </table>
     <p class="note">Each file starts on a new printed page. Source is verbatim Python from the repo.</p>
@@ -1758,93 +1758,267 @@
 <span class='ln'> 48</span>             return True, None
 <span class='ln'> 49</span>         return False, f&quot;call_delta_{delta:.4f}_outside_{lo_signed}_{hi_signed}&quot;
 <span class='ln'> 50</span>     return False, &quot;delta_option_type_required&quot;
-</pre></section><section class='file' id='pipeline-risk-py'><h2>pipeline/risk.py</h2><p class='meta'><strong>7 · Agent E</strong> · F + H · 87 lines · Options −20%/+40%; equity −20%/+25%; stop first until OCO</p><pre class='source'><span class='ln'>  1</span> from __future__ import annotations
+</pre></section><section class='file' id='pipeline-ticks-py'><h2>pipeline/ticks.py</h2><p class='meta'><strong>7 · Agent E</strong> · F + H · 169 lines · Tick-floor debit cap; +1 tick replace skip; stop rounds toward fill</p><pre class='source'><span class='ln'>  1</span> &quot;&quot;&quot;Valid-tick rounding for option and equity prices.
+<span class='ln'>  2</span> 
+<span class='ln'>  3</span> Robinhood option `min_ticks` is typically $0.01 below $3.00 and $0.05 at or
+<span class='ln'>  4</span> above $3.00. Equity day-trade stops use a $0.01 tick. H and F must round
+<span class='ln'>  5</span> before review — do not send a raw 80% stop.
+<span class='ln'>  6</span> &quot;&quot;&quot;
+<span class='ln'>  7</span> 
+<span class='ln'>  8</span> from __future__ import annotations
+<span class='ln'>  9</span> 
+<span class='ln'> 10</span> from decimal import Decimal, ROUND_CEILING, ROUND_FLOOR, ROUND_HALF_EVEN
+<span class='ln'> 11</span> from typing import Any
+<span class='ln'> 12</span> 
+<span class='ln'> 13</span> 
+<span class='ln'> 14</span> OPTION_TICK_CUTOFF = Decimal(&quot;3.00&quot;)
+<span class='ln'> 15</span> OPTION_TICK_BELOW = Decimal(&quot;0.01&quot;)
+<span class='ln'> 16</span> OPTION_TICK_AT_OR_ABOVE = Decimal(&quot;0.05&quot;)
+<span class='ln'> 17</span> EQUITY_TICK = Decimal(&quot;0.01&quot;)
+<span class='ln'> 18</span> 
+<span class='ln'> 19</span> 
+<span class='ln'> 20</span> def _as_decimal(value: Any) -&gt; Decimal | None:
+<span class='ln'> 21</span>     if value in (None, &quot;&quot;):
+<span class='ln'> 22</span>         return None
+<span class='ln'> 23</span>     try:
+<span class='ln'> 24</span>         amount = Decimal(str(value).replace(&quot;$&quot;, &quot;&quot;).replace(&quot;,&quot;, &quot;&quot;).strip())
+<span class='ln'> 25</span>     except Exception:
+<span class='ln'> 26</span>         return None
+<span class='ln'> 27</span>     if amount != amount or amount &lt;= 0:
+<span class='ln'> 28</span>         return None
+<span class='ln'> 29</span>     return amount
+<span class='ln'> 30</span> 
+<span class='ln'> 31</span> 
+<span class='ln'> 32</span> def option_tick_size(price: Any, min_ticks: dict[str, Any] | None = None) -&gt; Decimal | None:
+<span class='ln'> 33</span>     &quot;&quot;&quot;Tick for a premium. Prefer instrument `min_ticks`; else RH typical.&quot;&quot;&quot;
+<span class='ln'> 34</span>     px = _as_decimal(price)
+<span class='ln'> 35</span>     if px is None:
+<span class='ln'> 36</span>         return None
+<span class='ln'> 37</span>     if isinstance(min_ticks, dict):
+<span class='ln'> 38</span>         try:
+<span class='ln'> 39</span>             cutoff = Decimal(str(min_ticks.get(&quot;cutoff_price&quot;, OPTION_TICK_CUTOFF)))
+<span class='ln'> 40</span>             below = Decimal(str(min_ticks.get(&quot;below_tick&quot;, OPTION_TICK_BELOW)))
+<span class='ln'> 41</span>             above = Decimal(str(min_ticks.get(&quot;above_tick&quot;, OPTION_TICK_AT_OR_ABOVE)))
+<span class='ln'> 42</span>         except Exception:
+<span class='ln'> 43</span>             return None
+<span class='ln'> 44</span>         if below &lt;= 0 or above &lt;= 0:
+<span class='ln'> 45</span>             return None
+<span class='ln'> 46</span>         return below if px &lt; cutoff else above
+<span class='ln'> 47</span>     return OPTION_TICK_BELOW if px &lt; OPTION_TICK_CUTOFF else OPTION_TICK_AT_OR_ABOVE
+<span class='ln'> 48</span> 
+<span class='ln'> 49</span> 
+<span class='ln'> 50</span> def _quantize(price: Decimal, tick: Decimal, rounding) -&gt; Decimal:
+<span class='ln'> 51</span>     steps = (price / tick).quantize(Decimal(&quot;1&quot;), rounding=rounding)
+<span class='ln'> 52</span>     return (steps * tick).quantize(tick)
+<span class='ln'> 53</span> 
+<span class='ln'> 54</span> 
+<span class='ln'> 55</span> def round_to_tick(
+<span class='ln'> 56</span>     price: Any,
+<span class='ln'> 57</span>     tick: Any,
+<span class='ln'> 58</span>     *,
+<span class='ln'> 59</span>     mode: str = &quot;nearest&quot;,
+<span class='ln'> 60</span> ) -&gt; Decimal | None:
+<span class='ln'> 61</span>     &quot;&quot;&quot;Round `price` onto `tick`.
+<span class='ln'> 62</span> 
+<span class='ln'> 63</span>     mode:
+<span class='ln'> 64</span>       nearest — half-even
+<span class='ln'> 65</span>       toward_bid / down — floor (passive buy, or never exceed a cap)
+<span class='ln'> 66</span>       toward_fill / up — ceil (tighter sell-to-close stop; never widen)
+<span class='ln'> 67</span>     &quot;&quot;&quot;
+<span class='ln'> 68</span>     px = _as_decimal(price)
+<span class='ln'> 69</span>     step = _as_decimal(tick)
+<span class='ln'> 70</span>     if px is None or step is None:
+<span class='ln'> 71</span>         return None
+<span class='ln'> 72</span>     if mode in {&quot;toward_fill&quot;, &quot;up&quot;, &quot;ceil&quot;}:
+<span class='ln'> 73</span>         return _quantize(px, step, ROUND_CEILING)
+<span class='ln'> 74</span>     if mode in {&quot;toward_bid&quot;, &quot;down&quot;, &quot;floor&quot;}:
+<span class='ln'> 75</span>         return _quantize(px, step, ROUND_FLOOR)
+<span class='ln'> 76</span>     return _quantize(px, step, ROUND_HALF_EVEN)
+<span class='ln'> 77</span> 
+<span class='ln'> 78</span> 
+<span class='ln'> 79</span> def entry_limit_from_mid(mid: Any, ask: Any, tick: Any) -&gt; Decimal | None:
+<span class='ln'> 80</span>     &quot;&quot;&quot;Nearest tick; exact half-tick toward the bid; never above ask.&quot;&quot;&quot;
+<span class='ln'> 81</span>     mid_d = _as_decimal(mid)
+<span class='ln'> 82</span>     ask_d = _as_decimal(ask)
+<span class='ln'> 83</span>     step = _as_decimal(tick)
+<span class='ln'> 84</span>     if mid_d is None or ask_d is None or step is None:
+<span class='ln'> 85</span>         return None
+<span class='ln'> 86</span>     steps = mid_d / step
+<span class='ln'> 87</span>     frac = steps - steps.to_integral_value(rounding=ROUND_FLOOR)
+<span class='ln'> 88</span>     if frac == Decimal(&quot;0.5&quot;):
+<span class='ln'> 89</span>         rounded = _quantize(mid_d, step, ROUND_FLOOR)
+<span class='ln'> 90</span>     else:
+<span class='ln'> 91</span>         rounded = _quantize(mid_d, step, ROUND_HALF_EVEN)
+<span class='ln'> 92</span>     if rounded &gt; ask_d:
+<span class='ln'> 93</span>         return ask_d.quantize(step) if ask_d == _quantize(ask_d, step, ROUND_FLOOR) else _quantize(ask_d, step, ROUND_FLOOR)
+<span class='ln'> 94</span>     return rounded
+<span class='ln'> 95</span> 
+<span class='ln'> 96</span> 
+<span class='ln'> 97</span> def max_acceptable_debit_limit(
+<span class='ln'> 98</span>     *caps: Any,
+<span class='ln'> 99</span>     min_ticks: dict[str, Any] | None = None,
+<span class='ln'>100</span>     tick: Any = None,
+<span class='ln'>101</span> ) -&gt; Decimal | None:
+<span class='ln'>102</span>     &quot;&quot;&quot;Independent chase cap: tick-floored min of ask, 2.5% NLV, and fee ceiling.
+<span class='ln'>103</span> 
+<span class='ln'>104</span>     Floor so an off-grid NLV or fee cap cannot become the entry limit.
+<span class='ln'>105</span>     &quot;&quot;&quot;
+<span class='ln'>106</span>     values = [v for v in (_as_decimal(c) for c in caps) if v is not None]
+<span class='ln'>107</span>     if not values:
+<span class='ln'>108</span>         return None
+<span class='ln'>109</span>     raw = min(values)
+<span class='ln'>110</span>     step = _as_decimal(tick)
+<span class='ln'>111</span>     if step is None:
+<span class='ln'>112</span>         step = option_tick_size(raw, min_ticks)
+<span class='ln'>113</span>     floored = round_to_tick(raw, step, mode=&quot;down&quot;)
+<span class='ln'>114</span>     if floored is None or floored &lt;= 0:
+<span class='ln'>115</span>         return None
+<span class='ln'>116</span>     return floored
+<span class='ln'>117</span> 
+<span class='ln'>118</span> 
+<span class='ln'>119</span> def one_tick_replacement(
+<span class='ln'>120</span>     first_limit: Any,
+<span class='ln'>121</span>     live_ask: Any,
+<span class='ln'>122</span>     max_debit: Any,
+<span class='ln'>123</span>     tick: Any,
+<span class='ln'>124</span> ) -&gt; Decimal | None:
+<span class='ln'>125</span>     &quot;&quot;&quot;First limit + 1 tick, or None if that would exceed live ask or max debit.&quot;&quot;&quot;
+<span class='ln'>126</span>     first = _as_decimal(first_limit)
+<span class='ln'>127</span>     ask = _as_decimal(live_ask)
+<span class='ln'>128</span>     cap = _as_decimal(max_debit)
+<span class='ln'>129</span>     step = _as_decimal(tick)
+<span class='ln'>130</span>     if first is None or ask is None or cap is None or step is None:
+<span class='ln'>131</span>         return None
+<span class='ln'>132</span>     candidate = first + step
+<span class='ln'>133</span>     if candidate &gt; ask or candidate &gt; cap:
+<span class='ln'>134</span>         return None
+<span class='ln'>135</span>     return candidate.quantize(step)
+<span class='ln'>136</span> 
+<span class='ln'>137</span> 
+<span class='ln'>138</span> def protective_stop_price(
+<span class='ln'>139</span>     average_fill: Any,
+<span class='ln'>140</span>     tick: Any | None = None,
+<span class='ln'>141</span>     *,
+<span class='ln'>142</span>     stop_frac: Any = &quot;0.80&quot;,
+<span class='ln'>143</span>     min_ticks: dict[str, Any] | None = None,
+<span class='ln'>144</span>     asset: str = &quot;option&quot;,
+<span class='ln'>145</span> ) -&gt; Decimal | None:
+<span class='ln'>146</span>     &quot;&quot;&quot;80% of fill, rounded toward the fill (tighter). Never widen past 20%.&quot;&quot;&quot;
+<span class='ln'>147</span>     fill = _as_decimal(average_fill)
+<span class='ln'>148</span>     frac = _as_decimal(stop_frac)
+<span class='ln'>149</span>     if fill is None or frac is None:
+<span class='ln'>150</span>         return None
+<span class='ln'>151</span>     raw = fill * frac
+<span class='ln'>152</span>     step = _as_decimal(tick)
+<span class='ln'>153</span>     if step is None:
+<span class='ln'>154</span>         if asset == &quot;equity&quot;:
+<span class='ln'>155</span>             step = EQUITY_TICK
+<span class='ln'>156</span>         else:
+<span class='ln'>157</span>             step = option_tick_size(raw, min_ticks)
+<span class='ln'>158</span>     if step is None:
+<span class='ln'>159</span>         return None
+<span class='ln'>160</span>     return round_to_tick(raw, step, mode=&quot;toward_fill&quot;)
+<span class='ln'>161</span> 
+<span class='ln'>162</span> 
+<span class='ln'>163</span> def as_price_str(value: Decimal | None) -&gt; str | None:
+<span class='ln'>164</span>     if value is None:
+<span class='ln'>165</span>         return None
+<span class='ln'>166</span>     text = format(value, &quot;f&quot;)
+<span class='ln'>167</span>     if &quot;.&quot; in text:
+<span class='ln'>168</span>         text = text.rstrip(&quot;0&quot;).rstrip(&quot;.&quot;)
+<span class='ln'>169</span>     return text if text else &quot;0&quot;
+</pre></section><section class='file' id='pipeline-risk-py'><h2>pipeline/risk.py</h2><p class='meta'><strong>7 · Agent E</strong> · F + H · 92 lines · Options −20%/+40%; equity −20%/+25%; stop first until OCO</p><pre class='source'><span class='ln'>  1</span> from __future__ import annotations
 <span class='ln'>  2</span> 
 <span class='ln'>  3</span> from typing import Any
 <span class='ln'>  4</span> 
-<span class='ln'>  5</span> OPTIONS_SL_PCT_MIN = 0.20
-<span class='ln'>  6</span> OPTIONS_SL_PCT_MAX = 0.50
-<span class='ln'>  7</span> OPTIONS_TP_PCT_MIN = 0.30
-<span class='ln'>  8</span> OPTIONS_TARGET_REWARD_TO_RISK = 2.0
-<span class='ln'>  9</span> OPTIONS_DEFAULT_SL_PCT = 0.20
-<span class='ln'> 10</span> OPTIONS_DEFAULT_TP_PCT = 0.40
-<span class='ln'> 11</span> 
-<span class='ln'> 12</span> 
-<span class='ln'> 13</span> def options_risk_plan(
-<span class='ln'> 14</span>     *,
-<span class='ln'> 15</span>     premium_per_share: float,
-<span class='ln'> 16</span>     contracts: int = 1,
-<span class='ln'> 17</span>     multiplier: float = 100.0,
-<span class='ln'> 18</span>     take_profit_pct: float = OPTIONS_DEFAULT_TP_PCT,
-<span class='ln'> 19</span>     stop_loss_pct: float = OPTIONS_DEFAULT_SL_PCT,
-<span class='ln'> 20</span> ) -&gt; dict[str, Any]:
-<span class='ln'> 21</span>     &quot;&quot;&quot;Cash-risked plan for long options. Does not invent prices beyond inputs.
-<span class='ln'> 22</span> 
-<span class='ln'> 23</span>     Locked bands: SL 20–50% of premium; TP 30–100%+ of premium; aim 1:2 R:R.
-<span class='ln'> 24</span>     Owner-locked working pair is −20% / +40% (1:2, inside the bands).
-<span class='ln'> 25</span>     &quot;&quot;&quot;
-<span class='ln'> 26</span>     if contracts != 1:
-<span class='ln'> 27</span>         raise ValueError(&quot;Phase rules require max 1 contract&quot;)
-<span class='ln'> 28</span>     if stop_loss_pct &lt; OPTIONS_SL_PCT_MIN or stop_loss_pct &gt; OPTIONS_SL_PCT_MAX:
-<span class='ln'> 29</span>         raise ValueError(
-<span class='ln'> 30</span>             f&quot;options stop_loss_pct must be in [{OPTIONS_SL_PCT_MIN}, {OPTIONS_SL_PCT_MAX}], got {stop_loss_pct}&quot;
-<span class='ln'> 31</span>         )
-<span class='ln'> 32</span>     if take_profit_pct &lt; OPTIONS_TP_PCT_MIN:
-<span class='ln'> 33</span>         raise ValueError(
-<span class='ln'> 34</span>             f&quot;options take_profit_pct must be &gt;= {OPTIONS_TP_PCT_MIN}, got {take_profit_pct}&quot;
-<span class='ln'> 35</span>         )
-<span class='ln'> 36</span>     cash = premium_per_share * multiplier * contracts
-<span class='ln'> 37</span>     reward_to_risk = take_profit_pct / stop_loss_pct if stop_loss_pct else None
-<span class='ln'> 38</span>     return {
-<span class='ln'> 39</span>         &quot;asset_class&quot;: &quot;option&quot;,
-<span class='ln'> 40</span>         &quot;contracts&quot;: contracts,
-<span class='ln'> 41</span>         &quot;premium_per_share&quot;: premium_per_share,
-<span class='ln'> 42</span>         &quot;multiplier&quot;: multiplier,
-<span class='ln'> 43</span>         &quot;cash_risked&quot;: cash,
-<span class='ln'> 44</span>         &quot;take_profit_pct&quot;: take_profit_pct,
-<span class='ln'> 45</span>         &quot;stop_loss_pct&quot;: stop_loss_pct,
-<span class='ln'> 46</span>         &quot;take_profit_value&quot;: cash * (1.0 + take_profit_pct),
-<span class='ln'> 47</span>         &quot;stop_loss_value&quot;: cash * (1.0 - stop_loss_pct),
-<span class='ln'> 48</span>         &quot;take_profit_premium&quot;: premium_per_share * (1.0 + take_profit_pct),
-<span class='ln'> 49</span>         &quot;stop_loss_premium&quot;: premium_per_share * (1.0 - stop_loss_pct),
-<span class='ln'> 50</span>         &quot;stop_loss_pct_band&quot;: {&quot;min&quot;: OPTIONS_SL_PCT_MIN, &quot;max&quot;: OPTIONS_SL_PCT_MAX},
-<span class='ln'> 51</span>         &quot;take_profit_pct_band&quot;: {&quot;min&quot;: OPTIONS_TP_PCT_MIN, &quot;uncapped&quot;: True},
-<span class='ln'> 52</span>         &quot;target_reward_to_risk&quot;: OPTIONS_TARGET_REWARD_TO_RISK,
-<span class='ln'> 53</span>         &quot;reward_to_risk&quot;: reward_to_risk,
-<span class='ln'> 54</span>         &quot;meets_target_rr&quot;: reward_to_risk is not None
-<span class='ln'> 55</span>         and reward_to_risk + 1e-12 &gt;= OPTIONS_TARGET_REWARD_TO_RISK,
-<span class='ln'> 56</span>         &quot;broker_exit&quot;: &quot;stop_first_until_oco&quot;,
-<span class='ln'> 57</span>         &quot;monitor_take_profit_in_loop&quot;: True,
-<span class='ln'> 58</span>     }
-<span class='ln'> 59</span> 
-<span class='ln'> 60</span> 
-<span class='ln'> 61</span> def equity_risk_plan(
-<span class='ln'> 62</span>     *,
-<span class='ln'> 63</span>     cost_basis: float,
-<span class='ln'> 64</span>     take_profit_pct: float = 0.25,
-<span class='ln'> 65</span>     stop_loss_pct: float = 0.2,
-<span class='ln'> 66</span>     shares: int | None = None,
-<span class='ln'> 67</span>     limit_price: float | None = None,
-<span class='ln'> 68</span> ) -&gt; dict[str, Any]:
-<span class='ln'> 69</span>     plan: dict[str, Any] = {
-<span class='ln'> 70</span>         &quot;asset_class&quot;: &quot;equity&quot;,
-<span class='ln'> 71</span>         &quot;cost_basis&quot;: cost_basis,
-<span class='ln'> 72</span>         &quot;take_profit_pct&quot;: take_profit_pct,
-<span class='ln'> 73</span>         &quot;stop_loss_pct&quot;: stop_loss_pct,
-<span class='ln'> 74</span>         &quot;take_profit_value&quot;: cost_basis * (1.0 + take_profit_pct),
-<span class='ln'> 75</span>         &quot;stop_loss_value&quot;: cost_basis * (1.0 - stop_loss_pct),
-<span class='ln'> 76</span>         &quot;broker_exit&quot;: &quot;stop_first_until_oco&quot;,
-<span class='ln'> 77</span>         &quot;monitor_take_profit_in_loop&quot;: True,
-<span class='ln'> 78</span>         &quot;flatten_before_close&quot;: True,
-<span class='ln'> 79</span>         &quot;side&quot;: &quot;long_only&quot;,
-<span class='ln'> 80</span>     }
-<span class='ln'> 81</span>     if shares is not None:
-<span class='ln'> 82</span>         plan[&quot;shares&quot;] = int(shares)
-<span class='ln'> 83</span>     if limit_price is not None:
-<span class='ln'> 84</span>         plan[&quot;limit_price&quot;] = limit_price
-<span class='ln'> 85</span>         plan[&quot;stop_price&quot;] = limit_price * (1.0 - stop_loss_pct)
-<span class='ln'> 86</span>         plan[&quot;take_profit_price&quot;] = limit_price * (1.0 + take_profit_pct)
-<span class='ln'> 87</span>     return plan
+<span class='ln'>  5</span> from pipeline.ticks import EQUITY_TICK, protective_stop_price
+<span class='ln'>  6</span> 
+<span class='ln'>  7</span> OPTIONS_SL_PCT_MIN = 0.20
+<span class='ln'>  8</span> OPTIONS_SL_PCT_MAX = 0.50
+<span class='ln'>  9</span> OPTIONS_TP_PCT_MIN = 0.30
+<span class='ln'> 10</span> OPTIONS_TARGET_REWARD_TO_RISK = 2.0
+<span class='ln'> 11</span> OPTIONS_DEFAULT_SL_PCT = 0.20
+<span class='ln'> 12</span> OPTIONS_DEFAULT_TP_PCT = 0.40
+<span class='ln'> 13</span> 
+<span class='ln'> 14</span> 
+<span class='ln'> 15</span> def options_risk_plan(
+<span class='ln'> 16</span>     *,
+<span class='ln'> 17</span>     premium_per_share: float,
+<span class='ln'> 18</span>     contracts: int = 1,
+<span class='ln'> 19</span>     multiplier: float = 100.0,
+<span class='ln'> 20</span>     take_profit_pct: float = OPTIONS_DEFAULT_TP_PCT,
+<span class='ln'> 21</span>     stop_loss_pct: float = OPTIONS_DEFAULT_SL_PCT,
+<span class='ln'> 22</span> ) -&gt; dict[str, Any]:
+<span class='ln'> 23</span>     &quot;&quot;&quot;Cash-risked plan for long options. Does not invent prices beyond inputs.
+<span class='ln'> 24</span> 
+<span class='ln'> 25</span>     Locked bands: SL 20–50% of premium; TP 30–100%+ of premium; aim 1:2 R:R.
+<span class='ln'> 26</span>     Owner-locked working pair is −20% / +40% (1:2, inside the bands).
+<span class='ln'> 27</span>     &quot;&quot;&quot;
+<span class='ln'> 28</span>     if contracts != 1:
+<span class='ln'> 29</span>         raise ValueError(&quot;Phase rules require max 1 contract&quot;)
+<span class='ln'> 30</span>     if stop_loss_pct &lt; OPTIONS_SL_PCT_MIN or stop_loss_pct &gt; OPTIONS_SL_PCT_MAX:
+<span class='ln'> 31</span>         raise ValueError(
+<span class='ln'> 32</span>             f&quot;options stop_loss_pct must be in [{OPTIONS_SL_PCT_MIN}, {OPTIONS_SL_PCT_MAX}], got {stop_loss_pct}&quot;
+<span class='ln'> 33</span>         )
+<span class='ln'> 34</span>     if take_profit_pct &lt; OPTIONS_TP_PCT_MIN:
+<span class='ln'> 35</span>         raise ValueError(
+<span class='ln'> 36</span>             f&quot;options take_profit_pct must be &gt;= {OPTIONS_TP_PCT_MIN}, got {take_profit_pct}&quot;
+<span class='ln'> 37</span>         )
+<span class='ln'> 38</span>     cash = premium_per_share * multiplier * contracts
+<span class='ln'> 39</span>     reward_to_risk = take_profit_pct / stop_loss_pct if stop_loss_pct else None
+<span class='ln'> 40</span>     return {
+<span class='ln'> 41</span>         &quot;asset_class&quot;: &quot;option&quot;,
+<span class='ln'> 42</span>         &quot;contracts&quot;: contracts,
+<span class='ln'> 43</span>         &quot;premium_per_share&quot;: premium_per_share,
+<span class='ln'> 44</span>         &quot;multiplier&quot;: multiplier,
+<span class='ln'> 45</span>         &quot;cash_risked&quot;: cash,
+<span class='ln'> 46</span>         &quot;take_profit_pct&quot;: take_profit_pct,
+<span class='ln'> 47</span>         &quot;stop_loss_pct&quot;: stop_loss_pct,
+<span class='ln'> 48</span>         &quot;take_profit_value&quot;: cash * (1.0 + take_profit_pct),
+<span class='ln'> 49</span>         &quot;stop_loss_value&quot;: cash * (1.0 - stop_loss_pct),
+<span class='ln'> 50</span>         &quot;take_profit_premium&quot;: premium_per_share * (1.0 + take_profit_pct),
+<span class='ln'> 51</span>         &quot;stop_loss_premium&quot;: premium_per_share * (1.0 - stop_loss_pct),
+<span class='ln'> 52</span>         &quot;stop_loss_pct_band&quot;: {&quot;min&quot;: OPTIONS_SL_PCT_MIN, &quot;max&quot;: OPTIONS_SL_PCT_MAX},
+<span class='ln'> 53</span>         &quot;take_profit_pct_band&quot;: {&quot;min&quot;: OPTIONS_TP_PCT_MIN, &quot;uncapped&quot;: True},
+<span class='ln'> 54</span>         &quot;target_reward_to_risk&quot;: OPTIONS_TARGET_REWARD_TO_RISK,
+<span class='ln'> 55</span>         &quot;reward_to_risk&quot;: reward_to_risk,
+<span class='ln'> 56</span>         &quot;meets_target_rr&quot;: reward_to_risk is not None
+<span class='ln'> 57</span>         and reward_to_risk + 1e-12 &gt;= OPTIONS_TARGET_REWARD_TO_RISK,
+<span class='ln'> 58</span>         &quot;broker_exit&quot;: &quot;stop_first_until_oco&quot;,
+<span class='ln'> 59</span>         &quot;monitor_take_profit_in_loop&quot;: True,
+<span class='ln'> 60</span>     }
+<span class='ln'> 61</span> 
+<span class='ln'> 62</span> 
+<span class='ln'> 63</span> def equity_risk_plan(
+<span class='ln'> 64</span>     *,
+<span class='ln'> 65</span>     cost_basis: float,
+<span class='ln'> 66</span>     take_profit_pct: float = 0.25,
+<span class='ln'> 67</span>     stop_loss_pct: float = 0.2,
+<span class='ln'> 68</span>     shares: int | None = None,
+<span class='ln'> 69</span>     limit_price: float | None = None,
+<span class='ln'> 70</span> ) -&gt; dict[str, Any]:
+<span class='ln'> 71</span>     plan: dict[str, Any] = {
+<span class='ln'> 72</span>         &quot;asset_class&quot;: &quot;equity&quot;,
+<span class='ln'> 73</span>         &quot;cost_basis&quot;: cost_basis,
+<span class='ln'> 74</span>         &quot;take_profit_pct&quot;: take_profit_pct,
+<span class='ln'> 75</span>         &quot;stop_loss_pct&quot;: stop_loss_pct,
+<span class='ln'> 76</span>         &quot;take_profit_value&quot;: cost_basis * (1.0 + take_profit_pct),
+<span class='ln'> 77</span>         &quot;stop_loss_value&quot;: cost_basis * (1.0 - stop_loss_pct),
+<span class='ln'> 78</span>         &quot;broker_exit&quot;: &quot;stop_first_until_oco&quot;,
+<span class='ln'> 79</span>         &quot;monitor_take_profit_in_loop&quot;: True,
+<span class='ln'> 80</span>         &quot;flatten_before_close&quot;: True,
+<span class='ln'> 81</span>         &quot;side&quot;: &quot;long_only&quot;,
+<span class='ln'> 82</span>     }
+<span class='ln'> 83</span>     if shares is not None:
+<span class='ln'> 84</span>         plan[&quot;shares&quot;] = int(shares)
+<span class='ln'> 85</span>     if limit_price is not None:
+<span class='ln'> 86</span>         plan[&quot;limit_price&quot;] = limit_price
+<span class='ln'> 87</span>         rounded_stop = protective_stop_price(
+<span class='ln'> 88</span>             limit_price, EQUITY_TICK, stop_frac=(1.0 - stop_loss_pct), asset=&quot;equity&quot;
+<span class='ln'> 89</span>         )
+<span class='ln'> 90</span>         plan[&quot;stop_price&quot;] = float(rounded_stop) if rounded_stop is not None else limit_price * (1.0 - stop_loss_pct)
+<span class='ln'> 91</span>         plan[&quot;take_profit_price&quot;] = limit_price * (1.0 + take_profit_pct)
+<span class='ln'> 92</span>     return plan
 </pre></section><section class='file' id='pipeline-orchestrator-py'><h2>pipeline/orchestrator.py</h2><p class='meta'><strong>8 · Agent G</strong> · F + H · 453 lines · Phase 2 read-only snapshot; h_entry_ready is always false</p><pre class='source'><span class='ln'>  1</span> from __future__ import annotations
 <span class='ln'>  2</span> 
 <span class='ln'>  3</span> from collections import Counter
@@ -2298,179 +2472,181 @@
 <span class='ln'>451</span>     md_path.write_text(prev, encoding=&quot;utf-8&quot;)
 <span class='ln'>452</span> 
 <span class='ln'>453</span>     return summary
-</pre></section><section class='file' id='pipeline-execution-py'><h2>pipeline/execution.py</h2><p class='meta'><strong>9 · Agent F</strong> · F (chat) · 173 lines · Supervised place-gate: confirm, RTH, 09:45 options, H-owns-RTH</p><pre class='source'><span class='ln'>  1</span> from __future__ import annotations
+</pre></section><section class='file' id='pipeline-execution-py'><h2>pipeline/execution.py</h2><p class='meta'><strong>9 · Agent F</strong> · F (chat) · 175 lines · Supervised place-gate: confirm, RTH, 09:45 options, H-owns-RTH</p><pre class='source'><span class='ln'>  1</span> from __future__ import annotations
 <span class='ln'>  2</span> 
 <span class='ln'>  3</span> from datetime import datetime
 <span class='ln'>  4</span> from typing import Any
 <span class='ln'>  5</span> 
 <span class='ln'>  6</span> from pipeline.io_util import JOURNAL, SIGNALS, append_jsonl, load_rules, read_json, utc_now_iso, write_json
-<span class='ln'>  7</span> from pipeline.session import (
-<span class='ln'>  8</span>     NO_NEW_OPTION_ENTRIES_BEFORE,
-<span class='ln'>  9</span>     entries_open,
-<span class='ln'> 10</span>     is_rth,
-<span class='ln'> 11</span>     now_et,
-<span class='ln'> 12</span>     option_entries_open,
-<span class='ln'> 13</span> )
-<span class='ln'> 14</span> 
+<span class='ln'>  7</span> from pipeline.ticks import EQUITY_TICK, protective_stop_price
+<span class='ln'>  8</span> from pipeline.session import (
+<span class='ln'>  9</span>     NO_NEW_OPTION_ENTRIES_BEFORE,
+<span class='ln'> 10</span>     entries_open,
+<span class='ln'> 11</span>     is_rth,
+<span class='ln'> 12</span>     now_et,
+<span class='ln'> 13</span>     option_entries_open,
+<span class='ln'> 14</span> )
 <span class='ln'> 15</span> 
-<span class='ln'> 16</span> def load_latest_option_candidates() -&gt; list[dict[str, Any]]:
-<span class='ln'> 17</span>     path = SIGNALS / &quot;option_candidates.json&quot;
-<span class='ln'> 18</span>     if not path.exists():
-<span class='ln'> 19</span>         return []
-<span class='ln'> 20</span>     payload = read_json(path)
-<span class='ln'> 21</span>     if payload.get(&quot;do_not_place&quot;) or payload.get(&quot;historical&quot;):
-<span class='ln'> 22</span>         return []
-<span class='ln'> 23</span>     return list(payload.get(&quot;candidates&quot;) or [])
-<span class='ln'> 24</span> 
+<span class='ln'> 16</span> 
+<span class='ln'> 17</span> def load_latest_option_candidates() -&gt; list[dict[str, Any]]:
+<span class='ln'> 18</span>     path = SIGNALS / &quot;option_candidates.json&quot;
+<span class='ln'> 19</span>     if not path.exists():
+<span class='ln'> 20</span>         return []
+<span class='ln'> 21</span>     payload = read_json(path)
+<span class='ln'> 22</span>     if payload.get(&quot;do_not_place&quot;) or payload.get(&quot;historical&quot;):
+<span class='ln'> 23</span>         return []
+<span class='ln'> 24</span>     return list(payload.get(&quot;candidates&quot;) or [])
 <span class='ln'> 25</span> 
-<span class='ln'> 26</span> def load_latest_equity_candidates() -&gt; list[dict[str, Any]]:
-<span class='ln'> 27</span>     path = SIGNALS / &quot;equity_candidates.json&quot;
-<span class='ln'> 28</span>     if not path.exists():
-<span class='ln'> 29</span>         return []
-<span class='ln'> 30</span>     payload = read_json(path)
-<span class='ln'> 31</span>     if payload.get(&quot;do_not_place&quot;) or payload.get(&quot;historical&quot;):
-<span class='ln'> 32</span>         return []
-<span class='ln'> 33</span>     return list(payload.get(&quot;candidates&quot;) or [])
-<span class='ln'> 34</span> 
+<span class='ln'> 26</span> 
+<span class='ln'> 27</span> def load_latest_equity_candidates() -&gt; list[dict[str, Any]]:
+<span class='ln'> 28</span>     path = SIGNALS / &quot;equity_candidates.json&quot;
+<span class='ln'> 29</span>     if not path.exists():
+<span class='ln'> 30</span>         return []
+<span class='ln'> 31</span>     payload = read_json(path)
+<span class='ln'> 32</span>     if payload.get(&quot;do_not_place&quot;) or payload.get(&quot;historical&quot;):
+<span class='ln'> 33</span>         return []
+<span class='ln'> 34</span>     return list(payload.get(&quot;candidates&quot;) or [])
 <span class='ln'> 35</span> 
-<span class='ln'> 36</span> def can_place_live(
-<span class='ln'> 37</span>     *,
-<span class='ln'> 38</span>     explicit_confirm: bool,
-<span class='ln'> 39</span>     playbook_released: bool,
-<span class='ln'> 40</span>     playbook_kind: str = &quot;options&quot;,
-<span class='ln'> 41</span>     h_enabled: bool | None = None,
-<span class='ln'> 42</span>     now: datetime | None = None,
-<span class='ln'> 43</span>     h_rth_override: bool = False,
-<span class='ln'> 44</span> ) -&gt; tuple[bool, str | None]:
-<span class='ln'> 45</span>     &quot;&quot;&quot;Agent F place-gate. Never invent a confirm. H owns RTH while enabled.&quot;&quot;&quot;
-<span class='ln'> 46</span>     if not playbook_released:
-<span class='ln'> 47</span>         return False, f&quot;{playbook_kind}_playbook_still_draft&quot;
-<span class='ln'> 48</span>     if not explicit_confirm:
-<span class='ln'> 49</span>         return False, &quot;missing_explicit_user_confirm&quot;
-<span class='ln'> 50</span>     if not is_rth(now):
-<span class='ln'> 51</span>         return False, &quot;outside_rth&quot;
-<span class='ln'> 52</span>     if playbook_kind == &quot;options&quot; and not option_entries_open(now):
-<span class='ln'> 53</span>         if now_et(now).time() &lt; NO_NEW_OPTION_ENTRIES_BEFORE:
-<span class='ln'> 54</span>             return False, &quot;no_new_option_entries_before_0945&quot;
-<span class='ln'> 55</span>         return False, &quot;no_new_entries_after_1545&quot;
-<span class='ln'> 56</span>     if not entries_open(now):
-<span class='ln'> 57</span>         return False, &quot;no_new_entries_after_1545&quot;
-<span class='ln'> 58</span>     if h_enabled is None:
-<span class='ln'> 59</span>         h_enabled = load_rules().get(&quot;execution&quot;, {}).get(&quot;unsupervised_agent_h&quot;) == &quot;enabled&quot;
-<span class='ln'> 60</span>     if h_enabled and not h_rth_override:
-<span class='ln'> 61</span>         return False, &quot;h_owns_rth_while_enabled&quot;
-<span class='ln'> 62</span>     return True, None
-<span class='ln'> 63</span> 
+<span class='ln'> 36</span> 
+<span class='ln'> 37</span> def can_place_live(
+<span class='ln'> 38</span>     *,
+<span class='ln'> 39</span>     explicit_confirm: bool,
+<span class='ln'> 40</span>     playbook_released: bool,
+<span class='ln'> 41</span>     playbook_kind: str = &quot;options&quot;,
+<span class='ln'> 42</span>     h_enabled: bool | None = None,
+<span class='ln'> 43</span>     now: datetime | None = None,
+<span class='ln'> 44</span>     h_rth_override: bool = False,
+<span class='ln'> 45</span> ) -&gt; tuple[bool, str | None]:
+<span class='ln'> 46</span>     &quot;&quot;&quot;Agent F place-gate. Never invent a confirm. H owns RTH while enabled.&quot;&quot;&quot;
+<span class='ln'> 47</span>     if not playbook_released:
+<span class='ln'> 48</span>         return False, f&quot;{playbook_kind}_playbook_still_draft&quot;
+<span class='ln'> 49</span>     if not explicit_confirm:
+<span class='ln'> 50</span>         return False, &quot;missing_explicit_user_confirm&quot;
+<span class='ln'> 51</span>     if not is_rth(now):
+<span class='ln'> 52</span>         return False, &quot;outside_rth&quot;
+<span class='ln'> 53</span>     if playbook_kind == &quot;options&quot; and not option_entries_open(now):
+<span class='ln'> 54</span>         if now_et(now).time() &lt; NO_NEW_OPTION_ENTRIES_BEFORE:
+<span class='ln'> 55</span>             return False, &quot;no_new_option_entries_before_0945&quot;
+<span class='ln'> 56</span>         return False, &quot;no_new_entries_after_1545&quot;
+<span class='ln'> 57</span>     if not entries_open(now):
+<span class='ln'> 58</span>         return False, &quot;no_new_entries_after_1545&quot;
+<span class='ln'> 59</span>     if h_enabled is None:
+<span class='ln'> 60</span>         h_enabled = load_rules().get(&quot;execution&quot;, {}).get(&quot;unsupervised_agent_h&quot;) == &quot;enabled&quot;
+<span class='ln'> 61</span>     if h_enabled and not h_rth_override:
+<span class='ln'> 62</span>         return False, &quot;h_owns_rth_while_enabled&quot;
+<span class='ln'> 63</span>     return True, None
 <span class='ln'> 64</span> 
-<span class='ln'> 65</span> def build_option_entry_proposal(
-<span class='ln'> 66</span>     candidate: dict[str, Any],
-<span class='ln'> 67</span>     *,
-<span class='ln'> 68</span>     limit_price: str,
-<span class='ln'> 69</span>     account_last4: str = &quot;2907&quot;,
-<span class='ln'> 70</span> ) -&gt; dict[str, Any]:
-<span class='ln'> 71</span>     &quot;&quot;&quot;Build a supervised review/place payload. Does not call the broker.&quot;&quot;&quot;
-<span class='ln'> 72</span>     return {
-<span class='ln'> 73</span>         &quot;agent&quot;: &quot;F_supervised_execution&quot;,
-<span class='ln'> 74</span>         &quot;mode&quot;: &quot;dry_review_until_confirm&quot;,
-<span class='ln'> 75</span>         &quot;as_of&quot;: utc_now_iso(),
-<span class='ln'> 76</span>         &quot;account_last4&quot;: account_last4,
-<span class='ln'> 77</span>         &quot;asset_class&quot;: &quot;option&quot;,
-<span class='ln'> 78</span>         &quot;action&quot;: &quot;buy_to_open&quot;,
-<span class='ln'> 79</span>         &quot;symbol&quot;: candidate.get(&quot;symbol&quot;),
-<span class='ln'> 80</span>         &quot;structure&quot;: candidate.get(&quot;structure&quot;),
-<span class='ln'> 81</span>         &quot;expiration&quot;: candidate.get(&quot;expiration&quot;),
-<span class='ln'> 82</span>         &quot;option_type&quot;: candidate.get(&quot;option_type&quot;),
-<span class='ln'> 83</span>         &quot;strike&quot;: candidate.get(&quot;strike&quot;),
-<span class='ln'> 84</span>         &quot;option_id&quot;: candidate.get(&quot;option_id&quot;),
-<span class='ln'> 85</span>         &quot;quantity&quot;: &quot;1&quot;,
-<span class='ln'> 86</span>         &quot;order_type&quot;: &quot;limit&quot;,
-<span class='ln'> 87</span>         &quot;price&quot;: limit_price,
-<span class='ln'> 88</span>         &quot;time_in_force&quot;: &quot;gfd&quot;,
-<span class='ln'> 89</span>         &quot;market_hours&quot;: &quot;regular_hours&quot;,
-<span class='ln'> 90</span>         &quot;chain_symbol&quot;: candidate.get(&quot;symbol&quot;),
-<span class='ln'> 91</span>         &quot;underlying_type&quot;: &quot;equity&quot;,
-<span class='ln'> 92</span>         &quot;legs&quot;: [
-<span class='ln'> 93</span>             {
-<span class='ln'> 94</span>                 &quot;option_id&quot;: candidate.get(&quot;option_id&quot;),
-<span class='ln'> 95</span>                 &quot;side&quot;: &quot;buy&quot;,
-<span class='ln'> 96</span>                 &quot;position_effect&quot;: &quot;open&quot;,
-<span class='ln'> 97</span>                 &quot;ratio_quantity&quot;: 1,
-<span class='ln'> 98</span>             }
-<span class='ln'> 99</span>         ],
-<span class='ln'>100</span>         &quot;playbook_status&quot;: candidate.get(&quot;playbook_status&quot;),
-<span class='ln'>101</span>         &quot;places_order&quot;: False,
-<span class='ln'>102</span>     }
-<span class='ln'>103</span> 
+<span class='ln'> 65</span> 
+<span class='ln'> 66</span> def build_option_entry_proposal(
+<span class='ln'> 67</span>     candidate: dict[str, Any],
+<span class='ln'> 68</span>     *,
+<span class='ln'> 69</span>     limit_price: str,
+<span class='ln'> 70</span>     account_last4: str = &quot;2907&quot;,
+<span class='ln'> 71</span> ) -&gt; dict[str, Any]:
+<span class='ln'> 72</span>     &quot;&quot;&quot;Build a supervised review/place payload. Does not call the broker.&quot;&quot;&quot;
+<span class='ln'> 73</span>     return {
+<span class='ln'> 74</span>         &quot;agent&quot;: &quot;F_supervised_execution&quot;,
+<span class='ln'> 75</span>         &quot;mode&quot;: &quot;dry_review_until_confirm&quot;,
+<span class='ln'> 76</span>         &quot;as_of&quot;: utc_now_iso(),
+<span class='ln'> 77</span>         &quot;account_last4&quot;: account_last4,
+<span class='ln'> 78</span>         &quot;asset_class&quot;: &quot;option&quot;,
+<span class='ln'> 79</span>         &quot;action&quot;: &quot;buy_to_open&quot;,
+<span class='ln'> 80</span>         &quot;symbol&quot;: candidate.get(&quot;symbol&quot;),
+<span class='ln'> 81</span>         &quot;structure&quot;: candidate.get(&quot;structure&quot;),
+<span class='ln'> 82</span>         &quot;expiration&quot;: candidate.get(&quot;expiration&quot;),
+<span class='ln'> 83</span>         &quot;option_type&quot;: candidate.get(&quot;option_type&quot;),
+<span class='ln'> 84</span>         &quot;strike&quot;: candidate.get(&quot;strike&quot;),
+<span class='ln'> 85</span>         &quot;option_id&quot;: candidate.get(&quot;option_id&quot;),
+<span class='ln'> 86</span>         &quot;quantity&quot;: &quot;1&quot;,
+<span class='ln'> 87</span>         &quot;order_type&quot;: &quot;limit&quot;,
+<span class='ln'> 88</span>         &quot;price&quot;: limit_price,
+<span class='ln'> 89</span>         &quot;time_in_force&quot;: &quot;gfd&quot;,
+<span class='ln'> 90</span>         &quot;market_hours&quot;: &quot;regular_hours&quot;,
+<span class='ln'> 91</span>         &quot;chain_symbol&quot;: candidate.get(&quot;symbol&quot;),
+<span class='ln'> 92</span>         &quot;underlying_type&quot;: &quot;equity&quot;,
+<span class='ln'> 93</span>         &quot;legs&quot;: [
+<span class='ln'> 94</span>             {
+<span class='ln'> 95</span>                 &quot;option_id&quot;: candidate.get(&quot;option_id&quot;),
+<span class='ln'> 96</span>                 &quot;side&quot;: &quot;buy&quot;,
+<span class='ln'> 97</span>                 &quot;position_effect&quot;: &quot;open&quot;,
+<span class='ln'> 98</span>                 &quot;ratio_quantity&quot;: 1,
+<span class='ln'> 99</span>             }
+<span class='ln'>100</span>         ],
+<span class='ln'>101</span>         &quot;playbook_status&quot;: candidate.get(&quot;playbook_status&quot;),
+<span class='ln'>102</span>         &quot;places_order&quot;: False,
+<span class='ln'>103</span>     }
 <span class='ln'>104</span> 
-<span class='ln'>105</span> def build_equity_entry_proposal(
-<span class='ln'>106</span>     candidate: dict[str, Any],
-<span class='ln'>107</span>     *,
-<span class='ln'>108</span>     limit_price: str | None = None,
-<span class='ln'>109</span>     quantity: int | None = None,
-<span class='ln'>110</span>     account_last4: str = &quot;2907&quot;,
-<span class='ln'>111</span> ) -&gt; dict[str, Any]:
-<span class='ln'>112</span>     &quot;&quot;&quot;Long-only equity day-trade proposal. Never sell-to-open. Does not call the broker.&quot;&quot;&quot;
-<span class='ln'>113</span>     shares = int(quantity if quantity is not None else candidate.get(&quot;quantity&quot;) or 0)
-<span class='ln'>114</span>     if shares &lt; 1:
-<span class='ln'>115</span>         raise ValueError(&quot;equity day trade requires at least 1 whole share&quot;)
-<span class='ln'>116</span>     price = str(limit_price if limit_price is not None else candidate.get(&quot;limit_price&quot;))
-<span class='ln'>117</span>     fill = float(price)
-<span class='ln'>118</span>     stop_pct = float((candidate.get(&quot;risk&quot;) or {}).get(&quot;stop_loss_pct&quot;) or 0.2)
-<span class='ln'>119</span>     tp_pct = float((candidate.get(&quot;risk&quot;) or {}).get(&quot;take_profit_pct&quot;) or 0.25)
-<span class='ln'>120</span>     return {
-<span class='ln'>121</span>         &quot;agent&quot;: &quot;F_supervised_execution&quot;,
-<span class='ln'>122</span>         &quot;mode&quot;: &quot;dry_review_until_confirm&quot;,
-<span class='ln'>123</span>         &quot;as_of&quot;: utc_now_iso(),
-<span class='ln'>124</span>         &quot;account_last4&quot;: account_last4,
-<span class='ln'>125</span>         &quot;asset_class&quot;: &quot;equity&quot;,
-<span class='ln'>126</span>         &quot;action&quot;: &quot;buy_to_open&quot;,
-<span class='ln'>127</span>         &quot;side&quot;: &quot;buy&quot;,
-<span class='ln'>128</span>         &quot;symbol&quot;: candidate.get(&quot;symbol&quot;),
-<span class='ln'>129</span>         &quot;structure&quot;: &quot;long_shares&quot;,
-<span class='ln'>130</span>         &quot;quantity&quot;: str(shares),
-<span class='ln'>131</span>         &quot;order_type&quot;: &quot;limit&quot;,
-<span class='ln'>132</span>         &quot;price&quot;: price,
-<span class='ln'>133</span>         &quot;time_in_force&quot;: &quot;gfd&quot;,
-<span class='ln'>134</span>         &quot;market_hours&quot;: &quot;regular_hours&quot;,
-<span class='ln'>135</span>         &quot;stop_loss_pct&quot;: stop_pct,
-<span class='ln'>136</span>         &quot;take_profit_pct&quot;: tp_pct,
-<span class='ln'>137</span>         &quot;stop_price_after_fill&quot;: fill * (1.0 - stop_pct),
-<span class='ln'>138</span>         &quot;take_profit_price&quot;: fill * (1.0 + tp_pct),
-<span class='ln'>139</span>         &quot;playbook_status&quot;: candidate.get(&quot;playbook_status&quot;),
-<span class='ln'>140</span>         &quot;places_order&quot;: False,
-<span class='ln'>141</span>     }
-<span class='ln'>142</span> 
-<span class='ln'>143</span> 
-<span class='ln'>144</span> def record_review(proposal: dict[str, Any], review_response: dict[str, Any] | None, *, error: str | None = None) -&gt; dict[str, Any]:
-<span class='ln'>145</span>     rules = load_rules()
-<span class='ln'>146</span>     asset = proposal.get(&quot;asset_class&quot;) or &quot;option&quot;
-<span class='ln'>147</span>     if asset == &quot;equity&quot;:
-<span class='ln'>148</span>         released = rules[&quot;risk&quot;][&quot;equity&quot;][&quot;playbook_status&quot;] == &quot;RELEASED&quot;
-<span class='ln'>149</span>         kind = &quot;equity&quot;
-<span class='ln'>150</span>         status = rules[&quot;risk&quot;][&quot;equity&quot;][&quot;playbook_status&quot;]
-<span class='ln'>151</span>     else:
-<span class='ln'>152</span>         released = rules[&quot;options&quot;][&quot;playbook_status&quot;] == &quot;RELEASED&quot;
-<span class='ln'>153</span>         kind = &quot;options&quot;
-<span class='ln'>154</span>         status = rules[&quot;options&quot;][&quot;playbook_status&quot;]
-<span class='ln'>155</span>     allowed, reason = can_place_live(
-<span class='ln'>156</span>         explicit_confirm=False,
-<span class='ln'>157</span>         playbook_released=released,
-<span class='ln'>158</span>         playbook_kind=kind,
-<span class='ln'>159</span>         h_enabled=rules.get(&quot;execution&quot;, {}).get(&quot;unsupervised_agent_h&quot;) == &quot;enabled&quot;,
-<span class='ln'>160</span>     )
-<span class='ln'>161</span>     record = {
-<span class='ln'>162</span>         &quot;event&quot;: &quot;phase3_dry_review&quot;,
-<span class='ln'>163</span>         &quot;as_of&quot;: utc_now_iso(),
-<span class='ln'>164</span>         &quot;proposal&quot;: proposal,
-<span class='ln'>165</span>         &quot;review&quot;: review_response,
-<span class='ln'>166</span>         &quot;error&quot;: error,
-<span class='ln'>167</span>         &quot;places_order&quot;: False,
-<span class='ln'>168</span>         &quot;playbook_status&quot;: status,
-<span class='ln'>169</span>         &quot;place_gate&quot;: {&quot;allowed&quot;: allowed, &quot;reason&quot;: reason},
-<span class='ln'>170</span>     }
-<span class='ln'>171</span>     write_json(SIGNALS / &quot;execution_review.json&quot;, record)
-<span class='ln'>172</span>     append_jsonl(JOURNAL / &quot;reviews.jsonl&quot;, record)
-<span class='ln'>173</span>     return record
+<span class='ln'>105</span> 
+<span class='ln'>106</span> def build_equity_entry_proposal(
+<span class='ln'>107</span>     candidate: dict[str, Any],
+<span class='ln'>108</span>     *,
+<span class='ln'>109</span>     limit_price: str | None = None,
+<span class='ln'>110</span>     quantity: int | None = None,
+<span class='ln'>111</span>     account_last4: str = &quot;2907&quot;,
+<span class='ln'>112</span> ) -&gt; dict[str, Any]:
+<span class='ln'>113</span>     &quot;&quot;&quot;Long-only equity day-trade proposal. Never sell-to-open. Does not call the broker.&quot;&quot;&quot;
+<span class='ln'>114</span>     shares = int(quantity if quantity is not None else candidate.get(&quot;quantity&quot;) or 0)
+<span class='ln'>115</span>     if shares &lt; 1:
+<span class='ln'>116</span>         raise ValueError(&quot;equity day trade requires at least 1 whole share&quot;)
+<span class='ln'>117</span>     price = str(limit_price if limit_price is not None else candidate.get(&quot;limit_price&quot;))
+<span class='ln'>118</span>     fill = float(price)
+<span class='ln'>119</span>     stop_pct = float((candidate.get(&quot;risk&quot;) or {}).get(&quot;stop_loss_pct&quot;) or 0.2)
+<span class='ln'>120</span>     tp_pct = float((candidate.get(&quot;risk&quot;) or {}).get(&quot;take_profit_pct&quot;) or 0.25)
+<span class='ln'>121</span>     stop_after_fill = protective_stop_price(price, EQUITY_TICK, stop_frac=(1.0 - stop_pct), asset=&quot;equity&quot;)
+<span class='ln'>122</span>     return {
+<span class='ln'>123</span>         &quot;agent&quot;: &quot;F_supervised_execution&quot;,
+<span class='ln'>124</span>         &quot;mode&quot;: &quot;dry_review_until_confirm&quot;,
+<span class='ln'>125</span>         &quot;as_of&quot;: utc_now_iso(),
+<span class='ln'>126</span>         &quot;account_last4&quot;: account_last4,
+<span class='ln'>127</span>         &quot;asset_class&quot;: &quot;equity&quot;,
+<span class='ln'>128</span>         &quot;action&quot;: &quot;buy_to_open&quot;,
+<span class='ln'>129</span>         &quot;side&quot;: &quot;buy&quot;,
+<span class='ln'>130</span>         &quot;symbol&quot;: candidate.get(&quot;symbol&quot;),
+<span class='ln'>131</span>         &quot;structure&quot;: &quot;long_shares&quot;,
+<span class='ln'>132</span>         &quot;quantity&quot;: str(shares),
+<span class='ln'>133</span>         &quot;order_type&quot;: &quot;limit&quot;,
+<span class='ln'>134</span>         &quot;price&quot;: price,
+<span class='ln'>135</span>         &quot;time_in_force&quot;: &quot;gfd&quot;,
+<span class='ln'>136</span>         &quot;market_hours&quot;: &quot;regular_hours&quot;,
+<span class='ln'>137</span>         &quot;stop_loss_pct&quot;: stop_pct,
+<span class='ln'>138</span>         &quot;take_profit_pct&quot;: tp_pct,
+<span class='ln'>139</span>         &quot;stop_price_after_fill&quot;: float(stop_after_fill) if stop_after_fill is not None else fill * (1.0 - stop_pct),
+<span class='ln'>140</span>         &quot;take_profit_price&quot;: fill * (1.0 + tp_pct),
+<span class='ln'>141</span>         &quot;playbook_status&quot;: candidate.get(&quot;playbook_status&quot;),
+<span class='ln'>142</span>         &quot;places_order&quot;: False,
+<span class='ln'>143</span>     }
+<span class='ln'>144</span> 
+<span class='ln'>145</span> 
+<span class='ln'>146</span> def record_review(proposal: dict[str, Any], review_response: dict[str, Any] | None, *, error: str | None = None) -&gt; dict[str, Any]:
+<span class='ln'>147</span>     rules = load_rules()
+<span class='ln'>148</span>     asset = proposal.get(&quot;asset_class&quot;) or &quot;option&quot;
+<span class='ln'>149</span>     if asset == &quot;equity&quot;:
+<span class='ln'>150</span>         released = rules[&quot;risk&quot;][&quot;equity&quot;][&quot;playbook_status&quot;] == &quot;RELEASED&quot;
+<span class='ln'>151</span>         kind = &quot;equity&quot;
+<span class='ln'>152</span>         status = rules[&quot;risk&quot;][&quot;equity&quot;][&quot;playbook_status&quot;]
+<span class='ln'>153</span>     else:
+<span class='ln'>154</span>         released = rules[&quot;options&quot;][&quot;playbook_status&quot;] == &quot;RELEASED&quot;
+<span class='ln'>155</span>         kind = &quot;options&quot;
+<span class='ln'>156</span>         status = rules[&quot;options&quot;][&quot;playbook_status&quot;]
+<span class='ln'>157</span>     allowed, reason = can_place_live(
+<span class='ln'>158</span>         explicit_confirm=False,
+<span class='ln'>159</span>         playbook_released=released,
+<span class='ln'>160</span>         playbook_kind=kind,
+<span class='ln'>161</span>         h_enabled=rules.get(&quot;execution&quot;, {}).get(&quot;unsupervised_agent_h&quot;) == &quot;enabled&quot;,
+<span class='ln'>162</span>     )
+<span class='ln'>163</span>     record = {
+<span class='ln'>164</span>         &quot;event&quot;: &quot;phase3_dry_review&quot;,
+<span class='ln'>165</span>         &quot;as_of&quot;: utc_now_iso(),
+<span class='ln'>166</span>         &quot;proposal&quot;: proposal,
+<span class='ln'>167</span>         &quot;review&quot;: review_response,
+<span class='ln'>168</span>         &quot;error&quot;: error,
+<span class='ln'>169</span>         &quot;places_order&quot;: False,
+<span class='ln'>170</span>         &quot;playbook_status&quot;: status,
+<span class='ln'>171</span>         &quot;place_gate&quot;: {&quot;allowed&quot;: allowed, &quot;reason&quot;: reason},
+<span class='ln'>172</span>     }
+<span class='ln'>173</span>     write_json(SIGNALS / &quot;execution_review.json&quot;, record)
+<span class='ln'>174</span>     append_jsonl(JOURNAL / &quot;reviews.jsonl&quot;, record)
+<span class='ln'>175</span>     return record
 </pre></section><section class='file' id='scripts-run_phase2_cycle-py'><h2>scripts/run_phase2_cycle.py</h2><p class='meta'><strong>10 · CLI</strong> · F + H · 38 lines · Load data/raw/latest_raw.json and run the orchestrator</p><pre class='source'><span class='ln'>  1</span> #!/usr/bin/env python3
 <span class='ln'>  2</span> &quot;&quot;&quot;Run Phase 2 pipeline from a raw MCP dump JSON file (read-only).&quot;&quot;&quot;
 <span class='ln'>  3</span> 
@@ -2509,7 +2685,7 @@
 <span class='ln'> 36</span> 
 <span class='ln'> 37</span> if __name__ == &quot;__main__&quot;:
 <span class='ln'> 38</span>     raise SystemExit(main())
-</pre></section><section class='file' id='scripts-build_python_source_book-py'><h2>scripts/build_python_source_book.py</h2><p class='meta'><strong>10 · CLI</strong> · docs · 394 lines · This generator — rebuilds the printable source book</p><pre class='source'><span class='ln'>  1</span> #!/usr/bin/env python3
+</pre></section><section class='file' id='scripts-build_python_source_book-py'><h2>scripts/build_python_source_book.py</h2><p class='meta'><strong>10 · CLI</strong> · docs · 396 lines · This generator — rebuilds the printable source book</p><pre class='source'><span class='ln'>  1</span> #!/usr/bin/env python3
 <span class='ln'>  2</span> &quot;&quot;&quot;Build a printable HTML + concatenated Python source book of this repo.
 <span class='ln'>  3</span> 
 <span class='ln'>  4</span> Covers every .py module used by Agent F (this Cursor chat) and Agent H
@@ -2540,369 +2716,371 @@
 <span class='ln'> 29</span>     (&quot;pipeline/options_structure.py&quot;, &quot;5 · Agent D&quot;, &quot;F + H&quot;, &quot;Long call/put; ATM/OTM; 2–3 DTE while overnight off&quot;),
 <span class='ln'> 30</span>     (&quot;pipeline/equity_day_trade.py&quot;, &quot;5 · Agent D&quot;, &quot;F only&quot;, &quot;Long shares only; inverse-ETF denylist; H has no equity fallback&quot;),
 <span class='ln'> 31</span>     (&quot;pipeline/greeks.py&quot;, &quot;6 · Agent I&quot;, &quot;F + H&quot;, &quot;Copy RH Greeks only; signed call +0.40–+0.50 / put −0.50–−0.40&quot;),
-<span class='ln'> 32</span>     (&quot;pipeline/risk.py&quot;, &quot;7 · Agent E&quot;, &quot;F + H&quot;, &quot;Options −20%/+40%; equity −20%/+25%; stop first until OCO&quot;),
-<span class='ln'> 33</span>     (&quot;pipeline/orchestrator.py&quot;, &quot;8 · Agent G&quot;, &quot;F + H&quot;, &quot;Phase 2 read-only snapshot; h_entry_ready is always false&quot;),
-<span class='ln'> 34</span>     (&quot;pipeline/execution.py&quot;, &quot;9 · Agent F&quot;, &quot;F (chat)&quot;, &quot;Supervised place-gate: confirm, RTH, 09:45 options, H-owns-RTH&quot;),
-<span class='ln'> 35</span>     (&quot;scripts/run_phase2_cycle.py&quot;, &quot;10 · CLI&quot;, &quot;F + H&quot;, &quot;Load data/raw/latest_raw.json and run the orchestrator&quot;),
-<span class='ln'> 36</span>     (&quot;scripts/build_python_source_book.py&quot;, &quot;10 · CLI&quot;, &quot;docs&quot;, &quot;This generator — rebuilds the printable source book&quot;),
-<span class='ln'> 37</span>     (&quot;pipeline/tests/test_phase2.py&quot;, &quot;11 · Tests&quot;, &quot;CI / F&quot;, &quot;Universe, liquidity, signed delta, ATM/OTM, expiration rank&quot;),
-<span class='ln'> 38</span>     (&quot;pipeline/tests/test_orders.py&quot;, &quot;11 · Tests&quot;, &quot;CI / F&quot;, &quot;Working states and locked agent_h schema&quot;),
-<span class='ln'> 39</span>     (&quot;pipeline/tests/test_fees.py&quot;, &quot;11 · Tests&quot;, &quot;CI / F&quot;, &quot;Dual NLV fee ceilings&quot;),
-<span class='ln'> 40</span>     (&quot;pipeline/tests/test_session.py&quot;, &quot;11 · Tests&quot;, &quot;CI / F&quot;, &quot;ET calendar date and flatten window&quot;),
-<span class='ln'> 41</span>     (&quot;pipeline/tests/test_equity_day_trade.py&quot;, &quot;11 · Tests&quot;, &quot;CI / F&quot;, &quot;Long-only equity selection and Phase 2 snapshots&quot;),
-<span class='ln'> 42</span>     (&quot;pipeline/tests/test_execution.py&quot;, &quot;11 · Tests&quot;, &quot;CI / F&quot;, &quot;F place-gate including 09:45 option lock&quot;),
-<span class='ln'> 43</span> ]
-<span class='ln'> 44</span> 
-<span class='ln'> 45</span> 
-<span class='ln'> 46</span> def _read(rel: str) -&gt; str:
-<span class='ln'> 47</span>     path = ROOT / rel
-<span class='ln'> 48</span>     if not path.exists():
-<span class='ln'> 49</span>         return &quot;&quot;
-<span class='ln'> 50</span>     return path.read_text(encoding=&quot;utf-8&quot;)
-<span class='ln'> 51</span> 
-<span class='ln'> 52</span> 
-<span class='ln'> 53</span> def _banner(rel: str, part: str, used_by: str, role: str) -&gt; str:
-<span class='ln'> 54</span>     line = &quot;=&quot; * 72
-<span class='ln'> 55</span>     return (
-<span class='ln'> 56</span>         f&quot;# {line}\n&quot;
-<span class='ln'> 57</span>         f&quot;# {rel}\n&quot;
-<span class='ln'> 58</span>         f&quot;# Part: {part}\n&quot;
-<span class='ln'> 59</span>         f&quot;# Used by: {used_by}\n&quot;
-<span class='ln'> 60</span>         f&quot;# {role}\n&quot;
-<span class='ln'> 61</span>         f&quot;# {line}\n\n&quot;
-<span class='ln'> 62</span>     )
-<span class='ln'> 63</span> 
-<span class='ln'> 64</span> 
-<span class='ln'> 65</span> def _catalog() -&gt; list[tuple[str, str, str, str]]:
-<span class='ln'> 66</span>     return [row for row in CATALOG if (ROOT / row[0]).exists() and _read(row[0]).strip()]
-<span class='ln'> 67</span> 
-<span class='ln'> 68</span> 
-<span class='ln'> 69</span> def build_python_book() -&gt; str:
-<span class='ln'> 70</span>     now = datetime.now(timezone.utc).replace(microsecond=0).isoformat()
-<span class='ln'> 71</span>     chunks: list[str] = [
-<span class='ln'> 72</span>         &quot;# ruff: noqa\n&quot;,
-<span class='ln'> 73</span>         &quot;# pylint: skip-file\n&quot;,
-<span class='ln'> 74</span>         &#x27;&quot;&quot;&quot;PRINTABLE SOURCE BOOK — do not import or execute this file.\n&#x27;,
-<span class='ln'> 75</span>         &quot;\n&quot;,
-<span class='ln'> 76</span>         &quot;Agentic trading program: Agent F (supervised Cursor chat) and\n&quot;,
-<span class='ln'> 77</span>         &quot;Agent H (autonomous Agentic bot) share this Python pipeline.\n&quot;,
-<span class='ln'> 78</span>         &quot;Live place_* is Robinhood MCP, not a side effect of this code.\n&quot;,
-<span class='ln'> 79</span>         &quot;H&#x27;s standing prompt is playbooks/agent_h_autonomous.PROMPT.md (not Python).\n&quot;,
-<span class='ln'> 80</span>         &quot;\n&quot;,
-<span class='ln'> 81</span>         f&quot;Generated: {now}\n&quot;,
-<span class='ln'> 82</span>         &quot;Print companion: docs/agentic-python-source-printable.html\n&quot;,
-<span class='ln'> 83</span>         &#x27;&quot;&quot;&quot;\n\n&#x27;,
-<span class='ln'> 84</span>     ]
-<span class='ln'> 85</span>     for rel, part, used_by, role in _catalog():
-<span class='ln'> 86</span>         chunks.append(_banner(rel, part, used_by, role))
-<span class='ln'> 87</span>         chunks.append(_read(rel).rstrip() + &quot;\n\n&quot;)
-<span class='ln'> 88</span>     return &quot;&quot;.join(chunks)
-<span class='ln'> 89</span> 
-<span class='ln'> 90</span> 
-<span class='ln'> 91</span> def build_html(py_book: str) -&gt; str:
-<span class='ln'> 92</span>     now = datetime.now(timezone.utc).replace(microsecond=0).strftime(&quot;%Y-%m-%d %H:%M UTC&quot;)
-<span class='ln'> 93</span>     toc_rows = []
-<span class='ln'> 94</span>     sections = []
-<span class='ln'> 95</span>     total_lines = 0
-<span class='ln'> 96</span>     for rel, part, used_by, role in _catalog():
-<span class='ln'> 97</span>         src = _read(rel)
-<span class='ln'> 98</span>         n = src.count(&quot;\n&quot;) + (0 if src.endswith(&quot;\n&quot;) or not src else 1)
-<span class='ln'> 99</span>         total_lines += n
-<span class='ln'>100</span>         anchor = rel.replace(&quot;/&quot;, &quot;-&quot;).replace(&quot;.&quot;, &quot;-&quot;)
-<span class='ln'>101</span>         toc_rows.append(
-<span class='ln'>102</span>             f&quot;&lt;tr&gt;&lt;td&gt;{html.escape(part)}&lt;/td&gt;&lt;td&gt;&lt;a href=&#x27;#{anchor}&#x27;&gt;&quot;
-<span class='ln'>103</span>             f&quot;&lt;code&gt;{html.escape(rel)}&lt;/code&gt;&lt;/a&gt;&lt;/td&gt;&quot;
-<span class='ln'>104</span>             f&quot;&lt;td&gt;{html.escape(used_by)}&lt;/td&gt;&lt;td&gt;{n}&lt;/td&gt;&quot;
-<span class='ln'>105</span>             f&quot;&lt;td&gt;{html.escape(role)}&lt;/td&gt;&lt;/tr&gt;&quot;
-<span class='ln'>106</span>         )
-<span class='ln'>107</span>         numbered = []
-<span class='ln'>108</span>         lines = src.splitlines()
-<span class='ln'>109</span>         width = max(3, len(str(len(lines))))
-<span class='ln'>110</span>         for i, line in enumerate(lines, 1):
-<span class='ln'>111</span>             numbered.append(
-<span class='ln'>112</span>                 f&quot;&lt;span class=&#x27;ln&#x27;&gt;{i:{width}d}&lt;/span&gt; {html.escape(line)}&quot;
-<span class='ln'>113</span>             )
-<span class='ln'>114</span>         sections.append(
-<span class='ln'>115</span>             f&quot;&lt;section class=&#x27;file&#x27; id=&#x27;{anchor}&#x27;&gt;&quot;
-<span class='ln'>116</span>             f&quot;&lt;h2&gt;{html.escape(rel)}&lt;/h2&gt;&quot;
-<span class='ln'>117</span>             f&quot;&lt;p class=&#x27;meta&#x27;&gt;&lt;strong&gt;{html.escape(part)}&lt;/strong&gt; · {html.escape(used_by)}&quot;
-<span class='ln'>118</span>             f&quot; · {n} lines · {html.escape(role)}&lt;/p&gt;&quot;
-<span class='ln'>119</span>             f&quot;&lt;pre class=&#x27;source&#x27;&gt;{chr(10).join(numbered)}\n&lt;/pre&gt;&quot;
-<span class='ln'>120</span>             f&quot;&lt;/section&gt;&quot;
-<span class='ln'>121</span>         )
-<span class='ln'>122</span> 
-<span class='ln'>123</span>     return f&quot;&quot;&quot;&lt;!DOCTYPE html&gt;
-<span class='ln'>124</span> &lt;html lang=&quot;en&quot;&gt;
-<span class='ln'>125</span> &lt;head&gt;
-<span class='ln'>126</span>   &lt;meta charset=&quot;utf-8&quot; /&gt;
-<span class='ln'>127</span>   &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot; /&gt;
-<span class='ln'>128</span>   &lt;title&gt;Agentic Python Source Book (Printable)&lt;/title&gt;
-<span class='ln'>129</span>   &lt;style&gt;
-<span class='ln'>130</span>     :root {{ --ink:#111; --muted:#333; --line:#222; --bg:#fff; --box:#f4f4f4; }}
-<span class='ln'>131</span>     * {{ box-sizing: border-box; }}
-<span class='ln'>132</span>     body {{
-<span class='ln'>133</span>       margin: 0; color: var(--ink); background: var(--bg);
-<span class='ln'>134</span>       font-family: &quot;IBM Plex Sans&quot;, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif;
-<span class='ln'>135</span>       font-size: 10.4pt; line-height: 1.35;
-<span class='ln'>136</span>     }}
-<span class='ln'>137</span>     .toolbar {{
-<span class='ln'>138</span>       position: sticky; top: 0; z-index: 20; display: flex; gap: 12px;
-<span class='ln'>139</span>       align-items: center; background: #111; color: #fff;
-<span class='ln'>140</span>       padding: 10px 16px; font-size: 13px;
-<span class='ln'>141</span>     }}
-<span class='ln'>142</span>     .toolbar button {{
-<span class='ln'>143</span>       background: #fff; color: #111; border: 0; padding: 8px 14px;
-<span class='ln'>144</span>       font-weight: 700; cursor: pointer;
-<span class='ln'>145</span>     }}
-<span class='ln'>146</span>     .page {{ max-width: 8.5in; margin: 0 auto; padding: 0.5in 0.55in 0.65in; }}
-<span class='ln'>147</span>     h1 {{ font-size: 20pt; margin: 0 0 0.08in; letter-spacing: -0.02em; }}
-<span class='ln'>148</span>     h2 {{
-<span class='ln'>149</span>       font-size: 12pt; margin: 0.28in 0 0.08in; padding-bottom: 0.04in;
-<span class='ln'>150</span>       border-bottom: 1.5pt solid var(--line); page-break-after: avoid;
-<span class='ln'>151</span>     }}
-<span class='ln'>152</span>     h3 {{ font-size: 11pt; margin: 0.16in 0 0.06in; page-break-after: avoid; }}
-<span class='ln'>153</span>     .kicker {{ font-size: 9.5pt; letter-spacing: 0.08em; text-transform: uppercase; }}
-<span class='ln'>154</span>     .rule {{ width: 1.3in; height: 3px; background: #111; margin: 0.12in 0 0.18in; }}
-<span class='ln'>155</span>     .meta, .note, .footer {{ font-size: 9.3pt; color: var(--muted); }}
-<span class='ln'>156</span>     .meta strong {{ color: var(--ink); }}
-<span class='ln'>157</span>     .badge-row {{ display: flex; flex-wrap: wrap; gap: 6px; margin: 0.1in 0 0.16in; }}
-<span class='ln'>158</span>     .badge {{
-<span class='ln'>159</span>       border: 1pt solid var(--line); padding: 3px 8px; font-size: 8.4pt; background: var(--box);
-<span class='ln'>160</span>     }}
-<span class='ln'>161</span>     table {{ width: 100%; border-collapse: collapse; font-size: 8.8pt; margin: 0 0 0.14in; }}
-<span class='ln'>162</span>     th, td {{ border: 1pt solid var(--line); padding: 0.045in 0.06in; vertical-align: top; text-align: left; }}
-<span class='ln'>163</span>     th {{ background: #e8e8e8; font-weight: 700; }}
-<span class='ln'>164</span>     .card {{
-<span class='ln'>165</span>       border: 1pt solid var(--line); padding: 0.1in 0.12in; background: var(--box);
-<span class='ln'>166</span>       page-break-inside: avoid; margin-bottom: 0.1in;
-<span class='ln'>167</span>     }}
-<span class='ln'>168</span>     ul {{ margin: 0.04in 0 0.08in; padding-left: 0.2in; }}
-<span class='ln'>169</span>     li {{ margin: 0.03in 0; }}
-<span class='ln'>170</span>     code {{ font-family: &quot;IBM Plex Mono&quot;, Consolas, &quot;Courier New&quot;, monospace; font-size: 8.8pt; }}
-<span class='ln'>171</span>     pre.source {{
-<span class='ln'>172</span>       font-family: &quot;IBM Plex Mono&quot;, Consolas, &quot;Courier New&quot;, monospace;
-<span class='ln'>173</span>       font-size: 7.15pt; line-height: 1.28; white-space: pre-wrap; word-break: break-word;
-<span class='ln'>174</span>       background: var(--box); border: 1pt solid var(--line); padding: 0.09in 0.1in;
-<span class='ln'>175</span>       margin: 0 0 0.08in;
-<span class='ln'>176</span>     }}
-<span class='ln'>177</span>     pre.source .ln {{ color: #888; margin-right: 0.12in; user-select: none; }}
-<span class='ln'>178</span>     .file {{ page-break-before: always; }}
-<span class='ln'>179</span>     .footer {{ margin-top: 0.18in; padding-top: 0.08in; border-top: 1pt solid #999; font-size: 8.2pt; }}
-<span class='ln'>180</span>     @media print {{
-<span class='ln'>181</span>       .no-print {{ display: none !important; }}
-<span class='ln'>182</span>       .page {{ max-width: none; padding: 0; }}
-<span class='ln'>183</span>       a {{ color: inherit; text-decoration: none; }}
-<span class='ln'>184</span>       h2, table, .card {{ break-inside: avoid; }}
-<span class='ln'>185</span>       pre.source {{ font-size: 7pt; }}
-<span class='ln'>186</span>     }}
-<span class='ln'>187</span>     @page {{ size: Letter portrait; margin: 0.45in; }}
-<span class='ln'>188</span>   &lt;/style&gt;
-<span class='ln'>189</span> &lt;/head&gt;
-<span class='ln'>190</span> &lt;body&gt;
-<span class='ln'>191</span>   &lt;div class=&quot;toolbar no-print&quot;&gt;
-<span class='ln'>192</span>     &lt;button type=&quot;button&quot; onclick=&quot;window.print()&quot;&gt;Print / Save as PDF&lt;/button&gt;
-<span class='ln'>193</span>     &lt;span&gt;Agentic Python source — Letter portrait · {total_lines} lines · {len(CATALOG)} files&lt;/span&gt;
-<span class='ln'>194</span>   &lt;/div&gt;
-<span class='ln'>195</span>   &lt;div class=&quot;page&quot;&gt;
-<span class='ln'>196</span>     &lt;p class=&quot;kicker&quot;&gt;Jarrod Besner · Agentic ••••2907&lt;/p&gt;
-<span class='ln'>197</span>     &lt;h1&gt;Python source book&lt;/h1&gt;
-<span class='ln'>198</span>     &lt;div class=&quot;rule&quot;&gt;&lt;/div&gt;
-<span class='ln'>199</span>     &lt;p class=&quot;meta&quot;&gt;Chat agent &lt;strong&gt;F&lt;/strong&gt; and autonomous bot &lt;strong&gt;H&lt;/strong&gt; share this pipeline.
-<span class='ln'>200</span>     Generated {html.escape(now)}. Companion file: &lt;code&gt;docs/agentic_python_source_book.py&lt;/code&gt;.&lt;/p&gt;
-<span class='ln'>201</span>     &lt;div class=&quot;badge-row&quot;&gt;
-<span class='ln'>202</span>       &lt;span class=&quot;badge&quot;&gt;{len(CATALOG)} Python files&lt;/span&gt;
-<span class='ln'>203</span>       &lt;span class=&quot;badge&quot;&gt;{total_lines} lines&lt;/span&gt;
-<span class='ln'>204</span>       &lt;span class=&quot;badge&quot;&gt;Language: Python 3&lt;/span&gt;
-<span class='ln'>205</span>       &lt;span class=&quot;badge&quot;&gt;Does not place orders&lt;/span&gt;
-<span class='ln'>206</span>     &lt;/div&gt;
-<span class='ln'>207</span> 
-<span class='ln'>208</span>     &lt;h3&gt;Who uses which code&lt;/h3&gt;
-<span class='ln'>209</span>     &lt;div class=&quot;card&quot;&gt;
-<span class='ln'>210</span>       &lt;ul&gt;
-<span class='ln'>211</span>         &lt;li&gt;&lt;strong&gt;Agent F (this Cursor chat)&lt;/strong&gt; — supervised. Reads the pipeline, reviews tickets via
-<span class='ln'>212</span>             &lt;code&gt;pipeline/execution.py&lt;/code&gt;, and only calls Robinhood &lt;code&gt;place_*&lt;/code&gt; after an explicit
-<span class='ln'>213</span>             confirm of a specific order. Blocked during RTH while H is enabled.&lt;/li&gt;
-<span class='ln'>214</span>         &lt;li&gt;&lt;strong&gt;Agent H (Agentic AI Bot)&lt;/strong&gt; — unsupervised Cursor Automation. The standing prompt is
-<span class='ln'>215</span>             &lt;code&gt;playbooks/agent_h_autonomous.PROMPT.md&lt;/code&gt; (markdown, not Python). On each fire H checks out
-<span class='ln'>216</span>             &lt;code&gt;main&lt;/code&gt;, reads &lt;code&gt;config/rules.json&lt;/code&gt; → &lt;code&gt;agent_h&lt;/code&gt;, and uses
-<span class='ln'>217</span>             daily → 1-hour → completed 10-minute → live quote only (no 1m / 3m / 5m).
-<span class='ln'>218</span>             Live &lt;code&gt;place_*&lt;/code&gt; is Robinhood MCP from that prompt, not a pipeline side effect.
-<span class='ln'>219</span>             H is options-only; it must ignore equity candidates.&lt;/li&gt;
-<span class='ln'>220</span>         &lt;li&gt;&lt;strong&gt;Not in this book:&lt;/strong&gt; lock JSON, playbooks, and the H prompt. Those are not Python.&lt;/li&gt;
-<span class='ln'>221</span>       &lt;/ul&gt;
-<span class='ln'>222</span>     &lt;/div&gt;
-<span class='ln'>223</span> 
-<span class='ln'>224</span>     &lt;h3&gt;Contents&lt;/h3&gt;
-<span class='ln'>225</span>     &lt;table&gt;
-<span class='ln'>226</span>       &lt;thead&gt;&lt;tr&gt;&lt;th&gt;Part&lt;/th&gt;&lt;th&gt;File&lt;/th&gt;&lt;th&gt;Used by&lt;/th&gt;&lt;th&gt;Lines&lt;/th&gt;&lt;th&gt;Role&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;
-<span class='ln'>227</span>       &lt;tbody&gt;
-<span class='ln'>228</span>         {&#x27;&#x27;.join(toc_rows)}
-<span class='ln'>229</span>       &lt;/tbody&gt;
-<span class='ln'>230</span>     &lt;/table&gt;
-<span class='ln'>231</span>     &lt;p class=&quot;note&quot;&gt;Each file starts on a new printed page. Source is verbatim Python from the repo.&lt;/p&gt;
-<span class='ln'>232</span>     {&#x27;&#x27;.join(sections)}
-<span class='ln'>233</span>     &lt;p class=&quot;footer&quot;&gt;Agentic Python source book · {html.escape(now)} · {total_lines} lines in {len(CATALOG)} files ·
-<span class='ln'>234</span>     print from this HTML or open &lt;code&gt;docs/agentic_python_source_book.py&lt;/code&gt;.&lt;/p&gt;
-<span class='ln'>235</span>   &lt;/div&gt;
-<span class='ln'>236</span> &lt;/body&gt;
-<span class='ln'>237</span> &lt;/html&gt;
-<span class='ln'>238</span> &quot;&quot;&quot;
-<span class='ln'>239</span> 
-<span class='ln'>240</span> 
-<span class='ln'>241</span> def build_pdf(path: Path) -&gt; None:
-<span class='ln'>242</span>     import pymupdf
-<span class='ln'>243</span> 
-<span class='ln'>244</span>     page_w, page_h = 612, 792
-<span class='ln'>245</span>     margin = 36
-<span class='ln'>246</span>     body_font = 7.2
-<span class='ln'>247</span>     header_font = 9.5
-<span class='ln'>248</span>     cover_title = 22
-<span class='ln'>249</span>     line_h = 9.4
-<span class='ln'>250</span>     usable_h = page_h - margin * 2 - 18
-<span class='ln'>251</span>     max_lines = int(usable_h / line_h)
-<span class='ln'>252</span>     max_chars = 108
-<span class='ln'>253</span> 
-<span class='ln'>254</span>     doc = pymupdf.open()
-<span class='ln'>255</span>     now = datetime.now(timezone.utc).replace(microsecond=0).strftime(&quot;%Y-%m-%d %H:%M UTC&quot;)
-<span class='ln'>256</span> 
-<span class='ln'>257</span>     def new_page():
-<span class='ln'>258</span>         return doc.new_page(width=page_w, height=page_h)
-<span class='ln'>259</span> 
-<span class='ln'>260</span>     def footer(page, label: str) -&gt; None:
-<span class='ln'>261</span>         page.insert_text(
-<span class='ln'>262</span>             pymupdf.Point(margin, page_h - 18),
-<span class='ln'>263</span>             f&quot;Agentic Python source  ·  {label}  ·  {now}  ·  page {page.number + 1}&quot;,
-<span class='ln'>264</span>             fontname=&quot;helv&quot;,
-<span class='ln'>265</span>             fontsize=7,
-<span class='ln'>266</span>             color=(0.25, 0.25, 0.25),
-<span class='ln'>267</span>         )
-<span class='ln'>268</span> 
-<span class='ln'>269</span>     def wrap(text: str, width: int) -&gt; list[str]:
-<span class='ln'>270</span>         if len(text) &lt;= width:
-<span class='ln'>271</span>             return [text]
-<span class='ln'>272</span>         words = text.replace(&quot;\t&quot;, &quot;    &quot;).split(&quot; &quot;)
-<span class='ln'>273</span>         lines: list[str] = []
-<span class='ln'>274</span>         cur = &quot;&quot;
-<span class='ln'>275</span>         for word in words:
-<span class='ln'>276</span>             trial = word if not cur else f&quot;{cur} {word}&quot;
-<span class='ln'>277</span>             if len(trial) &lt;= width:
-<span class='ln'>278</span>                 cur = trial
-<span class='ln'>279</span>                 continue
-<span class='ln'>280</span>             if cur:
-<span class='ln'>281</span>                 lines.append(cur)
-<span class='ln'>282</span>             while len(word) &gt; width:
-<span class='ln'>283</span>                 lines.append(word[:width])
-<span class='ln'>284</span>                 word = word[width:]
-<span class='ln'>285</span>             cur = word
-<span class='ln'>286</span>         if cur:
-<span class='ln'>287</span>             lines.append(cur)
-<span class='ln'>288</span>         return lines or [&quot;&quot;]
-<span class='ln'>289</span> 
-<span class='ln'>290</span>     # Cover
-<span class='ln'>291</span>     page = new_page()
-<span class='ln'>292</span>     y = 72
-<span class='ln'>293</span>     page.insert_text(pymupdf.Point(margin, y), &quot;JARROD BESNER  ·  AGENTIC&quot;, fontname=&quot;helv&quot;, fontsize=10)
-<span class='ln'>294</span>     y += 36
-<span class='ln'>295</span>     page.insert_text(pymupdf.Point(margin, y), &quot;Python source book&quot;, fontname=&quot;helv&quot;, fontsize=cover_title)
-<span class='ln'>296</span>     y += 28
-<span class='ln'>297</span>     page.draw_rect(pymupdf.Rect(margin, y, margin + 90, y + 3), fill=(0, 0, 0), width=0)
+<span class='ln'> 32</span>     (&quot;pipeline/ticks.py&quot;, &quot;7 · Agent E&quot;, &quot;F + H&quot;, &quot;Tick-floor debit cap; +1 tick replace skip; stop rounds toward fill&quot;),
+<span class='ln'> 33</span>     (&quot;pipeline/risk.py&quot;, &quot;7 · Agent E&quot;, &quot;F + H&quot;, &quot;Options −20%/+40%; equity −20%/+25%; stop first until OCO&quot;),
+<span class='ln'> 34</span>     (&quot;pipeline/orchestrator.py&quot;, &quot;8 · Agent G&quot;, &quot;F + H&quot;, &quot;Phase 2 read-only snapshot; h_entry_ready is always false&quot;),
+<span class='ln'> 35</span>     (&quot;pipeline/execution.py&quot;, &quot;9 · Agent F&quot;, &quot;F (chat)&quot;, &quot;Supervised place-gate: confirm, RTH, 09:45 options, H-owns-RTH&quot;),
+<span class='ln'> 36</span>     (&quot;scripts/run_phase2_cycle.py&quot;, &quot;10 · CLI&quot;, &quot;F + H&quot;, &quot;Load data/raw/latest_raw.json and run the orchestrator&quot;),
+<span class='ln'> 37</span>     (&quot;scripts/build_python_source_book.py&quot;, &quot;10 · CLI&quot;, &quot;docs&quot;, &quot;This generator — rebuilds the printable source book&quot;),
+<span class='ln'> 38</span>     (&quot;pipeline/tests/test_phase2.py&quot;, &quot;11 · Tests&quot;, &quot;CI / F&quot;, &quot;Universe, liquidity, signed delta, ATM/OTM, expiration rank&quot;),
+<span class='ln'> 39</span>     (&quot;pipeline/tests/test_orders.py&quot;, &quot;11 · Tests&quot;, &quot;CI / F&quot;, &quot;Working states and locked agent_h schema&quot;),
+<span class='ln'> 40</span>     (&quot;pipeline/tests/test_fees.py&quot;, &quot;11 · Tests&quot;, &quot;CI / F&quot;, &quot;Dual NLV fee ceilings&quot;),
+<span class='ln'> 41</span>     (&quot;pipeline/tests/test_session.py&quot;, &quot;11 · Tests&quot;, &quot;CI / F&quot;, &quot;ET calendar date and flatten window&quot;),
+<span class='ln'> 42</span>     (&quot;pipeline/tests/test_equity_day_trade.py&quot;, &quot;11 · Tests&quot;, &quot;CI / F&quot;, &quot;Long-only equity selection and Phase 2 snapshots&quot;),
+<span class='ln'> 43</span>     (&quot;pipeline/tests/test_execution.py&quot;, &quot;11 · Tests&quot;, &quot;CI / F&quot;, &quot;F place-gate including 09:45 option lock&quot;),
+<span class='ln'> 44</span>     (&quot;pipeline/tests/test_ticks.py&quot;, &quot;11 · Tests&quot;, &quot;CI / F&quot;, &quot;Debit-cap tick floor, one-tick replace skip, stop rounding&quot;),
+<span class='ln'> 45</span> ]
+<span class='ln'> 46</span> 
+<span class='ln'> 47</span> 
+<span class='ln'> 48</span> def _read(rel: str) -&gt; str:
+<span class='ln'> 49</span>     path = ROOT / rel
+<span class='ln'> 50</span>     if not path.exists():
+<span class='ln'> 51</span>         return &quot;&quot;
+<span class='ln'> 52</span>     return path.read_text(encoding=&quot;utf-8&quot;)
+<span class='ln'> 53</span> 
+<span class='ln'> 54</span> 
+<span class='ln'> 55</span> def _banner(rel: str, part: str, used_by: str, role: str) -&gt; str:
+<span class='ln'> 56</span>     line = &quot;=&quot; * 72
+<span class='ln'> 57</span>     return (
+<span class='ln'> 58</span>         f&quot;# {line}\n&quot;
+<span class='ln'> 59</span>         f&quot;# {rel}\n&quot;
+<span class='ln'> 60</span>         f&quot;# Part: {part}\n&quot;
+<span class='ln'> 61</span>         f&quot;# Used by: {used_by}\n&quot;
+<span class='ln'> 62</span>         f&quot;# {role}\n&quot;
+<span class='ln'> 63</span>         f&quot;# {line}\n\n&quot;
+<span class='ln'> 64</span>     )
+<span class='ln'> 65</span> 
+<span class='ln'> 66</span> 
+<span class='ln'> 67</span> def _catalog() -&gt; list[tuple[str, str, str, str]]:
+<span class='ln'> 68</span>     return [row for row in CATALOG if (ROOT / row[0]).exists() and _read(row[0]).strip()]
+<span class='ln'> 69</span> 
+<span class='ln'> 70</span> 
+<span class='ln'> 71</span> def build_python_book() -&gt; str:
+<span class='ln'> 72</span>     now = datetime.now(timezone.utc).replace(microsecond=0).isoformat()
+<span class='ln'> 73</span>     chunks: list[str] = [
+<span class='ln'> 74</span>         &quot;# ruff: noqa\n&quot;,
+<span class='ln'> 75</span>         &quot;# pylint: skip-file\n&quot;,
+<span class='ln'> 76</span>         &#x27;&quot;&quot;&quot;PRINTABLE SOURCE BOOK — do not import or execute this file.\n&#x27;,
+<span class='ln'> 77</span>         &quot;\n&quot;,
+<span class='ln'> 78</span>         &quot;Agentic trading program: Agent F (supervised Cursor chat) and\n&quot;,
+<span class='ln'> 79</span>         &quot;Agent H (autonomous Agentic bot) share this Python pipeline.\n&quot;,
+<span class='ln'> 80</span>         &quot;Live place_* is Robinhood MCP, not a side effect of this code.\n&quot;,
+<span class='ln'> 81</span>         &quot;H&#x27;s standing prompt is playbooks/agent_h_autonomous.PROMPT.md (not Python).\n&quot;,
+<span class='ln'> 82</span>         &quot;\n&quot;,
+<span class='ln'> 83</span>         f&quot;Generated: {now}\n&quot;,
+<span class='ln'> 84</span>         &quot;Print companion: docs/agentic-python-source-printable.html\n&quot;,
+<span class='ln'> 85</span>         &#x27;&quot;&quot;&quot;\n\n&#x27;,
+<span class='ln'> 86</span>     ]
+<span class='ln'> 87</span>     for rel, part, used_by, role in _catalog():
+<span class='ln'> 88</span>         chunks.append(_banner(rel, part, used_by, role))
+<span class='ln'> 89</span>         chunks.append(_read(rel).rstrip() + &quot;\n\n&quot;)
+<span class='ln'> 90</span>     return &quot;&quot;.join(chunks)
+<span class='ln'> 91</span> 
+<span class='ln'> 92</span> 
+<span class='ln'> 93</span> def build_html(py_book: str) -&gt; str:
+<span class='ln'> 94</span>     now = datetime.now(timezone.utc).replace(microsecond=0).strftime(&quot;%Y-%m-%d %H:%M UTC&quot;)
+<span class='ln'> 95</span>     toc_rows = []
+<span class='ln'> 96</span>     sections = []
+<span class='ln'> 97</span>     total_lines = 0
+<span class='ln'> 98</span>     for rel, part, used_by, role in _catalog():
+<span class='ln'> 99</span>         src = _read(rel)
+<span class='ln'>100</span>         n = src.count(&quot;\n&quot;) + (0 if src.endswith(&quot;\n&quot;) or not src else 1)
+<span class='ln'>101</span>         total_lines += n
+<span class='ln'>102</span>         anchor = rel.replace(&quot;/&quot;, &quot;-&quot;).replace(&quot;.&quot;, &quot;-&quot;)
+<span class='ln'>103</span>         toc_rows.append(
+<span class='ln'>104</span>             f&quot;&lt;tr&gt;&lt;td&gt;{html.escape(part)}&lt;/td&gt;&lt;td&gt;&lt;a href=&#x27;#{anchor}&#x27;&gt;&quot;
+<span class='ln'>105</span>             f&quot;&lt;code&gt;{html.escape(rel)}&lt;/code&gt;&lt;/a&gt;&lt;/td&gt;&quot;
+<span class='ln'>106</span>             f&quot;&lt;td&gt;{html.escape(used_by)}&lt;/td&gt;&lt;td&gt;{n}&lt;/td&gt;&quot;
+<span class='ln'>107</span>             f&quot;&lt;td&gt;{html.escape(role)}&lt;/td&gt;&lt;/tr&gt;&quot;
+<span class='ln'>108</span>         )
+<span class='ln'>109</span>         numbered = []
+<span class='ln'>110</span>         lines = src.splitlines()
+<span class='ln'>111</span>         width = max(3, len(str(len(lines))))
+<span class='ln'>112</span>         for i, line in enumerate(lines, 1):
+<span class='ln'>113</span>             numbered.append(
+<span class='ln'>114</span>                 f&quot;&lt;span class=&#x27;ln&#x27;&gt;{i:{width}d}&lt;/span&gt; {html.escape(line)}&quot;
+<span class='ln'>115</span>             )
+<span class='ln'>116</span>         sections.append(
+<span class='ln'>117</span>             f&quot;&lt;section class=&#x27;file&#x27; id=&#x27;{anchor}&#x27;&gt;&quot;
+<span class='ln'>118</span>             f&quot;&lt;h2&gt;{html.escape(rel)}&lt;/h2&gt;&quot;
+<span class='ln'>119</span>             f&quot;&lt;p class=&#x27;meta&#x27;&gt;&lt;strong&gt;{html.escape(part)}&lt;/strong&gt; · {html.escape(used_by)}&quot;
+<span class='ln'>120</span>             f&quot; · {n} lines · {html.escape(role)}&lt;/p&gt;&quot;
+<span class='ln'>121</span>             f&quot;&lt;pre class=&#x27;source&#x27;&gt;{chr(10).join(numbered)}\n&lt;/pre&gt;&quot;
+<span class='ln'>122</span>             f&quot;&lt;/section&gt;&quot;
+<span class='ln'>123</span>         )
+<span class='ln'>124</span> 
+<span class='ln'>125</span>     return f&quot;&quot;&quot;&lt;!DOCTYPE html&gt;
+<span class='ln'>126</span> &lt;html lang=&quot;en&quot;&gt;
+<span class='ln'>127</span> &lt;head&gt;
+<span class='ln'>128</span>   &lt;meta charset=&quot;utf-8&quot; /&gt;
+<span class='ln'>129</span>   &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot; /&gt;
+<span class='ln'>130</span>   &lt;title&gt;Agentic Python Source Book (Printable)&lt;/title&gt;
+<span class='ln'>131</span>   &lt;style&gt;
+<span class='ln'>132</span>     :root {{ --ink:#111; --muted:#333; --line:#222; --bg:#fff; --box:#f4f4f4; }}
+<span class='ln'>133</span>     * {{ box-sizing: border-box; }}
+<span class='ln'>134</span>     body {{
+<span class='ln'>135</span>       margin: 0; color: var(--ink); background: var(--bg);
+<span class='ln'>136</span>       font-family: &quot;IBM Plex Sans&quot;, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif;
+<span class='ln'>137</span>       font-size: 10.4pt; line-height: 1.35;
+<span class='ln'>138</span>     }}
+<span class='ln'>139</span>     .toolbar {{
+<span class='ln'>140</span>       position: sticky; top: 0; z-index: 20; display: flex; gap: 12px;
+<span class='ln'>141</span>       align-items: center; background: #111; color: #fff;
+<span class='ln'>142</span>       padding: 10px 16px; font-size: 13px;
+<span class='ln'>143</span>     }}
+<span class='ln'>144</span>     .toolbar button {{
+<span class='ln'>145</span>       background: #fff; color: #111; border: 0; padding: 8px 14px;
+<span class='ln'>146</span>       font-weight: 700; cursor: pointer;
+<span class='ln'>147</span>     }}
+<span class='ln'>148</span>     .page {{ max-width: 8.5in; margin: 0 auto; padding: 0.5in 0.55in 0.65in; }}
+<span class='ln'>149</span>     h1 {{ font-size: 20pt; margin: 0 0 0.08in; letter-spacing: -0.02em; }}
+<span class='ln'>150</span>     h2 {{
+<span class='ln'>151</span>       font-size: 12pt; margin: 0.28in 0 0.08in; padding-bottom: 0.04in;
+<span class='ln'>152</span>       border-bottom: 1.5pt solid var(--line); page-break-after: avoid;
+<span class='ln'>153</span>     }}
+<span class='ln'>154</span>     h3 {{ font-size: 11pt; margin: 0.16in 0 0.06in; page-break-after: avoid; }}
+<span class='ln'>155</span>     .kicker {{ font-size: 9.5pt; letter-spacing: 0.08em; text-transform: uppercase; }}
+<span class='ln'>156</span>     .rule {{ width: 1.3in; height: 3px; background: #111; margin: 0.12in 0 0.18in; }}
+<span class='ln'>157</span>     .meta, .note, .footer {{ font-size: 9.3pt; color: var(--muted); }}
+<span class='ln'>158</span>     .meta strong {{ color: var(--ink); }}
+<span class='ln'>159</span>     .badge-row {{ display: flex; flex-wrap: wrap; gap: 6px; margin: 0.1in 0 0.16in; }}
+<span class='ln'>160</span>     .badge {{
+<span class='ln'>161</span>       border: 1pt solid var(--line); padding: 3px 8px; font-size: 8.4pt; background: var(--box);
+<span class='ln'>162</span>     }}
+<span class='ln'>163</span>     table {{ width: 100%; border-collapse: collapse; font-size: 8.8pt; margin: 0 0 0.14in; }}
+<span class='ln'>164</span>     th, td {{ border: 1pt solid var(--line); padding: 0.045in 0.06in; vertical-align: top; text-align: left; }}
+<span class='ln'>165</span>     th {{ background: #e8e8e8; font-weight: 700; }}
+<span class='ln'>166</span>     .card {{
+<span class='ln'>167</span>       border: 1pt solid var(--line); padding: 0.1in 0.12in; background: var(--box);
+<span class='ln'>168</span>       page-break-inside: avoid; margin-bottom: 0.1in;
+<span class='ln'>169</span>     }}
+<span class='ln'>170</span>     ul {{ margin: 0.04in 0 0.08in; padding-left: 0.2in; }}
+<span class='ln'>171</span>     li {{ margin: 0.03in 0; }}
+<span class='ln'>172</span>     code {{ font-family: &quot;IBM Plex Mono&quot;, Consolas, &quot;Courier New&quot;, monospace; font-size: 8.8pt; }}
+<span class='ln'>173</span>     pre.source {{
+<span class='ln'>174</span>       font-family: &quot;IBM Plex Mono&quot;, Consolas, &quot;Courier New&quot;, monospace;
+<span class='ln'>175</span>       font-size: 7.15pt; line-height: 1.28; white-space: pre-wrap; word-break: break-word;
+<span class='ln'>176</span>       background: var(--box); border: 1pt solid var(--line); padding: 0.09in 0.1in;
+<span class='ln'>177</span>       margin: 0 0 0.08in;
+<span class='ln'>178</span>     }}
+<span class='ln'>179</span>     pre.source .ln {{ color: #888; margin-right: 0.12in; user-select: none; }}
+<span class='ln'>180</span>     .file {{ page-break-before: always; }}
+<span class='ln'>181</span>     .footer {{ margin-top: 0.18in; padding-top: 0.08in; border-top: 1pt solid #999; font-size: 8.2pt; }}
+<span class='ln'>182</span>     @media print {{
+<span class='ln'>183</span>       .no-print {{ display: none !important; }}
+<span class='ln'>184</span>       .page {{ max-width: none; padding: 0; }}
+<span class='ln'>185</span>       a {{ color: inherit; text-decoration: none; }}
+<span class='ln'>186</span>       h2, table, .card {{ break-inside: avoid; }}
+<span class='ln'>187</span>       pre.source {{ font-size: 7pt; }}
+<span class='ln'>188</span>     }}
+<span class='ln'>189</span>     @page {{ size: Letter portrait; margin: 0.45in; }}
+<span class='ln'>190</span>   &lt;/style&gt;
+<span class='ln'>191</span> &lt;/head&gt;
+<span class='ln'>192</span> &lt;body&gt;
+<span class='ln'>193</span>   &lt;div class=&quot;toolbar no-print&quot;&gt;
+<span class='ln'>194</span>     &lt;button type=&quot;button&quot; onclick=&quot;window.print()&quot;&gt;Print / Save as PDF&lt;/button&gt;
+<span class='ln'>195</span>     &lt;span&gt;Agentic Python source — Letter portrait · {total_lines} lines · {len(CATALOG)} files&lt;/span&gt;
+<span class='ln'>196</span>   &lt;/div&gt;
+<span class='ln'>197</span>   &lt;div class=&quot;page&quot;&gt;
+<span class='ln'>198</span>     &lt;p class=&quot;kicker&quot;&gt;Jarrod Besner · Agentic ••••2907&lt;/p&gt;
+<span class='ln'>199</span>     &lt;h1&gt;Python source book&lt;/h1&gt;
+<span class='ln'>200</span>     &lt;div class=&quot;rule&quot;&gt;&lt;/div&gt;
+<span class='ln'>201</span>     &lt;p class=&quot;meta&quot;&gt;Chat agent &lt;strong&gt;F&lt;/strong&gt; and autonomous bot &lt;strong&gt;H&lt;/strong&gt; share this pipeline.
+<span class='ln'>202</span>     Generated {html.escape(now)}. Companion file: &lt;code&gt;docs/agentic_python_source_book.py&lt;/code&gt;.&lt;/p&gt;
+<span class='ln'>203</span>     &lt;div class=&quot;badge-row&quot;&gt;
+<span class='ln'>204</span>       &lt;span class=&quot;badge&quot;&gt;{len(CATALOG)} Python files&lt;/span&gt;
+<span class='ln'>205</span>       &lt;span class=&quot;badge&quot;&gt;{total_lines} lines&lt;/span&gt;
+<span class='ln'>206</span>       &lt;span class=&quot;badge&quot;&gt;Language: Python 3&lt;/span&gt;
+<span class='ln'>207</span>       &lt;span class=&quot;badge&quot;&gt;Does not place orders&lt;/span&gt;
+<span class='ln'>208</span>     &lt;/div&gt;
+<span class='ln'>209</span> 
+<span class='ln'>210</span>     &lt;h3&gt;Who uses which code&lt;/h3&gt;
+<span class='ln'>211</span>     &lt;div class=&quot;card&quot;&gt;
+<span class='ln'>212</span>       &lt;ul&gt;
+<span class='ln'>213</span>         &lt;li&gt;&lt;strong&gt;Agent F (this Cursor chat)&lt;/strong&gt; — supervised. Reads the pipeline, reviews tickets via
+<span class='ln'>214</span>             &lt;code&gt;pipeline/execution.py&lt;/code&gt;, and only calls Robinhood &lt;code&gt;place_*&lt;/code&gt; after an explicit
+<span class='ln'>215</span>             confirm of a specific order. Blocked during RTH while H is enabled.&lt;/li&gt;
+<span class='ln'>216</span>         &lt;li&gt;&lt;strong&gt;Agent H (Agentic AI Bot)&lt;/strong&gt; — unsupervised Cursor Automation. The standing prompt is
+<span class='ln'>217</span>             &lt;code&gt;playbooks/agent_h_autonomous.PROMPT.md&lt;/code&gt; (markdown, not Python). On each fire H checks out
+<span class='ln'>218</span>             &lt;code&gt;main&lt;/code&gt;, reads &lt;code&gt;config/rules.json&lt;/code&gt; → &lt;code&gt;agent_h&lt;/code&gt;, and uses
+<span class='ln'>219</span>             daily → 1-hour → completed 10-minute → live quote only (no 1m / 3m / 5m).
+<span class='ln'>220</span>             Live &lt;code&gt;place_*&lt;/code&gt; is Robinhood MCP from that prompt, not a pipeline side effect.
+<span class='ln'>221</span>             H is options-only; it must ignore equity candidates.&lt;/li&gt;
+<span class='ln'>222</span>         &lt;li&gt;&lt;strong&gt;Not in this book:&lt;/strong&gt; lock JSON, playbooks, and the H prompt. Those are not Python.&lt;/li&gt;
+<span class='ln'>223</span>       &lt;/ul&gt;
+<span class='ln'>224</span>     &lt;/div&gt;
+<span class='ln'>225</span> 
+<span class='ln'>226</span>     &lt;h3&gt;Contents&lt;/h3&gt;
+<span class='ln'>227</span>     &lt;table&gt;
+<span class='ln'>228</span>       &lt;thead&gt;&lt;tr&gt;&lt;th&gt;Part&lt;/th&gt;&lt;th&gt;File&lt;/th&gt;&lt;th&gt;Used by&lt;/th&gt;&lt;th&gt;Lines&lt;/th&gt;&lt;th&gt;Role&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;
+<span class='ln'>229</span>       &lt;tbody&gt;
+<span class='ln'>230</span>         {&#x27;&#x27;.join(toc_rows)}
+<span class='ln'>231</span>       &lt;/tbody&gt;
+<span class='ln'>232</span>     &lt;/table&gt;
+<span class='ln'>233</span>     &lt;p class=&quot;note&quot;&gt;Each file starts on a new printed page. Source is verbatim Python from the repo.&lt;/p&gt;
+<span class='ln'>234</span>     {&#x27;&#x27;.join(sections)}
+<span class='ln'>235</span>     &lt;p class=&quot;footer&quot;&gt;Agentic Python source book · {html.escape(now)} · {total_lines} lines in {len(CATALOG)} files ·
+<span class='ln'>236</span>     print from this HTML or open &lt;code&gt;docs/agentic_python_source_book.py&lt;/code&gt;.&lt;/p&gt;
+<span class='ln'>237</span>   &lt;/div&gt;
+<span class='ln'>238</span> &lt;/body&gt;
+<span class='ln'>239</span> &lt;/html&gt;
+<span class='ln'>240</span> &quot;&quot;&quot;
+<span class='ln'>241</span> 
+<span class='ln'>242</span> 
+<span class='ln'>243</span> def build_pdf(path: Path) -&gt; None:
+<span class='ln'>244</span>     import pymupdf
+<span class='ln'>245</span> 
+<span class='ln'>246</span>     page_w, page_h = 612, 792
+<span class='ln'>247</span>     margin = 36
+<span class='ln'>248</span>     body_font = 7.2
+<span class='ln'>249</span>     header_font = 9.5
+<span class='ln'>250</span>     cover_title = 22
+<span class='ln'>251</span>     line_h = 9.4
+<span class='ln'>252</span>     usable_h = page_h - margin * 2 - 18
+<span class='ln'>253</span>     max_lines = int(usable_h / line_h)
+<span class='ln'>254</span>     max_chars = 108
+<span class='ln'>255</span> 
+<span class='ln'>256</span>     doc = pymupdf.open()
+<span class='ln'>257</span>     now = datetime.now(timezone.utc).replace(microsecond=0).strftime(&quot;%Y-%m-%d %H:%M UTC&quot;)
+<span class='ln'>258</span> 
+<span class='ln'>259</span>     def new_page():
+<span class='ln'>260</span>         return doc.new_page(width=page_w, height=page_h)
+<span class='ln'>261</span> 
+<span class='ln'>262</span>     def footer(page, label: str) -&gt; None:
+<span class='ln'>263</span>         page.insert_text(
+<span class='ln'>264</span>             pymupdf.Point(margin, page_h - 18),
+<span class='ln'>265</span>             f&quot;Agentic Python source  ·  {label}  ·  {now}  ·  page {page.number + 1}&quot;,
+<span class='ln'>266</span>             fontname=&quot;helv&quot;,
+<span class='ln'>267</span>             fontsize=7,
+<span class='ln'>268</span>             color=(0.25, 0.25, 0.25),
+<span class='ln'>269</span>         )
+<span class='ln'>270</span> 
+<span class='ln'>271</span>     def wrap(text: str, width: int) -&gt; list[str]:
+<span class='ln'>272</span>         if len(text) &lt;= width:
+<span class='ln'>273</span>             return [text]
+<span class='ln'>274</span>         words = text.replace(&quot;\t&quot;, &quot;    &quot;).split(&quot; &quot;)
+<span class='ln'>275</span>         lines: list[str] = []
+<span class='ln'>276</span>         cur = &quot;&quot;
+<span class='ln'>277</span>         for word in words:
+<span class='ln'>278</span>             trial = word if not cur else f&quot;{cur} {word}&quot;
+<span class='ln'>279</span>             if len(trial) &lt;= width:
+<span class='ln'>280</span>                 cur = trial
+<span class='ln'>281</span>                 continue
+<span class='ln'>282</span>             if cur:
+<span class='ln'>283</span>                 lines.append(cur)
+<span class='ln'>284</span>             while len(word) &gt; width:
+<span class='ln'>285</span>                 lines.append(word[:width])
+<span class='ln'>286</span>                 word = word[width:]
+<span class='ln'>287</span>             cur = word
+<span class='ln'>288</span>         if cur:
+<span class='ln'>289</span>             lines.append(cur)
+<span class='ln'>290</span>         return lines or [&quot;&quot;]
+<span class='ln'>291</span> 
+<span class='ln'>292</span>     # Cover
+<span class='ln'>293</span>     page = new_page()
+<span class='ln'>294</span>     y = 72
+<span class='ln'>295</span>     page.insert_text(pymupdf.Point(margin, y), &quot;JARROD BESNER  ·  AGENTIC&quot;, fontname=&quot;helv&quot;, fontsize=10)
+<span class='ln'>296</span>     y += 36
+<span class='ln'>297</span>     page.insert_text(pymupdf.Point(margin, y), &quot;Python source book&quot;, fontname=&quot;helv&quot;, fontsize=cover_title)
 <span class='ln'>298</span>     y += 28
-<span class='ln'>299</span>     cover_lines = [
-<span class='ln'>300</span>         &quot;All Python used by Agent F (supervised Cursor chat) and Agent H&quot;,
-<span class='ln'>301</span>         &quot;(autonomous Agentic bot). Live place_* is Robinhood MCP, not a&quot;,
-<span class='ln'>302</span>         &quot;side effect of this code. H&#x27;s standing prompt is markdown:&quot;,
-<span class='ln'>303</span>         &quot;playbooks/agent_h_autonomous.PROMPT.md — not included here.&quot;,
-<span class='ln'>304</span>         &quot;&quot;,
-<span class='ln'>305</span>         f&quot;{len(CATALOG)} files  ·  generated {now}&quot;,
-<span class='ln'>306</span>         &quot;Language: Python 3  ·  Letter portrait&quot;,
-<span class='ln'>307</span>     ]
-<span class='ln'>308</span>     for line in cover_lines:
-<span class='ln'>309</span>         page.insert_text(pymupdf.Point(margin, y), line, fontname=&quot;helv&quot;, fontsize=11)
-<span class='ln'>310</span>         y += 16
-<span class='ln'>311</span>     y += 10
-<span class='ln'>312</span>     page.insert_text(pymupdf.Point(margin, y), &quot;Contents&quot;, fontname=&quot;helv&quot;, fontsize=13)
-<span class='ln'>313</span>     y += 18
-<span class='ln'>314</span>     for rel, part, used_by, role in _catalog():
-<span class='ln'>315</span>         n = _read(rel).count(&quot;\n&quot;) + 1
-<span class='ln'>316</span>         row = f&quot;{part:16s}  {rel:42s}  {used_by:10s}  {n:4d}  {role}&quot;
-<span class='ln'>317</span>         for w in wrap(row, 98):
-<span class='ln'>318</span>             if y &gt; page_h - 48:
-<span class='ln'>319</span>                 footer(page, &quot;cover&quot;)
-<span class='ln'>320</span>                 page = new_page()
-<span class='ln'>321</span>                 y = margin + 12
-<span class='ln'>322</span>             page.insert_text(pymupdf.Point(margin, y), w, fontname=&quot;cour&quot;, fontsize=7)
-<span class='ln'>323</span>             y += 10
-<span class='ln'>324</span>     footer(page, &quot;cover&quot;)
-<span class='ln'>325</span> 
-<span class='ln'>326</span>     for rel, part, used_by, role in _catalog():
-<span class='ln'>327</span>         src_lines = _read(rel).splitlines()
-<span class='ln'>328</span>         page = new_page()
-<span class='ln'>329</span>         header = f&quot;{rel}   ·   {part}   ·   {used_by}   ·   {role}&quot;
-<span class='ln'>330</span>         page.insert_text(pymupdf.Point(margin, margin + 4), header[:110], fontname=&quot;helv&quot;, fontsize=header_font)
-<span class='ln'>331</span>         y = margin + 18
-<span class='ln'>332</span>         page.draw_line(pymupdf.Point(margin, y), pymupdf.Point(page_w - margin, y), color=(0, 0, 0), width=0.8)
-<span class='ln'>333</span>         y += 12
-<span class='ln'>334</span>         used = 0
-<span class='ln'>335</span>         width = max(3, len(str(len(src_lines))))
-<span class='ln'>336</span>         for i, raw in enumerate(src_lines, 1):
-<span class='ln'>337</span>             prefix = f&quot;{i:{width}d}  &quot;
-<span class='ln'>338</span>             wrapped = wrap(raw.replace(&quot;\t&quot;, &quot;    &quot;), max_chars - len(prefix)) or [&quot;&quot;]
-<span class='ln'>339</span>             for j, chunk in enumerate(wrapped):
-<span class='ln'>340</span>                 if used &gt;= max_lines:
-<span class='ln'>341</span>                     footer(page, rel)
-<span class='ln'>342</span>                     page = new_page()
-<span class='ln'>343</span>                     page.insert_text(
-<span class='ln'>344</span>                         pymupdf.Point(margin, margin + 4),
-<span class='ln'>345</span>                         f&quot;{rel}  (continued)&quot;,
-<span class='ln'>346</span>                         fontname=&quot;helv&quot;,
-<span class='ln'>347</span>                         fontsize=header_font,
-<span class='ln'>348</span>                     )
-<span class='ln'>349</span>                     y = margin + 18
-<span class='ln'>350</span>                     page.draw_line(
-<span class='ln'>351</span>                         pymupdf.Point(margin, y),
-<span class='ln'>352</span>                         pymupdf.Point(page_w - margin, y),
-<span class='ln'>353</span>                         color=(0, 0, 0),
-<span class='ln'>354</span>                         width=0.8,
-<span class='ln'>355</span>                     )
-<span class='ln'>356</span>                     y += 12
-<span class='ln'>357</span>                     used = 0
-<span class='ln'>358</span>                 line = prefix + chunk if j == 0 else (&quot; &quot; * len(prefix)) + chunk
-<span class='ln'>359</span>                 page.insert_text(pymupdf.Point(margin, y), line, fontname=&quot;cour&quot;, fontsize=body_font)
-<span class='ln'>360</span>                 y += line_h
-<span class='ln'>361</span>                 used += 1
-<span class='ln'>362</span>         footer(page, rel)
-<span class='ln'>363</span> 
-<span class='ln'>364</span>     path.parent.mkdir(parents=True, exist_ok=True)
-<span class='ln'>365</span>     doc.save(path)
-<span class='ln'>366</span>     doc.close()
-<span class='ln'>367</span> 
-<span class='ln'>368</span> 
-<span class='ln'>369</span> def main() -&gt; int:
-<span class='ln'>370</span>     DOCS.mkdir(parents=True, exist_ok=True)
-<span class='ln'>371</span>     py_book = build_python_book()
-<span class='ln'>372</span>     html_doc = build_html(py_book)
-<span class='ln'>373</span>     py_path = DOCS / &quot;agentic_python_source_book.py&quot;
-<span class='ln'>374</span>     html_path = DOCS / &quot;agentic-python-source-printable.html&quot;
-<span class='ln'>375</span>     py_path.write_text(py_book, encoding=&quot;utf-8&quot;)
-<span class='ln'>376</span>     html_path.write_text(html_doc, encoding=&quot;utf-8&quot;)
-<span class='ln'>377</span>     print(f&quot;wrote {py_path} ({py_path.stat().st_size} bytes)&quot;)
-<span class='ln'>378</span>     print(f&quot;wrote {html_path} ({html_path.stat().st_size} bytes)&quot;)
-<span class='ln'>379</span>     pdf_candidates = [Path(&quot;/dev/shm/agentic-python-source.pdf&quot;), DOCS / &quot;agentic-python-source.pdf&quot;]
-<span class='ln'>380</span>     pdf_path = pdf_candidates[0]
-<span class='ln'>381</span>     try:
-<span class='ln'>382</span>         build_pdf(pdf_path)
-<span class='ln'>383</span>         print(f&quot;wrote {pdf_path} ({pdf_path.stat().st_size} bytes)&quot;)
-<span class='ln'>384</span>         dest = DOCS / &quot;agentic-python-source.pdf&quot;
-<span class='ln'>385</span>         if pdf_path != dest:
-<span class='ln'>386</span>             dest.write_bytes(pdf_path.read_bytes())
-<span class='ln'>387</span>             print(f&quot;copied {dest} ({dest.stat().st_size} bytes)&quot;)
-<span class='ln'>388</span>     except OSError as exc:
-<span class='ln'>389</span>         print(f&quot;pdf write skipped: {exc}&quot;)
-<span class='ln'>390</span>     return 0
-<span class='ln'>391</span> 
-<span class='ln'>392</span> 
-<span class='ln'>393</span> if __name__ == &quot;__main__&quot;:
-<span class='ln'>394</span>     raise SystemExit(main())
+<span class='ln'>299</span>     page.draw_rect(pymupdf.Rect(margin, y, margin + 90, y + 3), fill=(0, 0, 0), width=0)
+<span class='ln'>300</span>     y += 28
+<span class='ln'>301</span>     cover_lines = [
+<span class='ln'>302</span>         &quot;All Python used by Agent F (supervised Cursor chat) and Agent H&quot;,
+<span class='ln'>303</span>         &quot;(autonomous Agentic bot). Live place_* is Robinhood MCP, not a&quot;,
+<span class='ln'>304</span>         &quot;side effect of this code. H&#x27;s standing prompt is markdown:&quot;,
+<span class='ln'>305</span>         &quot;playbooks/agent_h_autonomous.PROMPT.md — not included here.&quot;,
+<span class='ln'>306</span>         &quot;&quot;,
+<span class='ln'>307</span>         f&quot;{len(CATALOG)} files  ·  generated {now}&quot;,
+<span class='ln'>308</span>         &quot;Language: Python 3  ·  Letter portrait&quot;,
+<span class='ln'>309</span>     ]
+<span class='ln'>310</span>     for line in cover_lines:
+<span class='ln'>311</span>         page.insert_text(pymupdf.Point(margin, y), line, fontname=&quot;helv&quot;, fontsize=11)
+<span class='ln'>312</span>         y += 16
+<span class='ln'>313</span>     y += 10
+<span class='ln'>314</span>     page.insert_text(pymupdf.Point(margin, y), &quot;Contents&quot;, fontname=&quot;helv&quot;, fontsize=13)
+<span class='ln'>315</span>     y += 18
+<span class='ln'>316</span>     for rel, part, used_by, role in _catalog():
+<span class='ln'>317</span>         n = _read(rel).count(&quot;\n&quot;) + 1
+<span class='ln'>318</span>         row = f&quot;{part:16s}  {rel:42s}  {used_by:10s}  {n:4d}  {role}&quot;
+<span class='ln'>319</span>         for w in wrap(row, 98):
+<span class='ln'>320</span>             if y &gt; page_h - 48:
+<span class='ln'>321</span>                 footer(page, &quot;cover&quot;)
+<span class='ln'>322</span>                 page = new_page()
+<span class='ln'>323</span>                 y = margin + 12
+<span class='ln'>324</span>             page.insert_text(pymupdf.Point(margin, y), w, fontname=&quot;cour&quot;, fontsize=7)
+<span class='ln'>325</span>             y += 10
+<span class='ln'>326</span>     footer(page, &quot;cover&quot;)
+<span class='ln'>327</span> 
+<span class='ln'>328</span>     for rel, part, used_by, role in _catalog():
+<span class='ln'>329</span>         src_lines = _read(rel).splitlines()
+<span class='ln'>330</span>         page = new_page()
+<span class='ln'>331</span>         header = f&quot;{rel}   ·   {part}   ·   {used_by}   ·   {role}&quot;
+<span class='ln'>332</span>         page.insert_text(pymupdf.Point(margin, margin + 4), header[:110], fontname=&quot;helv&quot;, fontsize=header_font)
+<span class='ln'>333</span>         y = margin + 18
+<span class='ln'>334</span>         page.draw_line(pymupdf.Point(margin, y), pymupdf.Point(page_w - margin, y), color=(0, 0, 0), width=0.8)
+<span class='ln'>335</span>         y += 12
+<span class='ln'>336</span>         used = 0
+<span class='ln'>337</span>         width = max(3, len(str(len(src_lines))))
+<span class='ln'>338</span>         for i, raw in enumerate(src_lines, 1):
+<span class='ln'>339</span>             prefix = f&quot;{i:{width}d}  &quot;
+<span class='ln'>340</span>             wrapped = wrap(raw.replace(&quot;\t&quot;, &quot;    &quot;), max_chars - len(prefix)) or [&quot;&quot;]
+<span class='ln'>341</span>             for j, chunk in enumerate(wrapped):
+<span class='ln'>342</span>                 if used &gt;= max_lines:
+<span class='ln'>343</span>                     footer(page, rel)
+<span class='ln'>344</span>                     page = new_page()
+<span class='ln'>345</span>                     page.insert_text(
+<span class='ln'>346</span>                         pymupdf.Point(margin, margin + 4),
+<span class='ln'>347</span>                         f&quot;{rel}  (continued)&quot;,
+<span class='ln'>348</span>                         fontname=&quot;helv&quot;,
+<span class='ln'>349</span>                         fontsize=header_font,
+<span class='ln'>350</span>                     )
+<span class='ln'>351</span>                     y = margin + 18
+<span class='ln'>352</span>                     page.draw_line(
+<span class='ln'>353</span>                         pymupdf.Point(margin, y),
+<span class='ln'>354</span>                         pymupdf.Point(page_w - margin, y),
+<span class='ln'>355</span>                         color=(0, 0, 0),
+<span class='ln'>356</span>                         width=0.8,
+<span class='ln'>357</span>                     )
+<span class='ln'>358</span>                     y += 12
+<span class='ln'>359</span>                     used = 0
+<span class='ln'>360</span>                 line = prefix + chunk if j == 0 else (&quot; &quot; * len(prefix)) + chunk
+<span class='ln'>361</span>                 page.insert_text(pymupdf.Point(margin, y), line, fontname=&quot;cour&quot;, fontsize=body_font)
+<span class='ln'>362</span>                 y += line_h
+<span class='ln'>363</span>                 used += 1
+<span class='ln'>364</span>         footer(page, rel)
+<span class='ln'>365</span> 
+<span class='ln'>366</span>     path.parent.mkdir(parents=True, exist_ok=True)
+<span class='ln'>367</span>     doc.save(path)
+<span class='ln'>368</span>     doc.close()
+<span class='ln'>369</span> 
+<span class='ln'>370</span> 
+<span class='ln'>371</span> def main() -&gt; int:
+<span class='ln'>372</span>     DOCS.mkdir(parents=True, exist_ok=True)
+<span class='ln'>373</span>     py_book = build_python_book()
+<span class='ln'>374</span>     html_doc = build_html(py_book)
+<span class='ln'>375</span>     py_path = DOCS / &quot;agentic_python_source_book.py&quot;
+<span class='ln'>376</span>     html_path = DOCS / &quot;agentic-python-source-printable.html&quot;
+<span class='ln'>377</span>     py_path.write_text(py_book, encoding=&quot;utf-8&quot;)
+<span class='ln'>378</span>     html_path.write_text(html_doc, encoding=&quot;utf-8&quot;)
+<span class='ln'>379</span>     print(f&quot;wrote {py_path} ({py_path.stat().st_size} bytes)&quot;)
+<span class='ln'>380</span>     print(f&quot;wrote {html_path} ({html_path.stat().st_size} bytes)&quot;)
+<span class='ln'>381</span>     pdf_candidates = [Path(&quot;/dev/shm/agentic-python-source.pdf&quot;), DOCS / &quot;agentic-python-source.pdf&quot;]
+<span class='ln'>382</span>     pdf_path = pdf_candidates[0]
+<span class='ln'>383</span>     try:
+<span class='ln'>384</span>         build_pdf(pdf_path)
+<span class='ln'>385</span>         print(f&quot;wrote {pdf_path} ({pdf_path.stat().st_size} bytes)&quot;)
+<span class='ln'>386</span>         dest = DOCS / &quot;agentic-python-source.pdf&quot;
+<span class='ln'>387</span>         if pdf_path != dest:
+<span class='ln'>388</span>             dest.write_bytes(pdf_path.read_bytes())
+<span class='ln'>389</span>             print(f&quot;copied {dest} ({dest.stat().st_size} bytes)&quot;)
+<span class='ln'>390</span>     except OSError as exc:
+<span class='ln'>391</span>         print(f&quot;pdf write skipped: {exc}&quot;)
+<span class='ln'>392</span>     return 0
+<span class='ln'>393</span> 
+<span class='ln'>394</span> 
+<span class='ln'>395</span> if __name__ == &quot;__main__&quot;:
+<span class='ln'>396</span>     raise SystemExit(main())
 </pre></section><section class='file' id='pipeline-tests-test_phase2-py'><h2>pipeline/tests/test_phase2.py</h2><p class='meta'><strong>11 · Tests</strong> · CI / F · 336 lines · Universe, liquidity, signed delta, ATM/OTM, expiration rank</p><pre class='source'><span class='ln'>  1</span> from datetime import date, datetime, timezone
 <span class='ln'>  2</span> from zoneinfo import ZoneInfo
 <span class='ln'>  3</span> 
@@ -3239,7 +3417,7 @@
 <span class='ln'>334</span>     daily_first = collect_pattern_hits({&quot;day&quot;: bars, &quot;10minute&quot;: bars}, [&quot;10minute&quot;, &quot;hour&quot;, &quot;day&quot;])
 <span class='ln'>335</span>     assert any(h[&quot;timeframe&quot;] == &quot;day&quot; for h in daily_first)
 <span class='ln'>336</span>     assert any(h[&quot;timeframe&quot;] == &quot;10minute&quot; for h in daily_first)
-</pre></section><section class='file' id='pipeline-tests-test_orders-py'><h2>pipeline/tests/test_orders.py</h2><p class='meta'><strong>11 · Tests</strong> · CI / F · 238 lines · Working states and locked agent_h schema</p><pre class='source'><span class='ln'>  1</span> from pipeline.equity_day_trade import INVERSE_ETF_SYMBOLS
+</pre></section><section class='file' id='pipeline-tests-test_orders-py'><h2>pipeline/tests/test_orders.py</h2><p class='meta'><strong>11 · Tests</strong> · CI / F · 258 lines · Working states and locked agent_h schema</p><pre class='source'><span class='ln'>  1</span> from pipeline.equity_day_trade import INVERSE_ETF_SYMBOLS
 <span class='ln'>  2</span> from pipeline.orders import (
 <span class='ln'>  3</span>     EQUITY_WORKING_STATES,
 <span class='ln'>  4</span>     OPTION_WORKING_STATES,
@@ -3319,164 +3497,184 @@
 <span class='ln'> 78</span>     assert rules[&quot;agent_h&quot;][&quot;no_1m_3m_autonomous_noise&quot;] is True
 <span class='ln'> 79</span>     assert rules[&quot;agent_h&quot;][&quot;no_5m_stateless_inconsistency&quot;] is True
 <span class='ln'> 80</span>     assert rules[&quot;agent_h&quot;][&quot;include_index_options&quot;] is False
-<span class='ln'> 81</span>     assert rules[&quot;agent_h&quot;][&quot;schema_version&quot;] == &quot;2026-09-05.6&quot;
-<span class='ln'> 82</span>     assert rules[&quot;agent_h&quot;][&quot;overnight&quot;][&quot;evaluate&quot;] == &quot;current_dte_each_run&quot;
-<span class='ln'> 83</span>     assert rules[&quot;agent_h&quot;][&quot;overnight&quot;][&quot;current_dte_lte_3_flatten_by&quot;] == &quot;15:45&quot;
-<span class='ln'> 84</span>     assert rules[&quot;agent_h&quot;][&quot;overnight&quot;][&quot;current_dte_gte_4_overnight_with_stop&quot;] is False
-<span class='ln'> 85</span>     assert rules[&quot;agent_h&quot;][&quot;overnight_holding_enabled&quot;] is False
-<span class='ln'> 86</span>     assert rules[&quot;agent_h&quot;][&quot;overnight&quot;][&quot;overnight_requires_verified_gtc_stop&quot;] is True
-<span class='ln'> 87</span>     assert rules[&quot;agent_h&quot;][&quot;overnight&quot;][&quot;expiration_day_absolute_deadline&quot;] == &quot;15:45&quot;
-<span class='ln'> 88</span>     assert rules[&quot;agent_h&quot;][&quot;overnight&quot;][&quot;dte_1_to_3_liquidation_begin&quot;] == &quot;15:40&quot;
-<span class='ln'> 89</span>     assert rules[&quot;agent_h&quot;][&quot;lease_valid_only_after_successful_push_to_origin_main&quot;] is True
-<span class='ln'> 90</span>     assert rules[&quot;agent_h&quot;][&quot;recheck_remote_lease_before_every_place_option_order&quot;] is False
-<span class='ln'> 91</span>     assert rules[&quot;agent_h&quot;][&quot;recheck_remote_lease_before_every_new_entry_place_option_order&quot;] is True
-<span class='ln'> 92</span>     assert rules[&quot;agent_h&quot;][&quot;failed_lease_push_means_place_nothing_and_exit&quot;] is False
-<span class='ln'> 93</span>     assert rules[&quot;agent_h&quot;][&quot;failed_lease_acquire_push_means_place_nothing_and_exit&quot;] is True
-<span class='ln'> 94</span>     assert rules[&quot;agent_h&quot;][&quot;rejected_lease_push_means_place_nothing_and_exit&quot;] is False
-<span class='ln'> 95</span>     assert rules[&quot;agent_h&quot;][&quot;rejected_lease_acquire_push_means_place_nothing_and_exit&quot;] is True
-<span class='ln'> 96</span>     assert rules[&quot;agent_h&quot;][&quot;no_review_or_place_until_remote_lease_verified&quot;] is False
-<span class='ln'> 97</span>     assert rules[&quot;agent_h&quot;][&quot;no_new_entry_review_or_place_until_remote_lease_verified&quot;] is True
-<span class='ln'> 98</span>     assert rules[&quot;agent_h&quot;][&quot;failed_lease_renewal_blocks_new_entry_only&quot;] is True
-<span class='ln'> 99</span>     assert rules[&quot;agent_h&quot;][&quot;failed_lease_renewal_must_still_protect_or_flatten_this_run_fill&quot;] is True
-<span class='ln'>100</span>     assert rules[&quot;agent_h&quot;][&quot;protection_or_flatten_of_this_run_fill_allowed_after_failed_renewal&quot;] is True
-<span class='ln'>101</span>     assert rules[&quot;agent_h&quot;][&quot;this_run_fill_must_protect_or_flatten_even_if_remote_lease_mismatched_or_expired&quot;] is True
-<span class='ln'>102</span>     assert rules[&quot;agent_h&quot;][&quot;after_pull_or_rebase_reread_remote_lease_before_writing_h_lease&quot;] is True
-<span class='ln'>103</span>     assert rules[&quot;agent_h&quot;][&quot;acquire_retry_uses_remote_lease_only_not_this_run_working_tree_write&quot;] is True
-<span class='ln'>104</span>     assert rules[&quot;agent_h&quot;][&quot;this_run_working_tree_lease_write_does_not_block_acquire_retry&quot;] is True
-<span class='ln'>105</span>     assert rules[&quot;agent_h&quot;][&quot;never_overwrite_unexpired_remote_lease_held_by_other_run_id&quot;] is True
-<span class='ln'>106</span>     assert rules[&quot;agent_h&quot;][&quot;fast_forward_pull_of_other_run_lease_is_held_not_free&quot;] is True
-<span class='ln'>107</span>     assert rules[&quot;agent_h&quot;][&quot;pull_ff_only_or_rebase_onto_origin_main_before_every_main_journal_push&quot;] is True
-<span class='ln'>108</span>     assert rules[&quot;agent_h&quot;][&quot;non_fast_forward_lease_or_journal_push_retry_once_after_rebase&quot;] is True
-<span class='ln'>109</span>     assert rules[&quot;agent_h&quot;][&quot;never_force_push_on_non_fast_forward&quot;] is True
-<span class='ln'>110</span>     assert rules[&quot;agent_h&quot;][&quot;scheduler_must_enforce_max_concurrent_runs&quot;] is False
-<span class='ln'>111</span>     assert rules[&quot;agent_h&quot;][&quot;git_lease_is_the_concurrency_gate&quot;] is True
-<span class='ln'>112</span>     assert rules[&quot;agent_h&quot;][&quot;lease_acquire_before_account_or_scan&quot;] is True
-<span class='ln'>113</span>     assert rules[&quot;agent_h&quot;][&quot;lease_ttl_minutes&quot;] == 12
-<span class='ln'>114</span>     assert rules[&quot;agent_h&quot;][&quot;lease_renew_if_fewer_than_minutes_remaining&quot;] == 3
-<span class='ln'>115</span>     assert rules[&quot;agent_h&quot;][&quot;never_force_push_or_overwrite_conflicting_lease&quot;] is True
-<span class='ln'>116</span>     assert rules[&quot;agent_h&quot;][&quot;failed_lease_acquire_must_not_modify_or_clear_lease&quot;] is True
-<span class='ln'>117</span>     assert rules[&quot;agent_h&quot;][&quot;only_matching_run_id_may_renew_or_release_lease&quot;] is True
-<span class='ln'>118</span>     assert rules[&quot;agent_h&quot;][&quot;remote_lease_must_contain_exact_fields&quot;] == [
-<span class='ln'>119</span>         &quot;automation_id&quot;,
-<span class='ln'>120</span>         &quot;run_id&quot;,
-<span class='ln'>121</span>         &quot;started_et&quot;,
-<span class='ln'>122</span>         &quot;expires_et&quot;,
-<span class='ln'>123</span>     ]
-<span class='ln'>124</span>     assert rules[&quot;agent_h&quot;][&quot;apply_both_fee_ceilings_on_every_trade&quot;] is True
-<span class='ln'>125</span>     assert rules[&quot;agent_h&quot;][&quot;bod_nlv_unavailable_means_no_new_entry&quot;] is True
-<span class='ln'>126</span>     assert rules[&quot;priority_does_not_authorize_agent_h_equity&quot;] is True
-<span class='ln'>127</span>     assert rules[&quot;agent_h&quot;][&quot;session_start_required_for_new_entry&quot;] == [
-<span class='ln'>128</span>         &quot;et_trading_date&quot;,
-<span class='ln'>129</span>         &quot;first_valid_rth_timestamp_et&quot;,
-<span class='ln'>130</span>         &quot;account&quot;,
-<span class='ln'>131</span>         &quot;bod_nlv&quot;,
-<span class='ln'>132</span>         &quot;bod_nlv_field&quot;,
-<span class='ln'>133</span>         &quot;daily_loss_limit_usd&quot;,
-<span class='ln'>134</span>     ]
-<span class='ln'>135</span>     assert rules[&quot;agent_h&quot;][&quot;session_start_diagnostic_only_fields&quot;] == [&quot;first_fire_baseline_nlv&quot;]
-<span class='ln'>136</span>     assert (
-<span class='ln'>137</span>         rules[&quot;agent_h&quot;][&quot;forced_liquidation&quot;][&quot;leftover_4_to_7_dte_while_overnight_disabled&quot;]
-<span class='ln'>138</span>         == &quot;treat_as_dte_1_to_3_begin_1540&quot;
-<span class='ln'>139</span>     )
-<span class='ln'>140</span>     assert rules[&quot;agent_h&quot;][&quot;protective_stop&quot;][&quot;time_in_force&quot;] == &quot;gtc&quot;
-<span class='ln'>141</span>     assert rules[&quot;agent_h&quot;][&quot;cancel_lifecycle&quot;][&quot;never_assume_cancel_means_zero_fill&quot;] is True
-<span class='ln'>142</span>     assert rules[&quot;agent_h&quot;][&quot;entry_order&quot;][&quot;cancel_confirm_before_replacement&quot;] is True
-<span class='ln'>143</span>     assert rules[&quot;agent_h&quot;][&quot;take_profit&quot;][&quot;cancel_existing_stop_and_confirm_before_tp&quot;] is True
-<span class='ln'>144</span>     assert rules[&quot;agent_h&quot;][&quot;take_profit&quot;][&quot;cancel_unfilled_replacement_seconds_after_initial_tp&quot;] == 30
-<span class='ln'>145</span>     assert rules[&quot;agent_h&quot;][&quot;forced_liquidation&quot;][&quot;dte_1_to_3_begin&quot;] == &quot;15:40&quot;
-<span class='ln'>146</span>     assert rules[&quot;agent_h&quot;][&quot;patterns&quot;][&quot;daily_neckline_governs_10m_breakout&quot;] is True
-<span class='ln'>147</span>     assert rules[&quot;agent_h&quot;][&quot;patterns&quot;][&quot;overlapping_rank&quot;][0] == &quot;hs_then_double_triple_then_triangle&quot;
-<span class='ln'>148</span>     assert rules[&quot;agent_h&quot;][&quot;patterns&quot;][&quot;earliest_practical_entry_after_retest_et&quot;] == &quot;13:10&quot;
-<span class='ln'>149</span>     assert rules[&quot;agent_h&quot;][&quot;expiration_selection&quot;][&quot;same_day_group_dte&quot;] == [2, 3]
-<span class='ln'>150</span>     assert rules[&quot;options&quot;][&quot;strike&quot;][&quot;put_delta_min&quot;] == -0.5
-<span class='ln'>151</span>     assert rules[&quot;options&quot;][&quot;strike&quot;][&quot;call_otm&quot;] == &quot;exactly_one_listed_strike_above_atm&quot;
-<span class='ln'>152</span>     assert &quot;get_realized_pnl&quot; in rules[&quot;agent_h&quot;][&quot;required_tools&quot;]
-<span class='ln'>153</span>     assert &quot;get_earnings_calendar&quot; in rules[&quot;agent_h&quot;][&quot;required_tools&quot;]
-<span class='ln'>154</span>     assert rules[&quot;agent_h&quot;][&quot;patterns&quot;][&quot;breakout_volume_multiple_of_median&quot;] == 1.5
-<span class='ln'>155</span>     assert rules[&quot;agent_h&quot;][&quot;patterns&quot;][&quot;retest_tolerance_pct&quot;] == 0.002
-<span class='ln'>156</span>     assert rules[&quot;agent_h&quot;][&quot;patterns&quot;][&quot;live_trigger_beyond_breakout_pct&quot;] == 0.001
-<span class='ln'>157</span>     assert rules[&quot;agent_h&quot;][&quot;patterns&quot;][&quot;volume_statistic&quot;] == &quot;median&quot;
-<span class='ln'>158</span>     assert rules[&quot;agent_h&quot;][&quot;estimated_round_trip_fees&quot;] == &quot;3 * entry_fee_from_review&quot;
-<span class='ln'>159</span>     assert rules[&quot;agent_h&quot;][&quot;entry_fee_source_hierarchy&quot;][0] == &quot;valid_positive_total_fee_only&quot;
-<span class='ln'>160</span>     assert rules[&quot;agent_h&quot;][&quot;entry_fee_source_hierarchy&quot;][1] == &quot;zero_total_plus_positive_component_is_fee_conflict&quot;
-<span class='ln'>161</span>     assert rules[&quot;agent_h&quot;][&quot;entry_fee_source_hierarchy&quot;][2] == &quot;zero_total_and_zero_or_absent_components_is_explicit_zero&quot;
-<span class='ln'>162</span>     assert rules[&quot;agent_h&quot;][&quot;journal_fee_conflict&quot;] is True
-<span class='ln'>163</span>     assert rules[&quot;agent_h&quot;][&quot;journal_entry_fee_source&quot;] is True
-<span class='ln'>164</span>     assert rules[&quot;agent_h&quot;][&quot;fee_status_values&quot;] == [
-<span class='ln'>165</span>         &quot;quoted&quot;,
-<span class='ln'>166</span>         &quot;explicit_zero&quot;,
-<span class='ln'>167</span>         &quot;ambiguous&quot;,
-<span class='ln'>168</span>         &quot;unavailable&quot;,
-<span class='ln'>169</span>     ]
-<span class='ln'>170</span>     assert rules[&quot;agent_h&quot;][&quot;zero_total_plus_positive_component&quot;][&quot;fee_status&quot;] == &quot;ambiguous&quot;
-<span class='ln'>171</span>     assert rules[&quot;agent_h&quot;][&quot;zero_total_plus_positive_component&quot;][&quot;journal&quot;] == &quot;fee_conflict&quot;
-<span class='ln'>172</span>     assert rules[&quot;agent_h&quot;][&quot;zero_total_plus_positive_component&quot;][&quot;do_not_sum_or_select_estimate&quot;] is True
-<span class='ln'>173</span>     assert rules[&quot;agent_h&quot;][&quot;do_not_apply_049_ceiling_when_positive_fee_included&quot;] is False
-<span class='ln'>174</span>     assert rules[&quot;agent_h&quot;][&quot;universal_fee_gate&quot;] == [
-<span class='ln'>175</span>         &quot;planned_loss &lt;= 0.49% current NLV&quot;,
-<span class='ln'>176</span>         &quot;planned_loss + estimated_round_trip_fees &lt;= 0.50% current NLV&quot;,
-<span class='ln'>177</span>     ]
-<span class='ln'>178</span>     assert rules[&quot;agent_h&quot;][&quot;closed_trade_uses_actual_net_pnl_not_estimated_fees&quot;] is True
-<span class='ln'>179</span>     assert rules[&quot;agent_h&quot;][&quot;allow_0dte&quot;] is False
-<span class='ln'>180</span>     assert rules[&quot;universe&quot;][&quot;include_index_options&quot;] is False
-<span class='ln'>181</span>     assert rules[&quot;options&quot;][&quot;min_dte&quot;] == 2
-<span class='ln'>182</span> 
-<span class='ln'>183</span> 
-<span class='ln'>184</span> def test_permissions_is_kill_switch_not_a_rules_copy():
-<span class='ln'>185</span>     import json
-<span class='ln'>186</span>     from pathlib import Path
-<span class='ln'>187</span> 
-<span class='ln'>188</span>     perms = json.loads((Path(__file__).resolve().parents[2] / &quot;config&quot; / &quot;autonomous_permissions.json&quot;).read_text())
-<span class='ln'>189</span>     assert perms[&quot;status&quot;] == &quot;ACTIVE&quot;
-<span class='ln'>190</span>     assert perms[&quot;rules_path&quot;] == &quot;config/rules.json&quot;
-<span class='ln'>191</span>     assert &quot;universe&quot; not in perms
-<span class='ln'>192</span>     assert &quot;risk&quot; not in perms
-<span class='ln'>193</span>     assert &quot;patterns&quot; not in perms
+<span class='ln'> 81</span>     assert rules[&quot;agent_h&quot;][&quot;schema_version&quot;] == &quot;2026-09-06.1&quot;
+<span class='ln'> 82</span>     assert rules[&quot;agent_h&quot;][&quot;prompt_expected_schema_version&quot;] == &quot;2026-09-06.1&quot;
+<span class='ln'> 83</span>     assert rules[&quot;agent_h&quot;][&quot;overnight&quot;][&quot;evaluate&quot;] == &quot;current_dte_each_run&quot;
+<span class='ln'> 84</span>     assert rules[&quot;agent_h&quot;][&quot;overnight&quot;][&quot;current_dte_lte_3_flatten_by&quot;] == &quot;15:45&quot;
+<span class='ln'> 85</span>     assert rules[&quot;agent_h&quot;][&quot;overnight&quot;][&quot;current_dte_gte_4_overnight_with_stop&quot;] is False
+<span class='ln'> 86</span>     assert rules[&quot;agent_h&quot;][&quot;overnight_holding_enabled&quot;] is False
+<span class='ln'> 87</span>     assert rules[&quot;agent_h&quot;][&quot;overnight&quot;][&quot;overnight_requires_verified_gtc_stop&quot;] is True
+<span class='ln'> 88</span>     assert rules[&quot;agent_h&quot;][&quot;overnight&quot;][&quot;expiration_day_absolute_deadline&quot;] == &quot;15:45&quot;
+<span class='ln'> 89</span>     assert rules[&quot;agent_h&quot;][&quot;overnight&quot;][&quot;dte_1_to_3_liquidation_begin&quot;] == &quot;15:40&quot;
+<span class='ln'> 90</span>     assert rules[&quot;agent_h&quot;][&quot;lease_valid_only_after_successful_push_to_origin_main&quot;] is True
+<span class='ln'> 91</span>     assert rules[&quot;agent_h&quot;][&quot;recheck_remote_lease_before_every_place_option_order&quot;] is False
+<span class='ln'> 92</span>     assert rules[&quot;agent_h&quot;][&quot;recheck_remote_lease_before_every_new_entry_place_option_order&quot;] is True
+<span class='ln'> 93</span>     assert rules[&quot;agent_h&quot;][&quot;failed_lease_push_means_place_nothing_and_exit&quot;] is False
+<span class='ln'> 94</span>     assert rules[&quot;agent_h&quot;][&quot;failed_lease_acquire_push_means_place_nothing_and_exit&quot;] is True
+<span class='ln'> 95</span>     assert rules[&quot;agent_h&quot;][&quot;rejected_lease_push_means_place_nothing_and_exit&quot;] is False
+<span class='ln'> 96</span>     assert rules[&quot;agent_h&quot;][&quot;rejected_lease_acquire_push_means_place_nothing_and_exit&quot;] is True
+<span class='ln'> 97</span>     assert rules[&quot;agent_h&quot;][&quot;no_review_or_place_until_remote_lease_verified&quot;] is False
+<span class='ln'> 98</span>     assert rules[&quot;agent_h&quot;][&quot;no_new_entry_review_or_place_until_remote_lease_verified&quot;] is True
+<span class='ln'> 99</span>     assert rules[&quot;agent_h&quot;][&quot;failed_lease_renewal_blocks_new_entry_only&quot;] is True
+<span class='ln'>100</span>     assert rules[&quot;agent_h&quot;][&quot;failed_lease_renewal_must_still_protect_or_flatten_this_run_fill&quot;] is True
+<span class='ln'>101</span>     assert rules[&quot;agent_h&quot;][&quot;protection_or_flatten_of_this_run_fill_allowed_after_failed_renewal&quot;] is True
+<span class='ln'>102</span>     assert rules[&quot;agent_h&quot;][&quot;this_run_fill_must_protect_or_flatten_even_if_remote_lease_mismatched_or_expired&quot;] is False
+<span class='ln'>103</span>     assert rules[&quot;agent_h&quot;][&quot;this_run_fill_must_protect_or_flatten_if_lease_expired_or_unreadable_and_no_other_run_holds_it&quot;] is True
+<span class='ln'>104</span>     assert rules[&quot;agent_h&quot;][&quot;this_run_fill_must_not_place_if_another_run_id_holds_remote_lease&quot;] is True
+<span class='ln'>105</span>     assert rules[&quot;agent_h&quot;][&quot;other_run_lease_owner_handles_leftover_exposure&quot;] is True
+<span class='ln'>106</span>     assert rules[&quot;agent_h&quot;][&quot;entry_order&quot;][&quot;max_acceptable_debit_is_not_first_limit&quot;] is True
+<span class='ln'>107</span>     assert rules[&quot;agent_h&quot;][&quot;entry_order&quot;][&quot;max_acceptable_debit_is_tick_floored&quot;] is True
+<span class='ln'>108</span>     assert rules[&quot;agent_h&quot;][&quot;entry_order&quot;][&quot;max_acceptable_debit&quot;].startswith(&quot;tick_floor(&quot;)
+<span class='ln'>109</span>     assert rules[&quot;agent_h&quot;][&quot;entry_order&quot;][&quot;skip_replacement_if_plus_one_tick_exceeds_max_or_live_ask&quot;] is True
+<span class='ln'>110</span>     assert rules[&quot;agent_h&quot;][&quot;protective_stop&quot;][&quot;round_trigger_to_min_ticks&quot;] is True
+<span class='ln'>111</span>     assert rules[&quot;agent_h&quot;][&quot;protective_stop&quot;][&quot;never_round_stop_away_from_fill&quot;] is True
+<span class='ln'>112</span>     assert rules[&quot;agent_h&quot;][&quot;forced_liquidation&quot;][&quot;do_not_restore_stop_during_forced_liquidation&quot;] is True
+<span class='ln'>113</span>     assert rules[&quot;agent_h&quot;][&quot;forced_liquidation&quot;][&quot;restore_protective_stop_if_unfilled&quot;] is False
+<span class='ln'>114</span>     assert rules[&quot;agent_h&quot;][&quot;after_pull_or_rebase_reread_remote_lease_before_writing_h_lease&quot;] is True
+<span class='ln'>115</span>     assert rules[&quot;agent_h&quot;][&quot;acquire_retry_uses_remote_lease_only_not_this_run_working_tree_write&quot;] is True
+<span class='ln'>116</span>     assert rules[&quot;agent_h&quot;][&quot;this_run_working_tree_lease_write_does_not_block_acquire_retry&quot;] is True
+<span class='ln'>117</span>     assert rules[&quot;agent_h&quot;][&quot;never_overwrite_unexpired_remote_lease_held_by_other_run_id&quot;] is True
+<span class='ln'>118</span>     assert rules[&quot;agent_h&quot;][&quot;fast_forward_pull_of_other_run_lease_is_held_not_free&quot;] is True
+<span class='ln'>119</span>     assert rules[&quot;agent_h&quot;][&quot;pull_ff_only_or_rebase_onto_origin_main_before_every_main_journal_push&quot;] is True
+<span class='ln'>120</span>     assert rules[&quot;agent_h&quot;][&quot;non_fast_forward_lease_or_journal_push_retry_once_after_rebase&quot;] is True
+<span class='ln'>121</span>     assert rules[&quot;agent_h&quot;][&quot;never_force_push_on_non_fast_forward&quot;] is True
+<span class='ln'>122</span>     assert rules[&quot;agent_h&quot;][&quot;scheduler_must_enforce_max_concurrent_runs&quot;] is False
+<span class='ln'>123</span>     assert rules[&quot;agent_h&quot;][&quot;git_lease_is_the_concurrency_gate&quot;] is True
+<span class='ln'>124</span>     assert rules[&quot;agent_h&quot;][&quot;lease_acquire_before_account_or_scan&quot;] is True
+<span class='ln'>125</span>     assert rules[&quot;agent_h&quot;][&quot;lease_ttl_minutes&quot;] == 12
+<span class='ln'>126</span>     assert rules[&quot;agent_h&quot;][&quot;lease_renew_if_fewer_than_minutes_remaining&quot;] == 3
+<span class='ln'>127</span>     assert rules[&quot;agent_h&quot;][&quot;never_force_push_or_overwrite_conflicting_lease&quot;] is True
+<span class='ln'>128</span>     assert rules[&quot;agent_h&quot;][&quot;failed_lease_acquire_must_not_modify_or_clear_lease&quot;] is True
+<span class='ln'>129</span>     assert rules[&quot;agent_h&quot;][&quot;only_matching_run_id_may_renew_or_release_lease&quot;] is True
+<span class='ln'>130</span>     assert rules[&quot;agent_h&quot;][&quot;remote_lease_must_contain_exact_fields&quot;] == [
+<span class='ln'>131</span>         &quot;automation_id&quot;,
+<span class='ln'>132</span>         &quot;run_id&quot;,
+<span class='ln'>133</span>         &quot;started_et&quot;,
+<span class='ln'>134</span>         &quot;expires_et&quot;,
+<span class='ln'>135</span>     ]
+<span class='ln'>136</span>     assert rules[&quot;agent_h&quot;][&quot;apply_both_fee_ceilings_on_every_trade&quot;] is True
+<span class='ln'>137</span>     assert rules[&quot;agent_h&quot;][&quot;bod_nlv_unavailable_means_no_new_entry&quot;] is True
+<span class='ln'>138</span>     assert rules[&quot;priority_does_not_authorize_agent_h_equity&quot;] is True
+<span class='ln'>139</span>     assert rules[&quot;agent_h&quot;][&quot;session_start_required_for_new_entry&quot;] == [
+<span class='ln'>140</span>         &quot;et_trading_date&quot;,
+<span class='ln'>141</span>         &quot;first_valid_rth_timestamp_et&quot;,
+<span class='ln'>142</span>         &quot;account&quot;,
+<span class='ln'>143</span>         &quot;bod_nlv&quot;,
+<span class='ln'>144</span>         &quot;bod_nlv_field&quot;,
+<span class='ln'>145</span>         &quot;daily_loss_limit_usd&quot;,
+<span class='ln'>146</span>     ]
+<span class='ln'>147</span>     assert rules[&quot;agent_h&quot;][&quot;session_start_diagnostic_only_fields&quot;] == [&quot;first_fire_baseline_nlv&quot;]
+<span class='ln'>148</span>     assert (
+<span class='ln'>149</span>         rules[&quot;agent_h&quot;][&quot;forced_liquidation&quot;][&quot;leftover_4_to_7_dte_while_overnight_disabled&quot;]
+<span class='ln'>150</span>         == &quot;treat_as_dte_1_to_3_begin_1540&quot;
+<span class='ln'>151</span>     )
+<span class='ln'>152</span>     assert rules[&quot;agent_h&quot;][&quot;protective_stop&quot;][&quot;time_in_force&quot;] == &quot;gtc&quot;
+<span class='ln'>153</span>     assert rules[&quot;agent_h&quot;][&quot;cancel_lifecycle&quot;][&quot;never_assume_cancel_means_zero_fill&quot;] is True
+<span class='ln'>154</span>     assert rules[&quot;agent_h&quot;][&quot;entry_order&quot;][&quot;cancel_confirm_before_replacement&quot;] is True
+<span class='ln'>155</span>     assert rules[&quot;agent_h&quot;][&quot;take_profit&quot;][&quot;cancel_existing_stop_and_confirm_before_tp&quot;] is True
+<span class='ln'>156</span>     assert rules[&quot;agent_h&quot;][&quot;take_profit&quot;][&quot;cancel_unfilled_replacement_seconds_after_initial_tp&quot;] == 30
+<span class='ln'>157</span>     assert rules[&quot;agent_h&quot;][&quot;forced_liquidation&quot;][&quot;dte_1_to_3_begin&quot;] == &quot;15:40&quot;
+<span class='ln'>158</span>     assert rules[&quot;agent_h&quot;][&quot;patterns&quot;][&quot;daily_neckline_governs_10m_breakout&quot;] is True
+<span class='ln'>159</span>     assert rules[&quot;agent_h&quot;][&quot;patterns&quot;][&quot;overlapping_rank&quot;][0] == &quot;hs_then_double_triple_then_triangle&quot;
+<span class='ln'>160</span>     assert rules[&quot;agent_h&quot;][&quot;patterns&quot;][&quot;earliest_practical_entry_after_retest_et&quot;] == &quot;13:10&quot;
+<span class='ln'>161</span>     assert rules[&quot;agent_h&quot;][&quot;expiration_selection&quot;][&quot;same_day_group_dte&quot;] == [2, 3]
+<span class='ln'>162</span>     assert rules[&quot;options&quot;][&quot;strike&quot;][&quot;put_delta_min&quot;] == -0.5
+<span class='ln'>163</span>     assert rules[&quot;options&quot;][&quot;strike&quot;][&quot;call_otm&quot;] == &quot;exactly_one_listed_strike_above_atm&quot;
+<span class='ln'>164</span>     assert &quot;get_realized_pnl&quot; in rules[&quot;agent_h&quot;][&quot;required_tools&quot;]
+<span class='ln'>165</span>     assert &quot;get_earnings_calendar&quot; in rules[&quot;agent_h&quot;][&quot;required_tools&quot;]
+<span class='ln'>166</span>     assert rules[&quot;agent_h&quot;][&quot;patterns&quot;][&quot;breakout_volume_multiple_of_median&quot;] == 1.5
+<span class='ln'>167</span>     assert rules[&quot;agent_h&quot;][&quot;patterns&quot;][&quot;retest_tolerance_pct&quot;] == 0.002
+<span class='ln'>168</span>     assert rules[&quot;agent_h&quot;][&quot;patterns&quot;][&quot;live_trigger_beyond_breakout_pct&quot;] == 0.001
+<span class='ln'>169</span>     assert rules[&quot;agent_h&quot;][&quot;patterns&quot;][&quot;volume_statistic&quot;] == &quot;median&quot;
+<span class='ln'>170</span>     assert rules[&quot;agent_h&quot;][&quot;estimated_round_trip_fees&quot;] == &quot;3 * entry_fee_from_review&quot;
+<span class='ln'>171</span>     assert rules[&quot;agent_h&quot;][&quot;entry_fee_source_hierarchy&quot;][0] == &quot;valid_positive_total_fee_only&quot;
+<span class='ln'>172</span>     assert rules[&quot;agent_h&quot;][&quot;entry_fee_source_hierarchy&quot;][1] == &quot;zero_total_plus_positive_component_is_fee_conflict&quot;
+<span class='ln'>173</span>     assert rules[&quot;agent_h&quot;][&quot;entry_fee_source_hierarchy&quot;][2] == &quot;zero_total_and_zero_or_absent_components_is_explicit_zero&quot;
+<span class='ln'>174</span>     assert rules[&quot;agent_h&quot;][&quot;journal_fee_conflict&quot;] is True
+<span class='ln'>175</span>     assert rules[&quot;agent_h&quot;][&quot;journal_entry_fee_source&quot;] is True
+<span class='ln'>176</span>     assert rules[&quot;agent_h&quot;][&quot;fee_status_values&quot;] == [
+<span class='ln'>177</span>         &quot;quoted&quot;,
+<span class='ln'>178</span>         &quot;explicit_zero&quot;,
+<span class='ln'>179</span>         &quot;ambiguous&quot;,
+<span class='ln'>180</span>         &quot;unavailable&quot;,
+<span class='ln'>181</span>     ]
+<span class='ln'>182</span>     assert rules[&quot;agent_h&quot;][&quot;zero_total_plus_positive_component&quot;][&quot;fee_status&quot;] == &quot;ambiguous&quot;
+<span class='ln'>183</span>     assert rules[&quot;agent_h&quot;][&quot;zero_total_plus_positive_component&quot;][&quot;journal&quot;] == &quot;fee_conflict&quot;
+<span class='ln'>184</span>     assert rules[&quot;agent_h&quot;][&quot;zero_total_plus_positive_component&quot;][&quot;do_not_sum_or_select_estimate&quot;] is True
+<span class='ln'>185</span>     assert rules[&quot;agent_h&quot;][&quot;do_not_apply_049_ceiling_when_positive_fee_included&quot;] is False
+<span class='ln'>186</span>     assert rules[&quot;agent_h&quot;][&quot;universal_fee_gate&quot;] == [
+<span class='ln'>187</span>         &quot;planned_loss &lt;= 0.49% current NLV&quot;,
+<span class='ln'>188</span>         &quot;planned_loss + estimated_round_trip_fees &lt;= 0.50% current NLV&quot;,
+<span class='ln'>189</span>     ]
+<span class='ln'>190</span>     assert rules[&quot;agent_h&quot;][&quot;closed_trade_uses_actual_net_pnl_not_estimated_fees&quot;] is True
+<span class='ln'>191</span>     assert rules[&quot;agent_h&quot;][&quot;allow_0dte&quot;] is False
+<span class='ln'>192</span>     assert rules[&quot;universe&quot;][&quot;include_index_options&quot;] is False
+<span class='ln'>193</span>     assert rules[&quot;options&quot;][&quot;min_dte&quot;] == 2
 <span class='ln'>194</span> 
 <span class='ln'>195</span> 
-<span class='ln'>196</span> def test_agent_h_prompt_locks_schema_and_live_safety():
-<span class='ln'>197</span>     from pathlib import Path
-<span class='ln'>198</span> 
-<span class='ln'>199</span>     prompt = (Path(__file__).resolve().parents[2] / &quot;playbooks&quot; / &quot;agent_h_autonomous.PROMPT.md&quot;).read_text()
-<span class='ln'>200</span>     assert &quot;2026-09-05.6&quot; in prompt
-<span class='ln'>201</span>     assert &quot;2026-09-05.5&quot; not in prompt
-<span class='ln'>202</span>     assert &quot;2026-09-05.4&quot; not in prompt
-<span class='ln'>203</span>     assert &quot;2026-09-05.3&quot; not in prompt
-<span class='ln'>204</span>     assert &quot;The lease is not acquired unless its commit successfully pushes to&quot; in prompt
-<span class='ln'>205</span>     assert &quot;journal/h_lease.json` from `origin/main`, not merely the local checkout.&quot; in prompt
-<span class='ln'>206</span>     assert &quot;Never force-push or overwrite a conflicting lease.&quot; in prompt
-<span class='ln'>207</span>     assert &quot;A run that failed to acquire the lease must not clear or modify the lease.&quot; in prompt
-<span class='ln'>208</span>     assert &quot;Only the run whose `run_id` matches the remote lease may renew or release it.&quot; in prompt
-<span class='ln'>209</span>     assert &quot;renew the lease before it has fewer than&quot; in prompt
-<span class='ln'>210</span>     assert &quot;git pull --ff-only origin main&quot; in prompt
-<span class='ln'>211</span>     assert &quot;rebase that commit onto `origin/main`&quot; in prompt
-<span class='ln'>212</span>     assert &quot;Failed renewal is not a kill-switch ban on those recovery tickets.&quot; in prompt
-<span class='ln'>213</span>     assert &quot;A fast-forward pull that brought in another run’s lease is a **held** lease&quot; in prompt or &quot;if **another** unexpired `run_id` is there, that is a **held** lease&quot; in prompt
-<span class='ln'>214</span>     assert &quot;**does not** block the retry&quot; in prompt
-<span class='ln'>215</span>     assert &quot;re-read **only** `origin/main:journal/h_lease.json`&quot; in prompt
-<span class='ln'>216</span>     assert &quot;without modifying `journal/h_lease.json`&quot; in prompt
-<span class='ln'>217</span>     assert &quot;including when the&quot; in prompt and &quot;lease expired, is unreadable, another `run_id` now holds it&quot; in prompt
-<span class='ln'>218</span>     assert &quot;you **must still** place protection or flatten for that fill&quot; in prompt
-<span class='ln'>219</span>     assert &quot;## Cursor/Grok concurrency rule&quot; in prompt
-<span class='ln'>220</span>     assert &quot;**A. Clock.** Now in `America/New_York`. Clock only. **No RH calls.**&quot; in prompt
-<span class='ln'>221</span>     assert &quot;Git on `origin/main` is the required concurrency&quot; in prompt
-<span class='ln'>222</span>     assert &quot;acquire and remotely verify lease&quot; in prompt
-<span class='ln'>223</span>     assert &quot;time_in_force=gtc&quot; in prompt
-<span class='ln'>224</span>     assert &quot;09:30–09:44:59&quot; in prompt
-<span class='ln'>225</span>     assert &quot;approximately **13:10–15:45 ET**&quot; in prompt
-<span class='ln'>226</span>     assert &quot;Call delta: **+0.40 through +0.50 inclusive**&quot; in prompt
-<span class='ln'>227</span>     assert &quot;Put delta: **−0.50 through −0.40 inclusive**&quot; in prompt
-<span class='ln'>228</span>     assert &quot;planned_loss` ≤ **0.49% of current NLV**&quot; in prompt
-<span class='ln'>229</span>     assert &quot;bod_nlv_unavailable&quot; in prompt
-<span class='ln'>230</span>     assert &quot;maximum concurrent runs = 1&quot; not in prompt
-<span class='ln'>231</span> 
-<span class='ln'>232</span> 
-<span class='ln'>233</span> def test_inverse_etf_denylist_has_no_duplicate_twm():
-<span class='ln'>234</span>     from pathlib import Path
-<span class='ln'>235</span> 
-<span class='ln'>236</span>     src = Path(__file__).resolve().parents[1] / &quot;equity_day_trade.py&quot;
-<span class='ln'>237</span>     assert src.read_text(encoding=&quot;utf-8&quot;).count(&#x27;&quot;TWM&quot;&#x27;) == 1
-<span class='ln'>238</span>     assert &quot;TWM&quot; in INVERSE_ETF_SYMBOLS
+<span class='ln'>196</span> def test_permissions_is_kill_switch_not_a_rules_copy():
+<span class='ln'>197</span>     import json
+<span class='ln'>198</span>     from pathlib import Path
+<span class='ln'>199</span> 
+<span class='ln'>200</span>     perms = json.loads((Path(__file__).resolve().parents[2] / &quot;config&quot; / &quot;autonomous_permissions.json&quot;).read_text())
+<span class='ln'>201</span>     assert perms[&quot;status&quot;] == &quot;ACTIVE&quot;
+<span class='ln'>202</span>     assert perms[&quot;rules_path&quot;] == &quot;config/rules.json&quot;
+<span class='ln'>203</span>     assert &quot;universe&quot; not in perms
+<span class='ln'>204</span>     assert &quot;risk&quot; not in perms
+<span class='ln'>205</span>     assert &quot;patterns&quot; not in perms
+<span class='ln'>206</span> 
+<span class='ln'>207</span> 
+<span class='ln'>208</span> def test_agent_h_prompt_locks_schema_and_live_safety():
+<span class='ln'>209</span>     from pathlib import Path
+<span class='ln'>210</span> 
+<span class='ln'>211</span>     prompt = (Path(__file__).resolve().parents[2] / &quot;playbooks&quot; / &quot;agent_h_autonomous.PROMPT.md&quot;).read_text()
+<span class='ln'>212</span>     assert &quot;2026-09-06.1&quot; in prompt
+<span class='ln'>213</span>     assert &quot;2026-09-05.6&quot; not in prompt
+<span class='ln'>214</span>     assert &quot;2026-09-05.5&quot; not in prompt
+<span class='ln'>215</span>     assert &quot;2026-09-05.4&quot; not in prompt
+<span class='ln'>216</span>     assert &quot;2026-09-05.3&quot; not in prompt
+<span class='ln'>217</span>     assert &quot;The lease is not acquired unless its commit successfully pushes to&quot; in prompt
+<span class='ln'>218</span>     assert &quot;journal/h_lease.json` from `origin/main`, not merely the local checkout.&quot; in prompt
+<span class='ln'>219</span>     assert &quot;Never force-push or overwrite a conflicting lease.&quot; in prompt
+<span class='ln'>220</span>     assert &quot;A run that failed to acquire the lease must not clear or modify the lease.&quot; in prompt
+<span class='ln'>221</span>     assert &quot;Only the run whose `run_id` matches the remote lease may renew or release it.&quot; in prompt
+<span class='ln'>222</span>     assert &quot;renew the lease before it has fewer than&quot; in prompt
+<span class='ln'>223</span>     assert &quot;git pull --ff-only origin main&quot; in prompt
+<span class='ln'>224</span>     assert &quot;rebase that commit onto `origin/main`&quot; in prompt
+<span class='ln'>225</span>     assert &quot;Failed renewal is not a kill-switch&quot; in prompt
+<span class='ln'>226</span>     assert &quot;unless another run owns the lease&quot; in prompt
+<span class='ln'>227</span>     assert &quot;A fast-forward pull that brought in another run’s lease is a **held** lease&quot; in prompt or &quot;if **another** unexpired `run_id` is there, that is a **held** lease&quot; in prompt
+<span class='ln'>228</span>     assert &quot;**does not** block the retry&quot; in prompt
+<span class='ln'>229</span>     assert &quot;re-read **only** `origin/main:journal/h_lease.json`&quot; in prompt
+<span class='ln'>230</span>     assert &quot;without modifying `journal/h_lease.json`&quot; in prompt
+<span class='ln'>231</span>     assert &quot;journal `lease_held_after_fill`&quot; in prompt
+<span class='ln'>232</span>     assert &quot;only if no other unexpired `run_id` holds the lease&quot; in prompt
+<span class='ln'>233</span>     assert &quot;you **must still** place protection or flatten for that fill&quot; in prompt
+<span class='ln'>234</span>     assert &quot;replacement_skipped_tick_cap&quot; in prompt
+<span class='ln'>235</span>     assert &quot;the tick-floored minimum&quot; in prompt
+<span class='ln'>236</span>     assert &quot;Round that trigger to a valid `min_ticks` increment toward the fill&quot; in prompt
+<span class='ln'>237</span>     assert &quot;**Do not restore the protective stop** during forced liquidation.&quot; in prompt
+<span class='ln'>238</span>     assert &quot;**Take-profit only:**&quot; in prompt
+<span class='ln'>239</span>     assert &quot;## Cursor/Grok concurrency rule&quot; in prompt
+<span class='ln'>240</span>     assert &quot;**A. Clock.** Now in `America/New_York`. Clock only. **No RH calls.**&quot; in prompt
+<span class='ln'>241</span>     assert &quot;Git on `origin/main` is the required concurrency&quot; in prompt
+<span class='ln'>242</span>     assert &quot;acquire and remotely verify lease&quot; in prompt
+<span class='ln'>243</span>     assert &quot;time_in_force=gtc&quot; in prompt
+<span class='ln'>244</span>     assert &quot;09:30–09:44:59&quot; in prompt
+<span class='ln'>245</span>     assert &quot;approximately **13:10–15:45 ET**&quot; in prompt
+<span class='ln'>246</span>     assert &quot;Call delta: **+0.40 through +0.50 inclusive**&quot; in prompt
+<span class='ln'>247</span>     assert &quot;Put delta: **−0.50 through −0.40 inclusive**&quot; in prompt
+<span class='ln'>248</span>     assert &quot;planned_loss` ≤ **0.49% of current NLV**&quot; in prompt
+<span class='ln'>249</span>     assert &quot;bod_nlv_unavailable&quot; in prompt
+<span class='ln'>250</span>     assert &quot;maximum concurrent runs = 1&quot; not in prompt
+<span class='ln'>251</span> 
+<span class='ln'>252</span> 
+<span class='ln'>253</span> def test_inverse_etf_denylist_has_no_duplicate_twm():
+<span class='ln'>254</span>     from pathlib import Path
+<span class='ln'>255</span> 
+<span class='ln'>256</span>     src = Path(__file__).resolve().parents[1] / &quot;equity_day_trade.py&quot;
+<span class='ln'>257</span>     assert src.read_text(encoding=&quot;utf-8&quot;).count(&#x27;&quot;TWM&quot;&#x27;) == 1
+<span class='ln'>258</span>     assert &quot;TWM&quot; in INVERSE_ETF_SYMBOLS
 </pre></section><section class='file' id='pipeline-tests-test_fees-py'><h2>pipeline/tests/test_fees.py</h2><p class='meta'><strong>11 · Tests</strong> · CI / F · 92 lines · Dual NLV fee ceilings</p><pre class='source'><span class='ln'>  1</span> from pipeline.fees import classify_review_fees, fee_aware_planned_loss_ok
 <span class='ln'>  2</span> 
 <span class='ln'>  3</span> 
@@ -4180,8 +4378,87 @@
 <span class='ln'>144</span>         json.dumps({&quot;candidates&quot;: [{&quot;symbol&quot;: &quot;NU&quot;}]})
 <span class='ln'>145</span>     )
 <span class='ln'>146</span>     assert load_latest_option_candidates()[0][&quot;symbol&quot;] == &quot;NU&quot;
+</pre></section><section class='file' id='pipeline-tests-test_ticks-py'><h2>pipeline/tests/test_ticks.py</h2><p class='meta'><strong>11 · Tests</strong> · CI / F · 79 lines · Debit-cap tick floor, one-tick replace skip, stop rounding</p><pre class='source'><span class='ln'>  1</span> from decimal import Decimal
+<span class='ln'>  2</span> 
+<span class='ln'>  3</span> from pipeline.ticks import (
+<span class='ln'>  4</span>     EQUITY_TICK,
+<span class='ln'>  5</span>     as_price_str,
+<span class='ln'>  6</span>     entry_limit_from_mid,
+<span class='ln'>  7</span>     max_acceptable_debit_limit,
+<span class='ln'>  8</span>     one_tick_replacement,
+<span class='ln'>  9</span>     option_tick_size,
+<span class='ln'> 10</span>     protective_stop_price,
+<span class='ln'> 11</span>     round_to_tick,
+<span class='ln'> 12</span> )
+<span class='ln'> 13</span> 
+<span class='ln'> 14</span> 
+<span class='ln'> 15</span> def test_option_tick_size_typical_and_min_ticks():
+<span class='ln'> 16</span>     assert option_tick_size(&quot;2.99&quot;) == Decimal(&quot;0.01&quot;)
+<span class='ln'> 17</span>     assert option_tick_size(&quot;3.00&quot;) == Decimal(&quot;0.05&quot;)
+<span class='ln'> 18</span>     assert option_tick_size(&quot;4.13&quot;) == Decimal(&quot;0.05&quot;)
+<span class='ln'> 19</span>     custom = {&quot;cutoff_price&quot;: &quot;1.00&quot;, &quot;below_tick&quot;: &quot;0.01&quot;, &quot;above_tick&quot;: &quot;0.05&quot;}
+<span class='ln'> 20</span>     assert option_tick_size(&quot;0.90&quot;, custom) == Decimal(&quot;0.01&quot;)
+<span class='ln'> 21</span>     assert option_tick_size(&quot;1.00&quot;, custom) == Decimal(&quot;0.05&quot;)
+<span class='ln'> 22</span>     assert option_tick_size(None) is None
+<span class='ln'> 23</span> 
+<span class='ln'> 24</span> 
+<span class='ln'> 25</span> def test_one_tick_replacement_skips_when_plus_one_exceeds_cap_or_ask():
+<span class='ln'> 26</span>     # Mid entry at 1.10, max/ask 1.15: +1 penny is legal.
+<span class='ln'> 27</span>     assert one_tick_replacement(&quot;1.10&quot;, &quot;1.15&quot;, &quot;1.15&quot;, &quot;0.01&quot;) == Decimal(&quot;1.11&quot;)
+<span class='ln'> 28</span>     # First ticket already at max: +1 tick is impossible.
+<span class='ln'> 29</span>     assert one_tick_replacement(&quot;1.15&quot;, &quot;1.20&quot;, &quot;1.15&quot;, &quot;0.01&quot;) is None
+<span class='ln'> 30</span>     # First ticket already at live ask: +1 tick exceeds ask.
+<span class='ln'> 31</span>     assert one_tick_replacement(&quot;2.00&quot;, &quot;2.00&quot;, &quot;2.10&quot;, &quot;0.01&quot;) is None
+<span class='ln'> 32</span>     # Nickel option above $3.
+<span class='ln'> 33</span>     assert one_tick_replacement(&quot;3.10&quot;, &quot;3.20&quot;, &quot;3.20&quot;, &quot;0.05&quot;) == Decimal(&quot;3.15&quot;)
+<span class='ln'> 34</span>     assert one_tick_replacement(&quot;3.20&quot;, &quot;3.20&quot;, &quot;3.20&quot;, &quot;0.05&quot;) is None
+<span class='ln'> 35</span> 
+<span class='ln'> 36</span> 
+<span class='ln'> 37</span> def test_max_acceptable_debit_is_independent_of_first_limit():
+<span class='ln'> 38</span>     assert max_acceptable_debit_limit(&quot;1.20&quot;, &quot;1.50&quot;, &quot;1.10&quot;) == Decimal(&quot;1.10&quot;)
+<span class='ln'> 39</span>     assert max_acceptable_debit_limit(None, &quot;1.10&quot;) == Decimal(&quot;1.10&quot;)
+<span class='ln'> 40</span>     assert max_acceptable_debit_limit() is None
+<span class='ln'> 41</span> 
+<span class='ln'> 42</span> 
+<span class='ln'> 43</span> def test_max_acceptable_debit_tick_floors_off_grid_nlv_or_fee_cap():
+<span class='ln'> 44</span>     # Binding NLV/fee cap $3.02: nickel tick at/above $3 → floor to $3.00, not $3.02.
+<span class='ln'> 45</span>     assert max_acceptable_debit_limit(&quot;3.10&quot;, &quot;3.02&quot;) == Decimal(&quot;3.00&quot;)
+<span class='ln'> 46</span>     # Below $3: penny tick. $1.114 floors to $1.11.
+<span class='ln'> 47</span>     assert max_acceptable_debit_limit(&quot;1.20&quot;, &quot;1.114&quot;) == Decimal(&quot;1.11&quot;)
+<span class='ln'> 48</span>     # Already on a tick: unchanged.
+<span class='ln'> 49</span>     assert max_acceptable_debit_limit(&quot;1.15&quot;, &quot;1.20&quot;) == Decimal(&quot;1.15&quot;)
+<span class='ln'> 50</span>     # Custom instrument ticks.
+<span class='ln'> 51</span>     custom = {&quot;cutoff_price&quot;: &quot;1.00&quot;, &quot;below_tick&quot;: &quot;0.01&quot;, &quot;above_tick&quot;: &quot;0.05&quot;}
+<span class='ln'> 52</span>     assert max_acceptable_debit_limit(&quot;1.07&quot;, &quot;1.20&quot;, min_ticks=custom) == Decimal(&quot;1.05&quot;)
+<span class='ln'> 53</span>     # Floor to zero is not a legal limit.
+<span class='ln'> 54</span>     assert max_acceptable_debit_limit(&quot;0.004&quot;) is None
+<span class='ln'> 55</span> 
+<span class='ln'> 56</span> 
+<span class='ln'> 57</span> def test_entry_limit_half_tick_toward_bid_never_above_ask():
+<span class='ln'> 58</span>     assert entry_limit_from_mid(&quot;1.105&quot;, &quot;1.20&quot;, &quot;0.01&quot;) == Decimal(&quot;1.10&quot;)
+<span class='ln'> 59</span>     assert entry_limit_from_mid(&quot;1.104&quot;, &quot;1.20&quot;, &quot;0.01&quot;) == Decimal(&quot;1.10&quot;)
+<span class='ln'> 60</span>     assert entry_limit_from_mid(&quot;1.106&quot;, &quot;1.20&quot;, &quot;0.01&quot;) == Decimal(&quot;1.11&quot;)
+<span class='ln'> 61</span>     assert entry_limit_from_mid(&quot;1.19&quot;, &quot;1.18&quot;, &quot;0.01&quot;) == Decimal(&quot;1.18&quot;)
+<span class='ln'> 62</span> 
+<span class='ln'> 63</span> 
+<span class='ln'> 64</span> def test_protective_stop_rounds_toward_fill_never_widens():
+<span class='ln'> 65</span>     # $4.13 fill * 0.80 = $3.304. Nickel tick. Toward fill = $3.35, not $3.30.
+<span class='ln'> 66</span>     assert protective_stop_price(&quot;4.13&quot;) == Decimal(&quot;3.35&quot;)
+<span class='ln'> 67</span>     # $2.47 fill * 0.80 = $1.976. Penny tick. Toward fill = $1.98.
+<span class='ln'> 68</span>     assert protective_stop_price(&quot;2.47&quot;) == Decimal(&quot;1.98&quot;)
+<span class='ln'> 69</span>     # Already on a tick: keep it.
+<span class='ln'> 70</span>     assert protective_stop_price(&quot;1.00&quot;) == Decimal(&quot;0.80&quot;)
+<span class='ln'> 71</span>     # Equity $0.01.
+<span class='ln'> 72</span>     assert protective_stop_price(&quot;100&quot;, EQUITY_TICK, asset=&quot;equity&quot;) == Decimal(&quot;80.00&quot;)
+<span class='ln'> 73</span>     assert as_price_str(protective_stop_price(&quot;4.13&quot;)) == &quot;3.35&quot;
+<span class='ln'> 74</span> 
+<span class='ln'> 75</span> 
+<span class='ln'> 76</span> def test_round_to_tick_modes():
+<span class='ln'> 77</span>     assert round_to_tick(&quot;3.304&quot;, &quot;0.05&quot;, mode=&quot;nearest&quot;) == Decimal(&quot;3.30&quot;)
+<span class='ln'> 78</span>     assert round_to_tick(&quot;3.304&quot;, &quot;0.05&quot;, mode=&quot;toward_fill&quot;) == Decimal(&quot;3.35&quot;)
+<span class='ln'> 79</span>     assert round_to_tick(&quot;3.304&quot;, &quot;0.05&quot;, mode=&quot;toward_bid&quot;) == Decimal(&quot;3.30&quot;)
 </pre></section>
-    <p class="footer">Agentic Python source book · 2026-09-06 00:26 UTC · 4073 lines in 23 files ·
+    <p class="footer">Agentic Python source book · 2026-09-06 01:31 UTC · 4350 lines in 25 files ·
     print from this HTML or open <code>docs/agentic_python_source_book.py</code>.</p>
   </div>
 </body>
