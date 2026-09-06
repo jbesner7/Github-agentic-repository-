@@ -96,6 +96,7 @@ RUN_ORDER = (
     "read_rules_permissions_playbook",
     "exposure_and_working_orders",
     "classify_fire_mode_from_clock_and_exposure",
+    "run_h_dispatch_print_card",
     "mode_gated_work",
 )
 

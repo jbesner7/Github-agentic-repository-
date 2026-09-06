@@ -123,8 +123,8 @@
     "proposal_ttl": "until_next_loop"
   },
   "agent_h": {
-    "schema_version": "2026-09-06.9",
-    "prompt_expected_schema_version": "2026-09-06.9",
+    "schema_version": "2026-09-06.10",
+    "prompt_expected_schema_version": "2026-09-06.10",
     "numeric_thresholds_are_schema_invariants": true,
     "rules_prompt_mismatch_means_place_nothing": true,
     "invariants_module": "pipeline/h_invariants.py",
@@ -132,6 +132,11 @@
     "closer_module": "pipeline.h_closer",
     "budget_module": "pipeline.h_budget",
     "attention_module": "pipeline.h_attention",
+    "dispatch_module": "pipeline.h_dispatch",
+    "chat_attention_module": "pipeline.f_attention",
+    "dispatch_helper_is_attention_lock": true,
+    "scan_only_unread_unless_dispatch_says_scan": true,
+    "helper_unavailable_fail_closed_no_scan": true,
     "failures_module": "pipeline.h_failures",
     "combined_backtest_module": "pipeline.backtest",
     "continuity_store": "broker_positions_and_working_orders",

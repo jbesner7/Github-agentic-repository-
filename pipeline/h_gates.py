@@ -143,6 +143,7 @@ RUN_ORDER_AFTER_LEASE = (
     "read_rules_permissions_playbook",
     "exposure_and_working_orders",
     "classify_fire_mode_from_clock_and_exposure",
+    "run_h_dispatch_print_card",
     "if_exposure_continuity_and_section_8_only",
     "if_flat_before_scan_window_no_scan",
     "if_scan_acquire_lease_then_permissions_bod_session_full_capability_scan",

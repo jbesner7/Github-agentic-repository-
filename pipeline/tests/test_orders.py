@@ -1,4 +1,5 @@
 from pipeline.equity_day_trade import INVERSE_ETF_SYMBOLS
+from pipeline.h_invariants import _retired_needle_present
 from pipeline.orders import (
     EQUITY_WORKING_STATES,
     OPTION_WORKING_STATES,
@@ -78,8 +79,12 @@ def test_rules_json_matches_working_states_and_10minute():
     assert rules["agent_h"]["no_1m_3m_autonomous_noise"] is True
     assert rules["agent_h"]["no_5m_stateless_inconsistency"] is True
     assert rules["agent_h"]["include_index_options"] is False
-    assert rules["agent_h"]["schema_version"] == "2026-09-06.9"
-    assert rules["agent_h"]["prompt_expected_schema_version"] == "2026-09-06.9"
+    assert rules["agent_h"]["schema_version"] == "2026-09-06.10"
+    assert rules["agent_h"]["prompt_expected_schema_version"] == "2026-09-06.10"
+    assert rules["agent_h"]["dispatch_module"] == "pipeline.h_dispatch"
+    assert rules["agent_h"]["chat_attention_module"] == "pipeline.f_attention"
+    assert rules["agent_h"]["dispatch_helper_is_attention_lock"] is True
+    assert rules["agent_h"]["scan_only_unread_unless_dispatch_says_scan"] is True
     assert rules["agent_h"]["take_profit_may_place_without_owned_lease_if_git_up_and_no_other_holder"] is True
     assert rules["agent_h"]["git_unavailable_blocks_take_profit"] is True
     assert rules["agent_h"]["stop_market_is_emergency_kind"] is True
@@ -270,14 +275,22 @@ def test_agent_h_prompt_locks_schema_and_live_safety():
     from pathlib import Path
 
     prompt = (Path(__file__).resolve().parents[2] / "playbooks" / "agent_h_autonomous.PROMPT.md").read_text()
-    assert "2026-09-06.9" in prompt
-    assert "2026-09-06.8" not in prompt
-    assert "2026-09-06.7" not in prompt
+    assert "2026-09-06.10" in prompt
+    for retired in (
+        "2026-09-06.9",
+        "2026-09-06.8",
+        "2026-09-06.7",
+        "2026-09-06.6",
+        "2026-09-06.5",
+        "2026-09-06.4",
+        "2026-09-06.3",
+        "2026-09-06.2",
+        "2026-09-06.1",
+    ):
+        assert _retired_needle_present(prompt, retired) is False
     assert "Take-profit may place without an owned lease if Git is reachable" in prompt
     assert "prior same-day filled close does **not** cover a later sequential open" in prompt
     assert "GFD stop uses gate kind `protect` or `stop_market`" in prompt
-    assert "2026-09-06.6" not in prompt
-    assert "2026-09-06.5" not in prompt
     assert "## Fire budget" in prompt
     assert "## Place authority" in prompt
     assert "## Section scope" in prompt
@@ -287,14 +300,16 @@ def test_agent_h_prompt_locks_schema_and_live_safety():
     assert "read remote lease only; do not acquire until mode is scan" in prompt
     assert "read remote lease; acquire only in scan/new-entry mode" not in prompt
     assert "classify fire mode from clock + exposure" in prompt
+    assert "## Dispatch" in prompt
+    assert "print_card" in prompt
+    assert "SCAN ONLY text below the fence is **unread**" in prompt
+    assert "from pipeline.h_dispatch import leftover_card" in prompt
     assert "emergency_ref_id_unavailable" in prompt
     assert "Emergency kinds may place without an owned lease if no other unexpired holder exists." in prompt
     assert "generation` is the count of cancelled/rejected/failed/voided" in prompt
     assert "owns a valid remote lease or Git is unavailable" not in prompt
     assert "outside_rth_clock_only" in prompt
     assert "rate_limited" in prompt
-    assert "2026-09-06.4" not in prompt
-    assert "2026-09-06.3" not in prompt
     assert "## Invariant registry" in prompt
     assert "git_unavailable_emergency_only" in prompt
     assert "## Continuity" in prompt
@@ -302,8 +317,6 @@ def test_agent_h_prompt_locks_schema_and_live_safety():
     assert "emergency_close_ref_id" in prompt
     assert "place nothing** even if Git later looks down" in prompt
     assert "If `required_cash` > buying power or the 2.5% debit cap fails: skip." in prompt
-    assert "2026-09-06.2" not in prompt
-    assert "2026-09-06.1" not in prompt
     assert "2026-09-05.6" not in prompt
     assert "2026-09-05.5" not in prompt
     assert "2026-09-05.4" not in prompt
