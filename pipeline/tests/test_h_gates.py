@@ -35,6 +35,12 @@ def test_every_place_requires_valid_remote_lease():
     )
     assert may_place_option_order(EXPIRED_UNOWNED, kind="take_profit", git_status="outage")[0] is False
     assert may_place_option_order(EXPIRED_UNOWNED, kind="stop_market")[0] is True
+    assert recovery_action(EXPIRED_UNOWNED, kind="take_profit") == "manage_exit_without_owned_lease"
+    assert recovery_action(EXPIRED_UNOWNED, kind="take_profit", git_status="outage") == (
+        "place_nothing_git_unavailable"
+    )
+    assert must_reverify_remote_lease_before_place(kind="take_profit") is False
+    assert must_reverify_remote_lease_before_place(kind="close") is False
     for lease in (EXPIRED_UNOWNED, EXPIRED_OWN_STALE, UNREADABLE):
         ok, reason = may_place_option_order(lease, kind="protect")
         assert ok is True

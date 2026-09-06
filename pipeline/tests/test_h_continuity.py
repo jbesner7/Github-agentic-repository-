@@ -51,6 +51,14 @@ def test_handoff_git_outage_vs_other_holder():
         handoff_after_lease_loss(OWNED, git_status="timeout", kind="entry")
         == "place_nothing_git_unavailable"
     )
+    assert (
+        handoff_after_lease_loss(EXPIRED, git_status="ok", kind="take_profit")
+        == "manage_exit_without_owned_lease"
+    )
+    assert (
+        handoff_after_lease_loss(EXPIRED, git_status="outage", kind="take_profit")
+        == "place_nothing_git_unavailable"
+    )
 
 
 def test_two_stateless_runs_share_one_closer_plan():

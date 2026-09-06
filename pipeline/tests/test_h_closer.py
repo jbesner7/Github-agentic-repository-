@@ -199,3 +199,22 @@ def test_prior_same_day_fill_does_not_cover_later_sequential_open():
         session_date_et=session,
     )
     assert stale_after_flat["action"] == "monitor"
+
+
+def test_working_take_profit_covers_leftover_quantity():
+    session = "2026-09-08"
+    covered = decide_emergency_close(
+        option_id="opt-a",
+        position_quantity=1,
+        option_orders=[
+            {
+                "option_id": "opt-a",
+                "state": "confirmed",
+                "kind": "take_profit",
+                "quantity": 1,
+                "filled_quantity": 0,
+            }
+        ],
+        session_date_et=session,
+    )
+    assert covered["action"] == "monitor" and covered["reason"] == MONITOR

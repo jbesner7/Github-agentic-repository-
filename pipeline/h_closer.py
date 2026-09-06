@@ -32,6 +32,8 @@ CLOSE_KINDS = EMERGENCY_KINDS | {
     "stop_limit",
     "sell_to_close",
     "close",
+    "take_profit",
+    "reduce",
 }
 
 

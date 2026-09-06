@@ -113,6 +113,12 @@ def recovery_action(lease: RemoteLease, *, git_status: str = "ok", kind: str = "
         if lease.readable and lease.owned_by_this_run and not lease.expired:
             return "recover_now"
         return "emergency_protect_without_owned_lease"
+    if is_manage_exit_kind(kind):
+        if is_git_unavailable(git_status):
+            return "place_nothing_git_unavailable"
+        if lease.readable and lease.owned_by_this_run and not lease.expired:
+            return "recover_now"
+        return "manage_exit_without_owned_lease"
     if not lease.readable or lease.expired or not lease.owned_by_this_run:
         return "reacquire_then_recover"
     return "recover_now"
@@ -144,8 +150,8 @@ RUN_ORDER_AFTER_LEASE = (
 
 
 def must_reverify_remote_lease_before_place(*, kind: str, git_status: str = "ok") -> bool:
-    """Emergency protection does not wait on Git fetch/push/lease verify."""
-    return not is_emergency_kind(kind)
+    """New entries wait on Git lease verify. Emergency and manage exits do not."""
+    return not (is_emergency_kind(kind) or is_manage_exit_kind(kind))
 
 
 def must_renew_lease(*, minutes_remaining: float, before_entry: bool) -> bool:
