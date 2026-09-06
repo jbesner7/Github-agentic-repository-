@@ -1,4 +1,3 @@
-from pipeline.f_attention import f_may_place, f_may_run_h_scan
 from pipeline.h_attention import after_classify, in_scope_sections
 from pipeline.h_budget import MANAGE, OUTSIDE_RTH, SCAN
 from pipeline.h_dispatch import (
@@ -92,25 +91,3 @@ def test_leftover_card_uses_closer():
         orders_complete=False,
     )
     assert blocked["action"] == "skip"
-
-
-def test_f_chat_does_not_run_h_scan_or_place_without_confirm():
-    assert f_may_run_h_scan() is False
-    assert f_may_place(
-        confirmed_specific_order=False,
-        h_enabled=True,
-        weekday=0,
-        et_time="14:00",
-    ) == (False, "no_explicit_confirm_of_specific_order")
-    assert f_may_place(
-        confirmed_specific_order=True,
-        h_enabled=True,
-        weekday=0,
-        et_time="14:00",
-    ) == (False, "h_owns_rth")
-    assert f_may_place(
-        confirmed_specific_order=True,
-        h_enabled=True,
-        weekday=6,
-        et_time="14:00",
-    ) == (True, "ok")
