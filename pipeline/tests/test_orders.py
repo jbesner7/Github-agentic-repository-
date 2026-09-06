@@ -78,10 +78,15 @@ def test_rules_json_matches_working_states_and_10minute():
     assert rules["agent_h"]["no_1m_3m_autonomous_noise"] is True
     assert rules["agent_h"]["no_5m_stateless_inconsistency"] is True
     assert rules["agent_h"]["include_index_options"] is False
-    assert rules["agent_h"]["schema_version"] == "2026-09-06.5"
-    assert rules["agent_h"]["prompt_expected_schema_version"] == "2026-09-06.5"
+    assert rules["agent_h"]["schema_version"] == "2026-09-06.6"
+    assert rules["agent_h"]["prompt_expected_schema_version"] == "2026-09-06.6"
     assert rules["agent_h"]["emergency_protection_path_does_not_require_git"] is True
     assert rules["agent_h"]["git_unavailable_allows_emergency_protection_without_lease"] is True
+    assert rules["agent_h"]["emergency_close_serialized_by_broker_not_git"] is True
+    assert rules["agent_h"]["one_working_sell_to_close_per_option_position"] is True
+    assert rules["agent_h"]["emergency_close_uses_deterministic_ref_id"] is True
+    assert rules["agent_h"]["duplicate_emergency_ref_id_is_retry_not_new_order"] is True
+    assert rules["agent_h"]["overlapping_stateless_runs_must_not_submit_duplicate_closes"] is True
     assert rules["agent_h"]["continuity_store"] == "broker_positions_and_working_orders"
     assert rules["agent_h"]["patterns"]["hour_trend_lookback_completed"] == 20
     assert rules["agent_h"]["read_rules_permissions_playbook_before_any_place"] is True
@@ -247,12 +252,15 @@ def test_agent_h_prompt_locks_schema_and_live_safety():
     from pathlib import Path
 
     prompt = (Path(__file__).resolve().parents[2] / "playbooks" / "agent_h_autonomous.PROMPT.md").read_text()
-    assert "2026-09-06.5" in prompt
+    assert "2026-09-06.6" in prompt
+    assert "2026-09-06.5" not in prompt
     assert "2026-09-06.4" not in prompt
     assert "2026-09-06.3" not in prompt
     assert "## Invariant registry" in prompt
     assert "git_unavailable_emergency_only" in prompt
     assert "## Continuity" in prompt
+    assert "already_covered_monitor_only" in prompt
+    assert "emergency_close_ref_id" in prompt
     assert "2026-09-06.2" not in prompt
     assert "2026-09-06.1" not in prompt
     assert "2026-09-05.6" not in prompt

@@ -1,5 +1,6 @@
 from datetime import datetime, timezone
 
+from pipeline.h_closer import MONITOR
 from pipeline.h_failures import (
     FakeBroker,
     inject_canceled_but_filled,
@@ -7,6 +8,7 @@ from pipeline.h_failures import (
     inject_lease_loss_while_git_up,
     inject_stale_underlying_quote,
     inject_tool_timeout,
+    inject_two_stateless_emergency_closes,
 )
 from pipeline.h_gates import RemoteLease
 
@@ -76,3 +78,24 @@ def test_tool_timeout_fail_closed_on_entry_not_on_emergency_if_tool_recovers():
     emergency = broker.place(kind="protect", quantity=1, lease=EXPIRED, git_status="timeout")
     assert emergency["ok"] is True
     assert emergency["reason"] == "emergency_protection_without_git"
+
+
+def test_two_stateless_git_down_fires_submit_one_close():
+    broker = FakeBroker(positions=1)
+    result = inject_two_stateless_emergency_closes(broker, lease=UNREADABLE)
+    assert result["first_plan"]["ref_id"] == result["second_plan"]["ref_id"]
+    assert result["first"]["ok"] is True
+    assert result["second"]["ok"] is True
+    assert result["second"]["reused"] is True
+    assert result["first"]["order_id"] == result["second"]["order_id"]
+    assert result["tickets"] == 1
+
+
+def test_second_fire_monitors_existing_working_close():
+    broker = FakeBroker(positions=1)
+    first = broker.place(kind="protect", quantity=1, lease=UNREADABLE, git_status="outage")
+    assert first["ok"] is True
+    second = broker.place(kind="flatten", quantity=1, lease=UNREADABLE, git_status="outage")
+    assert second["ok"] is False
+    assert second["reason"] == MONITOR
+    assert broker.submitted_tickets == 1

@@ -71,7 +71,10 @@ def may_place_option_order(
     kind: str = "any",
     git_status: str = "ok",
 ) -> tuple[bool, str]:
-    """New entries always need a live lease. Emergency protection does not need Git."""
+    """New entries always need a live lease. Emergency protection does not need Git.
+
+    Emergency place is still subject to `pipeline.h_closer.decide_emergency_close`.
+    """
     if is_emergency_kind(kind) and is_git_unavailable(git_status):
         return True, "emergency_protection_without_git"
     if not lease.readable:

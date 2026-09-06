@@ -8,10 +8,12 @@ from __future__ import annotations
 
 from typing import Any
 
+from pipeline.h_closer import decide_emergency_close
 from pipeline.h_gates import RemoteLease, is_emergency_kind, is_git_unavailable
 
 
 CONTINUITY_STORE = "broker_positions_and_working_orders"
+EMERGENCY_CLOSER = "broker_occupancy_and_deterministic_ref_id"
 MANAGE_EXISTING = "manage_existing"
 SCAN_IF_FLAT = "scan_if_gates_pass"
 
@@ -41,6 +43,22 @@ def handoff_after_lease_loss(
     if is_git_unavailable(git_status):
         return "place_nothing_git_unavailable"
     return "reacquire_then_recover"
+
+
+def leftover_close_plan(
+    *,
+    option_id: str,
+    position_quantity: int,
+    option_orders: list[dict[str, Any]] | None,
+    session_date_et: str,
+) -> dict[str, Any]:
+    """Broker-side single closer. Two stateless fires must compute the same plan."""
+    return decide_emergency_close(
+        option_id=option_id,
+        position_quantity=position_quantity,
+        option_orders=option_orders,
+        session_date_et=session_date_et,
+    )
 
 
 def exposure_fields(position: dict[str, Any] | None) -> dict[str, Any]:

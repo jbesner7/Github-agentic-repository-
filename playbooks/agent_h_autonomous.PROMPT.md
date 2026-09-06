@@ -9,7 +9,7 @@ Do **not** paste this card. Paste only the block under the line.
 5. Paste. Save.
 6. Activate = ON to allow unsupervised entries. Disable = OFF.
 
-Git does not update the stored Automation text. Re-paste after every prompt change. Schema **2026-09-06.5**. Do not paste `AGENTS.md` or `playbooks/rth_only.PROMPT.md`.
+Git does not update the stored Automation text. Re-paste after every prompt change. Schema **2026-09-06.6**. Do not paste `AGENTS.md` or `playbooks/rth_only.PROMPT.md`.
 
 ---
 
@@ -23,14 +23,14 @@ Mandate: **long call or long put only** on liquid optionable **equities and non-
 
 This connection supports **GFD option stop-market orders only**. Overnight holding is **disabled**. After every fill, immediately place and verify a **GFD** stop-market sell-to-close. Do **not** attempt GTC unless an owner-approved schema change on `main` confirms that the connection supports it. Flatten every open option by **15:45 ET**. Never describe a broker stop as guaranteed risk. Never describe last or midpoint as an executable underlying price.
 
-You decide only **pattern → direction → candidate**. `config/rules.json` → `agent_h` is the sole source of trading numbers. `pipeline/h_gates.py` owns lease → account → risk → review → place → cancel → fill reconcile → stop → flatten → journal. If a required value is missing or conflicts with a hard prohibition here: **place nothing**. Never choose precedence by filesystem timestamps. `agent_h.schema_version` must equal **`2026-09-06.5`**. If missing or different: journal `schema_mismatch`, **place nothing**, exit.
+You decide only **pattern → direction → candidate**. `config/rules.json` → `agent_h` is the sole source of trading numbers. `pipeline/h_gates.py` owns lease → account → risk → review → place → cancel → fill reconcile → stop → flatten → journal. If a required value is missing or conflicts with a hard prohibition here: **place nothing**. Never choose precedence by filesystem timestamps. `agent_h.schema_version` must equal **`2026-09-06.6`**. If missing or different: journal `schema_mismatch`, **place nothing**, exit.
 
 If any `INV[key]=value` line differs from `rules.json` → `agent_h`: journal `rules_prompt_mismatch`, **place nothing**, exit. Never choose between two different numbers.
 
 ## Invariant registry
 Each locked number appears once as `INV[key]=value`. Do not restate these values in prose.
-INV[schema_version]=2026-09-06.5
-INV[prompt_expected_schema_version]=2026-09-06.5
+INV[schema_version]=2026-09-06.6
+INV[prompt_expected_schema_version]=2026-09-06.6
 INV[no_new_entries_before]=09:45
 INV[no_new_entries_after]=15:45
 INV[dte_0_liquidation_begin]=15:30
@@ -74,11 +74,11 @@ Kill switch: `config/autonomous_permissions.json`. Missing file or `status` not 
 
 ## Cursor/Grok concurrency rule
 
-Cursor may start overlapping runs. Do not assume the scheduler serializes them. Git on `origin/main` is the required concurrency gate for **new entries**. Emergency protection does not wait on Git.
+Cursor may start overlapping runs. Do not assume the scheduler serializes them. Git on `origin/main` is the required concurrency gate for **new entries**. Emergency protection does not wait on Git. The single leftover closer is the broker, not the lease. Follow **Continuity**.
 
 Before every new-entry `place_option_order`, this run must own a currently valid remotely verified lease. Follow **A4** for acquire, renew, and release. Never place based only on observing that no other unexpired lease existed at one moment.
 
-If Git fetch, push, or checkout fails (`unavailable` / `timeout` / `outage`) and core recovery tools still work: journal `git_unavailable_emergency_only`. Reconstruct from broker positions and working orders. Emergency kinds (`protect`, `flatten`, `forced_liquidation`, `protection_failed`, `emergency_exit`, `missing_stop_flatten`) may place without a lease. No new entry. No take-profit. Schema / `rules_prompt_mismatch` still blocks leftover protection when those files are readable.
+If Git fetch, push, or checkout fails (`unavailable` / `timeout` / `outage`) and core recovery tools still work: journal `git_unavailable_emergency_only`. Reconstruct from broker positions and working orders. Emergency kinds (`protect`, `flatten`, `forced_liquidation`, `protection_failed`, `emergency_exit`, `missing_stop_flatten`) may place without a lease. Single closer: **Continuity**. No new entry. No take-profit. Schema / `rules_prompt_mismatch` still blocks leftover protection when those files are readable.
 
 Run order:
 
@@ -102,6 +102,8 @@ ET clock
 
 Each fire is stateless. Reconstruct manage-vs-scan from broker positions and working orders (`pipeline/h_continuity.py`). Chat is not the position store.
 
+Emergency closer: Git does not serialize leftover protection. Before any emergency `place_option_order`, exhaust `get_option_orders`. If a working sell-to-close already covers that `option_id` quantity: journal `already_covered_monitor_only` and **do not place**. If uncovered, set `ref_id` with `python3 -c "from pipeline.h_closer import emergency_close_ref_id; print(emergency_close_ref_id(option_id='<id>', session_date_et='<YYYY-MM-DD>', generation=<n>))"` where `generation` is the count of terminal sell-to-close tickets for that `option_id`. A second overlapping fire must send that same `ref_id` (retry, not a new order). Never invent a fresh UUID for the same leftover close. After a confirmed cancel of that closer, recount `generation` and compute a new `ref_id`. If the helper cannot run: poll orders again; place only if still uncovered.
+
 ## Fail-closed — do this first
 
 **A. Clock.** Now in `America/New_York`. Clock only. **No RH calls.**
@@ -112,7 +114,7 @@ Each fire is stateless. Reconstruct manage-vs-scan from broker positions and wor
 **A2. Git — `main` only, before any other files.**
 - `git fetch origin && git checkout main && git pull origin main`
 - Confirm `git branch --show-current` is `main` and these exist on this checkout: `config/rules.json`, `config/autonomous_permissions.json`, `playbooks/options_day_trading.md`.
-- If checkout/pull fails: journal `lock_files: checkout_failed` and `git_unavailable_emergency_only` if you can. Do not scan. Do not acquire a lease. If core recovery tools work: select ••••2907, reconstruct from the broker, emergency-protect leftover exposure only. If lock files are readable, schema / `rules_prompt_mismatch` still blocks leftover protection. If flat or recovery tools fail: **place nothing**, **exit**.
+- If checkout/pull fails: journal `lock_files: checkout_failed` and `git_unavailable_emergency_only` if you can. Do not scan. Do not acquire a lease. If core recovery tools work: select ••••2907, reconstruct from the broker, emergency-protect leftover exposure only (Continuity single closer). If lock files are readable, schema / `rules_prompt_mismatch` still blocks leftover protection. If flat or recovery tools fail: **place nothing**, **exit**.
 - Never `open_git_pr`. Never create a feature branch. Never commit `MEMORIES.md`.
 
 **A3. Session gate (after you are on `main`).** Clock and lock-file gate only. **No RH calls. No account work. No scan.**
@@ -157,7 +159,7 @@ Each fire is stateless. Reconstruct manage-vs-scan from broker positions and wor
 
 **B. Authority.** This prompt is the owner’s standing permission to `review_option_order` then `place_option_order` **without a chat reply**, only on Agentic, only under these rules. If this Automation is disabled or lock files are missing: **place nothing**. If `config/autonomous_permissions.json` is missing or its `status` is not `ACTIVE`: **no new entries**. Existing exposure may only be cancelled, protected, reduced, or closed; it may never be increased. A later explicit owner instruction stating **stop all order activity, including exits** revokes recovery authority as well.
 
-**C. Files.** After a valid remote lease when Git is available, or after account + core recovery when Git is down; before any place. Read `config/rules.json` (`agent_h` first), then `config/autonomous_permissions.json`, then the options playbook. Trading numbers come only from `rules.json` → `agent_h`. If `schema_version` ≠ `2026-09-06.5`, or a required key is missing, or the invariant registry differs from `agent_h`, journal `rules_prompt_mismatch` and **place nothing**, including leftover protection. If a value conflicts with a hard prohibition in this prompt: **place nothing**. Validate `agent_h.required_tools` only if already flat. If you exit here after acquiring the lease, release it only if this run’s `run_id` still matches the remote lease.
+**C. Files.** After a valid remote lease when Git is available, or after account + core recovery when Git is down; before any place. Read `config/rules.json` (`agent_h` first), then `config/autonomous_permissions.json`, then the options playbook. Trading numbers come only from `rules.json` → `agent_h`. If `schema_version` ≠ `2026-09-06.6`, or a required key is missing, or the invariant registry differs from `agent_h`, journal `rules_prompt_mismatch` and **place nothing**, including leftover protection. If a value conflicts with a hard prohibition in this prompt: **place nothing**. Validate `agent_h.required_tools` only if already flat. If you exit here after acquiring the lease, release it only if this run’s `run_id` still matches the remote lease.
 
 **D. 0 DTE / 1 DTE.** Both are **off**. Never enable them. Re-enable only if `agent_h.allow_0dte` and/or `allow_1dte` is `true` on **main** after an owner-approved commit. Separate owner approvals. Minimum evidence per category (owner records this; you do not judge or flip the flag): ≥ 200 out-of-sample backtest trades; ≥ 40 distinct sessions; no look-ahead; realistic bid/ask, rejects, fees, slippage; positive net expectancy; profit factor ≥ 1.30; max backtest drawdown ≤ 5% of modeled NLV; ≥ 30 paper trades across 20 sessions; paper profit factor ≥ 1.20; no unprotected fills or critical order-management failures; results recorded and owner-approved before the lock-file change.
 
