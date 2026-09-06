@@ -61,7 +61,7 @@ Locked types: H&S, inverse H&S, double/triple top or bottom, ascending/descendin
 
 ## After a fill
 
-- Place broker **STOP only**: `stop_market` sell, `stop_price` = **80% of fill**, same share quantity, `regular_hours`. Closest legal stop if the tool rejects the exact tick.
+- Place broker **STOP only**: `stop_market` sell, `stop_price` = **80% of fill rounded toward the fill on a $0.01 tick** (never widen), same share quantity, `regular_hours`. Closest legal stop if the tool rejects the exact tick.
 - **No OCO.** Do not rest a live take-profit (double-fill risk).
 - Watch **+25%** of cost on later RTH runs in the same session; if live mark is at/through TP, `review_*` + `place_*` **sell** limit of the open shares, then cancel a now-useless stop if it would double-fill.
 - Flatten before the close if neither stop nor TP has taken you out.

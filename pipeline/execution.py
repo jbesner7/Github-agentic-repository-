@@ -4,6 +4,7 @@ from datetime import datetime
 from typing import Any
 
 from pipeline.io_util import JOURNAL, SIGNALS, append_jsonl, load_rules, read_json, utc_now_iso, write_json
+from pipeline.ticks import EQUITY_TICK, protective_stop_price
 from pipeline.session import (
     NO_NEW_OPTION_ENTRIES_BEFORE,
     entries_open,
@@ -117,6 +118,7 @@ def build_equity_entry_proposal(
     fill = float(price)
     stop_pct = float((candidate.get("risk") or {}).get("stop_loss_pct") or 0.2)
     tp_pct = float((candidate.get("risk") or {}).get("take_profit_pct") or 0.25)
+    stop_after_fill = protective_stop_price(price, EQUITY_TICK, stop_frac=(1.0 - stop_pct), asset="equity")
     return {
         "agent": "F_supervised_execution",
         "mode": "dry_review_until_confirm",
@@ -134,7 +136,7 @@ def build_equity_entry_proposal(
         "market_hours": "regular_hours",
         "stop_loss_pct": stop_pct,
         "take_profit_pct": tp_pct,
-        "stop_price_after_fill": fill * (1.0 - stop_pct),
+        "stop_price_after_fill": float(stop_after_fill) if stop_after_fill is not None else fill * (1.0 - stop_pct),
         "take_profit_price": fill * (1.0 + tp_pct),
         "playbook_status": candidate.get("playbook_status"),
         "places_order": False,

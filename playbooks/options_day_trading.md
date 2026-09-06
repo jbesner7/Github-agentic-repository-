@@ -1,6 +1,6 @@
 # Options Day Trading Playbook
 
-**Status: RELEASED** (owner approved 2026-08-30), with **2026-09-05 Agent H live-safety locks** (`schema_version` 2026-09-05.6).
+**Status: RELEASED** (owner approved 2026-08-30), with **2026-09-06 Agent H live-safety locks** (`schema_version` 2026-09-06.1).
 
 Live `place_*` from **this Cursor chat (Agent F)** still requires an explicit confirm of a **specific** order.
 
@@ -20,7 +20,7 @@ Agent H mandate: **long call or long put only** on liquid optionable equities an
 - Underlying live quote: regular session, ≤5 seconds, positive bid and ask, bid ≤ ask; last if inside the market, else mid. Recheck immediately before option review
 - IV: reject missing/stale/nonnumeric/nonpositive; reject IV ≥ 150%; 1-OTM only also reject IV ≥ 1.25× same-expiry ATM IV; do not apply that multiple to ATM; fail closed if ATM IV unavailable
 - Exits: owner-locked working pair **−20% / +40%**. Broker **stop first** until OCO exists. The stop is **not** guaranteed risk — options can gap
-- Protective stop attempt: `type=stop_market`, `time_in_force=gtc`, `position_effect=close`, `side=sell`, `quantity=filled_quantity`. Verify the broker reports accepted and GTC. This MCP documents option `stop_market` as GFD-only, so **overnight holding is disabled** until a live GTC stop is accepted and `overnight_holding_enabled` is true on `main`
+- Protective stop attempt: `type=stop_market`, `time_in_force=gtc`, `position_effect=close`, `side=sell`, `quantity=filled_quantity`. Raw trigger = 80% of average fill, then **round toward the fill** on `min_ticks` (never widen). If `min_ticks` is missing: `protection_failed`. Verify the broker reports accepted and GTC. This MCP documents option `stop_market` as GFD-only, so **overnight holding is disabled** until a live GTC stop is accepted and `overnight_holding_enabled` is true on `main`
 - 09:30–09:44:59: do not place a new option stop-market. If an overnight leftover lacks a valid working GTC stop, sell-to-close at the live bid and monitor until flat
 - Take-profit: cancel and confirm the working stop first; threshold = average fill × 1.40; trigger only when live **bid** ≥ threshold; initial limit = live bid; one replace after 15s; floor = max(threshold, live bid − 1 tick); never lower below threshold just to fill; cancel the replacement 30 seconds after the initial TP; restore protection for any remainder
 - Session:
@@ -32,7 +32,7 @@ Agent H mandate: **long call or long put only** on liquid optionable equities an
   - Expiration day: begin **15:30 ET**, absolute deadline **15:45 ET**. Never hold into expiration day. Do not rely on automatic exercise
   - DTE 1–3: begin flatten **15:40 ET**, flat by **15:45 ET**
   - Overnight holding is **off** (GTC unsupported). Flatten every open option by **15:45 ET**
-- Forced liquidation: cancel-confirm the stop first; sell at live bid; requote and replace once after 15s; reconcile partials; continue until flat; journal critical if still open near 16:00. Use `limit` unless a later owner-approved slippage policy says otherwise
+- Forced liquidation: cancel-confirm the stop first; sell at live bid; requote and replace once after 15s; reconcile partials; **do not restore the stop**; continue flatten tickets until flat or 16:00; 15:45 is the absolute deadline; journal critical if still open near 16:00. Use `limit` unless a later owner-approved slippage policy says otherwise. Restore a stop only after a failed take-profit, not during flatten.
 - Session caps (Agent H):
   - Maximum **two** new entries per trading day
   - Stop new entries after **two** losing trades **or** after **1.0% of BOD NLV** realized loss, whichever first
@@ -55,12 +55,12 @@ Agent H mandate: **long call or long put only** on liquid optionable equities an
 - Do **not** use 1-minute or 3-minute charts (too much noise for an autonomous system). Do **not** use a 5-minute chart (unnecessary here; can make stateless runs inconsistent)
 - 10m trigger: ≥20 **completed current-session** 10m bars as the lookback (skip — do not mix prior session); breakout close ≥ **0.10%** beyond the daily level; volume ≥ **1.5× median** of prior 20 completed 10m; retest within **0.20%** then close in breakout direction; live executable price ≥ **0.10%** beyond breakout before review
 - Earnings / events: do not knowingly enter or hold through an identified earnings or binary event. If required event data are unavailable or ambiguous, do not open and do not carry overnight. Check the entire possible holding interval at entry, not only the next session. Blackout: start of the regular session immediately preceding the scheduled release through the end of the second full regular session after. BMO/AMC/intraday
-- Entry: tick-rounded midpoint, never above ask, one replacement (+1 tick / 30s) **only after cancel-confirm and zero fill**, cancel at 60s after a terminal cancel/fill reconcile, re-quote before replace and before place, never chase above the original max debit
+- Entry: tick-rounded midpoint, never above ask. `max_acceptable_debit` is the **tick-floored** independent cap (min of first live ask, 2.5% NLV, fee ceiling) — **not** the first ticket. One replacement (+1 tick / 30s) **only after cancel-confirm and zero fill**, and **only if** first+1 tick is still ≤ live ask and ≤ that cap; otherwise skip and journal `replacement_skipped_tick_cap`. Cancel at 60s after a terminal cancel/fill reconcile. Re-quote before replace and before place. Never chase above the cap. Never send a same-price replacement.
 - Partial fill: protect filled size immediately from broker average fill; cancel the remainder and wait for the terminal cancel state
 - If fill succeeds and stop review/place fails: immediate controlled sell-to-close, poll to completion, and journal `protection_failed`
 - Re-read buying power immediately before review and before place
 - Losing trade = fully closed trade with negative net realized P&L after fees. Break-even is not a loss
-- H lease: valid only after a successful push to `origin/main` and a fetch that confirms this run’s `run_id`. Pull `--ff-only` or rebase onto `origin/main` before every `main` journal/lease push, then re-read **only** `origin/main:journal/h_lease.json` to decide if the lease is free. A pulled-in other-run lease is held — do not overwrite it. This run’s own working-tree lease write after rebase does not block a retry. Retry a rejected push once; never force-push. Recheck immediately before every **new-entry** `place_option_order`. After this run fills: no new entry if the lease expires, mismatches, or fails to renew; still protect or flatten that fill
+- H lease: valid only after a successful push to `origin/main` and a fetch that confirms this run’s `run_id`. Pull `--ff-only` or rebase onto `origin/main` before every `main` journal/lease push, then re-read **only** `origin/main:journal/h_lease.json` to decide if the lease is free. A pulled-in other-run lease is held — do not overwrite it. This run’s own working-tree lease write after rebase does not block a retry. Retry a rejected push once; never force-push. Recheck immediately before every **new-entry** `place_option_order`. After this run fills: no new entry if the lease expires or fails to renew. Protect or flatten that fill **only if no other unexpired `run_id` holds the lease**. If another run holds it: journal `lease_held_after_fill`, place nothing.
 - BOD NLV: prefer a broker beginning-of-day field in `journal/h_session.json`. First-fire `total_value` is `first_fire_baseline_nlv` only. If genuine BOD NLV cannot be established: no new entry
 - Exhaust pagination before concluding: no working order, no earlier entry today, no stop-out, strikes bracket spot, or no duplicate account match
 - Confirm required MCP tools/fields at the start of RTH work; fail closed if any required capability is missing
