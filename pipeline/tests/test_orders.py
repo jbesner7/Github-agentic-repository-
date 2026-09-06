@@ -87,6 +87,8 @@ def test_rules_json_matches_working_states_and_10minute():
     assert rules["agent_h"]["emergency_close_uses_deterministic_ref_id"] is True
     assert rules["agent_h"]["duplicate_emergency_ref_id_is_retry_not_new_order"] is True
     assert rules["agent_h"]["overlapping_stateless_runs_must_not_submit_duplicate_closes"] is True
+    assert rules["agent_h"]["known_other_lease_holder_blocks_emergency_even_if_git_unavailable"] is True
+    assert rules["agent_h"]["entry_order"]["skip_if_required_cash_exceeds_buying_power"] is True
     assert rules["agent_h"]["continuity_store"] == "broker_positions_and_working_orders"
     assert rules["agent_h"]["patterns"]["hour_trend_lookback_completed"] == 20
     assert rules["agent_h"]["read_rules_permissions_playbook_before_any_place"] is True
@@ -261,6 +263,8 @@ def test_agent_h_prompt_locks_schema_and_live_safety():
     assert "## Continuity" in prompt
     assert "already_covered_monitor_only" in prompt
     assert "emergency_close_ref_id" in prompt
+    assert "place nothing** even if Git later looks down" in prompt
+    assert "If `required_cash` > buying power or the 2.5% debit cap fails: skip." in prompt
     assert "2026-09-06.2" not in prompt
     assert "2026-09-06.1" not in prompt
     assert "2026-09-05.6" not in prompt

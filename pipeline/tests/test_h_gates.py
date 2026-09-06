@@ -126,6 +126,9 @@ def test_emergency_protection_does_not_require_git():
     assert must_reverify_remote_lease_before_place(kind="protect", git_status="ok") is True
     assert recovery_action(UNREADABLE, git_status="outage", kind="protect") == "emergency_protect_without_git"
     assert recovery_action(OTHER_HOLDER, git_status="ok", kind="protect") == "place_nothing_new_owner_manages"
+    ok, reason = may_place_option_order(OTHER_HOLDER, kind="protect", git_status="outage")
+    assert ok is False and reason == "lease_held_after_fill"
+    assert recovery_action(OTHER_HOLDER, git_status="outage", kind="protect") == "place_nothing_new_owner_manages"
 
 
 def test_core_recovery_tools_are_checked_before_full_required_list():

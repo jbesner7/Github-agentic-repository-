@@ -73,14 +73,15 @@ def may_place_option_order(
 ) -> tuple[bool, str]:
     """New entries always need a live lease. Emergency protection does not need Git.
 
-    Emergency place is still subject to `pipeline.h_closer.decide_emergency_close`.
+    A known other lease holder still blocks. Emergency place is still subject
+    to `pipeline.h_closer.decide_emergency_close`.
     """
+    if lease.other_unexpired_holder:
+        return False, "lease_held_after_fill" if kind != "entry" else "lease_held"
     if is_emergency_kind(kind) and is_git_unavailable(git_status):
         return True, "emergency_protection_without_git"
     if not lease.readable:
         return False, "lease_unreadable"
-    if lease.other_unexpired_holder:
-        return False, "lease_held_after_fill" if kind != "entry" else "lease_held"
     if lease.expired or not lease.owned_by_this_run:
         return False, "lease_must_reacquire_before_place"
     return True, "ok"
@@ -88,10 +89,10 @@ def may_place_option_order(
 
 def recovery_action(lease: RemoteLease, *, git_status: str = "ok", kind: str = "protect") -> str:
     """What a filled run may do after its lease expires, another run appears, or Git is down."""
-    if is_emergency_kind(kind) and is_git_unavailable(git_status):
-        return "emergency_protect_without_git"
     if lease.other_unexpired_holder:
         return "place_nothing_new_owner_manages"
+    if is_emergency_kind(kind) and is_git_unavailable(git_status):
+        return "emergency_protect_without_git"
     if not lease.readable or lease.expired or not lease.owned_by_this_run:
         return "reacquire_then_recover"
     return "recover_now"

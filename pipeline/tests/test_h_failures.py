@@ -44,6 +44,14 @@ def test_lease_loss_to_other_holder_blocks_when_git_is_up():
     assert result["placed"]["reason"] == "lease_held_after_fill"
 
 
+def test_known_other_holder_blocks_emergency_even_if_git_reports_outage():
+    broker = FakeBroker(positions=1)
+    placed = broker.place(kind="protect", quantity=1, lease=OTHER, git_status="outage")
+    assert placed["ok"] is False
+    assert placed["reason"] == "lease_held_after_fill"
+    assert broker.submitted_tickets == 0
+
+
 def test_canceled_but_filled_must_protect():
     broker = FakeBroker()
     placed = broker.place(kind="entry", quantity=1, lease=OWNED, git_status="ok")

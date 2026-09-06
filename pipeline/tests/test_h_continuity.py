@@ -40,6 +40,10 @@ def test_handoff_git_outage_vs_other_holder():
         == "place_nothing_new_owner_manages"
     )
     assert (
+        handoff_after_lease_loss(OTHER, git_status="outage", kind="protect")
+        == "place_nothing_new_owner_manages"
+    )
+    assert (
         handoff_after_lease_loss(EXPIRED, git_status="ok", kind="protect")
         == "reacquire_then_recover"
     )
