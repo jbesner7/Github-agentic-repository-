@@ -51,7 +51,7 @@ All Python used by this chat (Agent F) and the autonomous bot (Agent H), organiz
 python3 scripts/build_python_source_book.py
 ```
 
-The book is a snapshot of the Python pipeline. Agent H’s live permission is the pasted Automation prompt, not this book. H charts are daily → hour → 10-minute → live quote only.
+The book is a **frozen snapshot of schema `2026-09-06.1`**. Live Agent H on `main` is schema **`2026-09-06.8`**. Do **not** paste this book, or any file under `docs/`, into the Automation. H’s live permission is the pasted prompt from [`playbooks/agent_h_autonomous.PROMPT.md`](playbooks/agent_h_autonomous.PROMPT.md) on `main` (copy `BEGIN AGENT H PROMPT` through EOF). Do not rebuild the book unless the owner asks. H charts are daily → hour → 10-minute → live quote only.
 
 ## Kill switch
 
