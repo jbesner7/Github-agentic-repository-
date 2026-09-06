@@ -39,6 +39,20 @@ python3 -m pytest pipeline/tests -q
 
 `signals/*` files in git are **historical snapshots**. Do not place from them.
 
+## Printable Python source (F + H)
+
+All Python used by this chat (Agent F) and the autonomous bot (Agent H), organized by module:
+
+- Print: [`docs/agentic-python-source-printable.html`](docs/agentic-python-source-printable.html) (Print / Save as PDF)
+- Python file: [`docs/agentic_python_source_book.py`](docs/agentic_python_source_book.py)
+- PDF: [`docs/agentic-python-source.pdf`](docs/agentic-python-source.pdf)
+
+```bash
+python3 scripts/build_python_source_book.py
+```
+
+The book is a **frozen snapshot of schema `2026-09-06.1`**. Live Agent H on `main` is schema **`2026-09-06.10`**. Do **not** paste this book, or any file under `docs/`, into the Automation. H’s live permission is the pasted prompt from [`playbooks/agent_h_autonomous.PROMPT.md`](playbooks/agent_h_autonomous.PROMPT.md) on `main` (copy `BEGIN AGENT H PROMPT` through EOF). Do not rebuild the book unless the owner asks. H charts are daily → hour → 10-minute → live quote only.
+
 ## Kill switch
 
 Disable Agentic AI Bot to stop new unsupervised entries. Deleting `config/autonomous_permissions.json` (or setting `status` not `ACTIVE`) blocks new entries only; existing exposure may still be cancelled, protected, reduced, or closed unless the owner says **stop all order activity, including exits**.
