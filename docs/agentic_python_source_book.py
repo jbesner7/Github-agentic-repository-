@@ -7,7 +7,7 @@ Agent H (autonomous Agentic bot) share this Python pipeline.
 Live place_* is Robinhood MCP, not a side effect of this code.
 H's standing prompt is playbooks/agent_h_autonomous.PROMPT.md (not Python).
 
-Generated: 2026-09-06T00:10:43+00:00
+Generated: 2026-09-06T00:18:03+00:00
 Print companion: docs/agentic-python-source-printable.html
 """
 
@@ -3374,7 +3374,7 @@ def test_rules_json_matches_working_states_and_10minute():
     assert rules["agent_h"]["no_1m_3m_autonomous_noise"] is True
     assert rules["agent_h"]["no_5m_stateless_inconsistency"] is True
     assert rules["agent_h"]["include_index_options"] is False
-    assert rules["agent_h"]["schema_version"] == "2026-09-05.4"
+    assert rules["agent_h"]["schema_version"] == "2026-09-05.5"
     assert rules["agent_h"]["overnight"]["evaluate"] == "current_dte_each_run"
     assert rules["agent_h"]["overnight"]["current_dte_lte_3_flatten_by"] == "15:45"
     assert rules["agent_h"]["overnight"]["current_dte_gte_4_overnight_with_stop"] is False
@@ -3383,11 +3383,21 @@ def test_rules_json_matches_working_states_and_10minute():
     assert rules["agent_h"]["overnight"]["expiration_day_absolute_deadline"] == "15:45"
     assert rules["agent_h"]["overnight"]["dte_1_to_3_liquidation_begin"] == "15:40"
     assert rules["agent_h"]["lease_valid_only_after_successful_push_to_origin_main"] is True
-    assert rules["agent_h"]["recheck_remote_lease_before_every_place_option_order"] is True
+    assert rules["agent_h"]["recheck_remote_lease_before_every_place_option_order"] is False
     assert rules["agent_h"]["recheck_remote_lease_before_every_new_entry_place_option_order"] is True
+    assert rules["agent_h"]["failed_lease_push_means_place_nothing_and_exit"] is False
+    assert rules["agent_h"]["failed_lease_acquire_push_means_place_nothing_and_exit"] is True
+    assert rules["agent_h"]["rejected_lease_push_means_place_nothing_and_exit"] is False
+    assert rules["agent_h"]["rejected_lease_acquire_push_means_place_nothing_and_exit"] is True
+    assert rules["agent_h"]["no_review_or_place_until_remote_lease_verified"] is False
+    assert rules["agent_h"]["no_new_entry_review_or_place_until_remote_lease_verified"] is True
     assert rules["agent_h"]["failed_lease_renewal_blocks_new_entry_only"] is True
     assert rules["agent_h"]["failed_lease_renewal_must_still_protect_or_flatten_this_run_fill"] is True
     assert rules["agent_h"]["protection_or_flatten_of_this_run_fill_allowed_after_failed_renewal"] is True
+    assert rules["agent_h"]["this_run_fill_must_protect_or_flatten_even_if_remote_lease_mismatched_or_expired"] is True
+    assert rules["agent_h"]["after_pull_or_rebase_reread_remote_lease_before_writing_h_lease"] is True
+    assert rules["agent_h"]["never_overwrite_unexpired_remote_lease_held_by_other_run_id"] is True
+    assert rules["agent_h"]["fast_forward_pull_of_other_run_lease_is_held_not_free"] is True
     assert rules["agent_h"]["pull_ff_only_or_rebase_onto_origin_main_before_every_main_journal_push"] is True
     assert rules["agent_h"]["non_fast_forward_lease_or_journal_push_retry_once_after_rebase"] is True
     assert rules["agent_h"]["never_force_push_on_non_fast_forward"] is True
@@ -3405,7 +3415,6 @@ def test_rules_json_matches_working_states_and_10minute():
         "started_et",
         "expires_et",
     ]
-    assert rules["agent_h"]["no_review_or_place_until_remote_lease_verified"] is True
     assert rules["agent_h"]["apply_both_fee_ceilings_on_every_trade"] is True
     assert rules["agent_h"]["bod_nlv_unavailable_means_no_new_entry"] is True
     assert rules["priority_does_not_authorize_agent_h_equity"] is True
@@ -3482,7 +3491,8 @@ def test_agent_h_prompt_locks_schema_and_live_safety():
     from pathlib import Path
 
     prompt = (Path(__file__).resolve().parents[2] / "playbooks" / "agent_h_autonomous.PROMPT.md").read_text()
-    assert "2026-09-05.4" in prompt
+    assert "2026-09-05.5" in prompt
+    assert "2026-09-05.4" not in prompt
     assert "2026-09-05.3" not in prompt
     assert "The lease is not acquired unless its commit successfully pushes to" in prompt
     assert "journal/h_lease.json` from `origin/main`, not merely the local checkout." in prompt
@@ -3493,6 +3503,9 @@ def test_agent_h_prompt_locks_schema_and_live_safety():
     assert "git pull --ff-only origin main" in prompt
     assert "rebase that commit onto `origin/main`" in prompt
     assert "Failed renewal is not a kill-switch ban on those recovery tickets." in prompt
+    assert "A fast-forward pull that brought in another run’s lease is a **held** lease" in prompt
+    assert "without modifying `journal/h_lease.json`" in prompt
+    assert "including when the" in prompt and "lease expired, is unreadable, another `run_id` now holds it" in prompt
     assert "you **must still** place protection or flatten for that fill" in prompt
     assert "## Cursor/Grok concurrency rule" in prompt
     assert "**A. Clock.** Now in `America/New_York`. Clock only. **No RH calls.**" in prompt
