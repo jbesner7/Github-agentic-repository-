@@ -17,6 +17,9 @@ BOD_NLV_FIELD_CANDIDATES = (
     "last_core_equity",
 )
 
+_CALL_DIRECTIONS = frozenset({"call", "calls", "bullish", "long_call"})
+_PUT_DIRECTIONS = frozenset({"put", "puts", "bearish", "long_put"})
+
 
 def _parse_ts(value: Any) -> datetime | None:
     if value in (None, ""):
@@ -54,10 +57,20 @@ def _positive_money(value: Any) -> float | None:
 def executable_underlying_price(
     quote: dict[str, Any] | None,
     *,
+    direction: str,
     now: datetime | None = None,
     max_age_seconds: int = UNDERLYING_MAX_AGE_SECONDS,
 ) -> tuple[float | None, str | None]:
-    """Regular-session executable price for the live breakout trigger."""
+    """Live trigger price. Never treat last or midpoint as executable.
+
+    Bullish / call: live underlying ask.
+    Bearish / put: live underlying bid.
+    Regular-session quote, no older than five seconds, positive bid and ask,
+    bid ≤ ask.
+    """
+    side = (direction or "").strip().lower()
+    if side not in _CALL_DIRECTIONS and side not in _PUT_DIRECTIONS:
+        return None, "underlying_direction_missing"
     if not isinstance(quote, dict):
         return None, "underlying_quote_missing"
     bid = _positive_money(quote.get("bid_price", quote.get("bid")))
@@ -78,10 +91,9 @@ def executable_underlying_price(
         return None, "underlying_quote_timestamp_missing"
     if now - ts > timedelta(seconds=max_age_seconds):
         return None, "underlying_quote_stale"
-    last = _positive_money(quote.get("last_trade_price", quote.get("last_price", quote.get("last"))))
-    if last is not None and bid <= last <= ask:
-        return last, None
-    return (bid + ask) / 2.0, None
+    if side in _CALL_DIRECTIONS:
+        return ask, None
+    return bid, None
 
 
 def extract_bod_nlv(portfolio: dict[str, Any] | None) -> tuple[float | None, str | None]:

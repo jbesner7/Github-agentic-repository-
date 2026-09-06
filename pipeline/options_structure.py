@@ -138,29 +138,34 @@ def filter_expirations(
     return sorted(out)
 
 
+SAME_DAY_CLOSE_DTE_ORDER = (4, 5, 6, 7, 3, 2)
+OVERNIGHT_DTE_ORDER = (4, 5, 6, 7)
+
+
 def rank_expirations(
     expiration_dates: list[str],
     *,
     overnight_holding_enabled: bool,
     as_of: date | None = None,
-    same_day_min_dte: int = 2,
-    same_day_max_dte: int = 3,
-    overnight_min_dte: int = 4,
-    overnight_max_dte: int = 7,
+    same_day_dte_order: tuple[int, ...] | list[int] = SAME_DAY_CLOSE_DTE_ORDER,
+    overnight_dte_order: tuple[int, ...] | list[int] = OVERNIGHT_DTE_ORDER,
     hard_min_dte: int = 2,
     hard_max_dte: int = 7,
 ) -> list[str]:
-    """Deterministic expiration group. Ascending DTE inside the one permitted group."""
+    """Rank existing expirations. Same-day close prefers 4–7 DTE, then 3, then 2.
+
+    Same-day liquidation does not require buying a 2–3 DTE contract. The order
+    is a locked default until backtesting replaces it on main.
+    """
     as_of = as_of or today_et()
-    if overnight_holding_enabled:
-        lo, hi = overnight_min_dte, overnight_max_dte
-    else:
-        lo, hi = same_day_min_dte, same_day_max_dte
-    lo = max(lo, hard_min_dte)
-    hi = min(hi, hard_max_dte)
-    ranked: list[tuple[int, str]] = []
+    preferred = overnight_dte_order if overnight_holding_enabled else same_day_dte_order
+    allowed = [int(d) for d in preferred if hard_min_dte <= int(d) <= hard_max_dte]
+    by_dte: dict[int, list[str]] = {}
     for exp in expiration_dates:
         days = dte(exp, as_of=as_of)
-        if lo <= days <= hi:
-            ranked.append((days, exp))
-    return [exp for _, exp in sorted(ranked)]
+        if days in allowed:
+            by_dte.setdefault(days, []).append(exp)
+    ranked: list[str] = []
+    for days in allowed:
+        ranked.extend(sorted(by_dte.get(days, [])))
+    return ranked
