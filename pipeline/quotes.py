@@ -96,14 +96,47 @@ def executable_underlying_price(
     return bid, None
 
 
+FLAT_NO_FILLS_BOD_FIELD = "flat_no_fills_cash_equals_total_value"
+
+
+def _money_allow_zero(value: Any) -> float | None:
+    if value in (None, ""):
+        return None
+    try:
+        amount = float(str(value).replace("$", "").replace(",", ""))
+    except (TypeError, ValueError):
+        return None
+    if amount != amount or amount < 0:
+        return None
+    return amount
+
+
+def _cents(amount: float) -> int:
+    return int(round(amount * 100))
+
+
+def _portfolio_mappings(portfolio: dict[str, Any] | None) -> list[dict[str, Any]]:
+    """Unwrap MCP `data` / nested `equity` without inventing fields."""
+    if not isinstance(portfolio, dict):
+        return []
+    mappings = [portfolio]
+    data = portfolio.get("data")
+    if isinstance(data, dict):
+        mappings.append(data)
+    extra: list[dict[str, Any]] = []
+    for mapping in mappings:
+        nested = mapping.get("equity")
+        if isinstance(nested, dict):
+            extra.append(nested)
+    mappings.extend(extra)
+    return mappings
+
+
 def extract_bod_nlv(portfolio: dict[str, Any] | None) -> tuple[float | None, str | None]:
     """Return a broker beginning-of-day NLV if a known field is present. Never invent it."""
-    if not isinstance(portfolio, dict):
+    mappings = _portfolio_mappings(portfolio)
+    if not mappings:
         return None, None
-    mappings = [portfolio]
-    nested = portfolio.get("equity")
-    if isinstance(nested, dict):
-        mappings.append(nested)
     for mapping in mappings:
         for key in BOD_NLV_FIELD_CANDIDATES:
             if key in mapping:
@@ -112,3 +145,43 @@ def extract_bod_nlv(portfolio: dict[str, Any] | None) -> tuple[float | None, str
                     return None, key
                 return amount, key
     return None, None
+
+
+def resolve_bod_nlv(
+    portfolio: dict[str, Any] | None,
+    *,
+    leftover: bool,
+    fills_today: bool,
+) -> tuple[float | None, str | None, str]:
+    """BOD for a new entry. Broker field first; else flat cash==total_value with no fills.
+
+    Midday `total_value` after a fill or leftover is not session-start NLV.
+    """
+    amount, field = extract_bod_nlv(portfolio)
+    if amount is not None and field:
+        return amount, field, "ok"
+    if leftover or fills_today:
+        return None, None, "bod_nlv_unavailable"
+    mappings = _portfolio_mappings(portfolio)
+    if not mappings:
+        return None, None, "bod_nlv_unavailable"
+    cash = total = None
+    pending: float | None = 0.0
+    pending_seen = False
+    for mapping in mappings:
+        if cash is None and "cash" in mapping:
+            cash = _positive_money(mapping.get("cash"))
+        if total is None and "total_value" in mapping:
+            total = _positive_money(mapping.get("total_value"))
+        if not pending_seen and "pending_deposits" in mapping:
+            pending_seen = True
+            pending = _money_allow_zero(mapping.get("pending_deposits"))
+    if cash is None or total is None:
+        return None, None, "bod_nlv_unavailable"
+    if pending_seen and pending is None:
+        return None, None, "bod_nlv_unavailable"
+    if pending is not None and pending > 0:
+        return None, None, "bod_nlv_unavailable"
+    if _cents(cash) != _cents(total):
+        return None, None, "bod_nlv_unavailable"
+    return cash, FLAT_NO_FILLS_BOD_FIELD, "ok"

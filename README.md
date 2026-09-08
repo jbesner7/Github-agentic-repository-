@@ -28,7 +28,7 @@ Do not run two place-capable Automations. Git updates do **not** change the stor
 
 ## H schedule
 
-Schedule the Automation every **15 minutes** if you want. Each fire **exits before any market work** if it is not RTH. Skip journals **append on `main`** — do not open a new PR per skip. H must `checkout` + `pull` `main` before reading lock files. Cursor may start overlapping H runs; **`journal/h_lease.json` on `origin/main` is the concurrency gate for new entries.** Emergency protection does not wait on Git. Duplicate leftover closes are blocked by broker occupancy and a deterministic `ref_id`, not by the lease. Outside RTH is clock-only. Full scan runs only 13:10–15:45 when flat. Never force-push. Schema **2026-09-06.10**. After clock + exposure H runs `pipeline.h_dispatch.print_card` and executes only that card.
+Schedule the Automation every **15 minutes** if you want. Each fire **exits before any market work** if it is not RTH. Skip journals **append on `main`** — do not open a new PR per skip. H must `checkout` + `pull` `main` before reading lock files. Cursor may start overlapping H runs; **`journal/h_lease.json` on `origin/main` is the concurrency gate for new entries.** Emergency protection does not wait on Git. Duplicate leftover closes are blocked by broker occupancy and a deterministic `ref_id`, not by the lease. Outside RTH is clock-only. Full scan runs only 13:10–15:45 when flat. Never force-push. Schema **2026-09-08.1**. After clock + exposure H runs `pipeline.h_dispatch.print_card` and executes only that card.
 
 ## Read-only pipeline
 
@@ -51,7 +51,7 @@ All Python used by this chat (Agent F) and the autonomous bot (Agent H), organiz
 python3 scripts/build_python_source_book.py
 ```
 
-The book is a **frozen snapshot of schema `2026-09-06.1`**. Live Agent H on `main` is schema **`2026-09-06.10`**. Do **not** paste this book, or any file under `docs/`, into the Automation. H’s live permission is the pasted prompt from [`playbooks/agent_h_autonomous.PROMPT.md`](playbooks/agent_h_autonomous.PROMPT.md) on `main` (copy `BEGIN AGENT H PROMPT` through EOF). Do not rebuild the book unless the owner asks. H charts are daily → hour → 10-minute → live quote only.
+The book is a **frozen snapshot of schema `2026-09-06.1`**. Live Agent H on `main` is schema **`2026-09-08.1`**. Do **not** paste this book, or any file under `docs/`, into the Automation. H’s live permission is the pasted prompt from [`playbooks/agent_h_autonomous.PROMPT.md`](playbooks/agent_h_autonomous.PROMPT.md) on `main` (copy `BEGIN AGENT H PROMPT` through EOF). Do not rebuild the book unless the owner asks. H charts are daily → hour → 10-minute → live quote only.
 
 ## Kill switch
 

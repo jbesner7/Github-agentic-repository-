@@ -19,6 +19,7 @@ from pipeline.h_attention import (
 from pipeline.h_budget import SCAN, classify_fire_mode, may_journal, must_acquire_lease
 from pipeline.h_continuity import leftover_close_plan
 from pipeline.h_gates import RemoteLease
+from pipeline.quotes import resolve_bod_nlv
 
 
 HELPER_UNAVAILABLE = "helper_unavailable_fail_closed"
@@ -203,3 +204,51 @@ def leftover_card(
         )
     )
     return plan
+
+
+def coerce_portfolio(portfolio: dict[str, Any] | str | None) -> dict[str, Any] | None:
+    """Parse get_portfolio JSON. Unknown or invalid JSON is missing, not empty."""
+    payload: Any = portfolio
+    if payload is None:
+        return None
+    if isinstance(payload, str):
+        try:
+            payload = json.loads(payload)
+        except (TypeError, ValueError, json.JSONDecodeError):
+            return None
+    if isinstance(payload, dict):
+        return payload
+    return None
+
+
+def bod_card(
+    *,
+    portfolio: dict[str, Any] | str | None,
+    leftover: bool,
+    fills_today: bool,
+) -> dict[str, Any]:
+    """Session-start NLV. H does not treat midday total_value as BOD after a fill."""
+    parsed = coerce_portfolio(portfolio)
+    amount, field, reason = resolve_bod_nlv(
+        parsed,
+        leftover=bool(leftover),
+        fills_today=bool(fills_today),
+    )
+    if parsed is None and portfolio not in (None, "", {}, []):
+        amount, field, reason = None, None, "bod_nlv_unavailable"
+    card = {
+        "bod_nlv": amount,
+        "bod_nlv_field": field,
+        "reason": reason,
+    }
+    nlv_text = "" if amount is None else f"{amount:.2f}"
+    print(
+        "\n".join(
+            [
+                f"bod_nlv={nlv_text}",
+                f"bod_nlv_field={field or ''}",
+                f"reason={reason}",
+            ]
+        )
+    )
+    return card

@@ -61,7 +61,7 @@ Mandate: **long call or long put only** on liquid optionable equities and non-in
 - Re-read buying power immediately before review and before place
 - Losing trade = fully closed trade with negative net realized P&L after fees. Break-even is not a loss
 - H lease, continuity, Git-independent single closer, fire budget, and the `INV[key]=value` registry: follow `playbooks/agent_h_autonomous.PROMPT.md`. Do not keep a second copy here.
-- BOD NLV: prefer a broker beginning-of-day field in `journal/h_session.json`. First-fire `total_value` is `first_fire_baseline_nlv` only. If genuine BOD NLV cannot be established: no new entry
+- BOD NLV: run `bod_card`. Prefer a broker beginning-of-day field. If `get_portfolio` has none, flat + no fills today + `cash` equals `total_value` is BOD (`flat_no_fills_cash_equals_total_value`). First-fire `total_value` after a fill or leftover is `first_fire_baseline_nlv` only. If genuine BOD NLV cannot be established: no new entry
 - Exhaust pagination before concluding: no working order, no earlier entry today, no stop-out, strikes bracket spot, or no duplicate account match
 - Confirm required MCP tools/fields at the start of RTH work; fail closed if any required capability is missing
 - Use Options Watchlist + all other watchlists; no crypto; no index

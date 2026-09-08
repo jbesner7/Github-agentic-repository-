@@ -299,6 +299,10 @@ def test_underlying_quote_and_bod_nlv_helpers():
     assert stale is None and stale_reason == "underlying_quote_stale"
     amount, field = extract_bod_nlv({"start_of_day_equity": "1500.00", "total_value": "1512"})
     assert amount == 1500.0 and field == "start_of_day_equity"
+    wrapped, wrapped_field = extract_bod_nlv(
+        {"data": {"start_of_day_equity": "1500.00", "total_value": "1512"}}
+    )
+    assert wrapped == 1500.0 and wrapped_field == "start_of_day_equity"
     missing, missing_field = extract_bod_nlv({"total_value": "1512"})
     assert missing is None and missing_field is None
 

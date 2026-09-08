@@ -4,6 +4,7 @@ from pipeline.h_attention import after_classify, in_scope_sections
 from pipeline.h_budget import MANAGE, OUTSIDE_RTH, SCAN
 from pipeline.h_dispatch import (
     HELPER_UNAVAILABLE,
+    bod_card,
     fire_card,
     format_card,
     leftover_card,
@@ -143,3 +144,37 @@ def test_leftover_card_uses_closer():
         session_date_et="2026-09-08",
     )
     assert broken["action"] == "skip"
+
+
+def test_bod_card_accepts_live_mcp_flat_cash_when_no_fills():
+    payload = {
+        "data": {
+            "total_value": "1500",
+            "cash": "1500",
+            "pending_deposits": "0",
+            "buying_power": {"buying_power": "1500.0000"},
+        }
+    }
+    ok = bod_card(portfolio=payload, leftover=False, fills_today=False)
+    assert ok["reason"] == "ok"
+    assert ok["bod_nlv"] == 1500.0
+    assert ok["bod_nlv_field"] == "flat_no_fills_cash_equals_total_value"
+    after_fill = bod_card(portfolio=payload, leftover=False, fills_today=True)
+    assert after_fill["reason"] == "bod_nlv_unavailable"
+    leftover = bod_card(portfolio=payload, leftover=True, fills_today=False)
+    assert leftover["reason"] == "bod_nlv_unavailable"
+    mismatch = bod_card(
+        portfolio={"cash": "1500", "total_value": "1512"},
+        leftover=False,
+        fills_today=False,
+    )
+    assert mismatch["reason"] == "bod_nlv_unavailable"
+    broker = bod_card(
+        portfolio={"data": {"start_of_day_equity": "1490.00", "total_value": "1512"}},
+        leftover=False,
+        fills_today=True,
+    )
+    assert broker["bod_nlv"] == 1490.0
+    assert broker["bod_nlv_field"] == "start_of_day_equity"
+    broken = bod_card(portfolio="{not-json", leftover=False, fills_today=False)
+    assert broken["reason"] == "bod_nlv_unavailable"

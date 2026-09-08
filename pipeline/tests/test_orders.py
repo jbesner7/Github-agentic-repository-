@@ -79,8 +79,8 @@ def test_rules_json_matches_working_states_and_10minute():
     assert rules["agent_h"]["no_1m_3m_autonomous_noise"] is True
     assert rules["agent_h"]["no_5m_stateless_inconsistency"] is True
     assert rules["agent_h"]["include_index_options"] is False
-    assert rules["agent_h"]["schema_version"] == "2026-09-06.10"
-    assert rules["agent_h"]["prompt_expected_schema_version"] == "2026-09-06.10"
+    assert rules["agent_h"]["schema_version"] == "2026-09-08.1"
+    assert rules["agent_h"]["prompt_expected_schema_version"] == "2026-09-08.1"
     assert rules["agent_h"]["dispatch_module"] == "pipeline.h_dispatch"
     assert rules["agent_h"]["chat_attention_module"] == "pipeline.f_attention"
     assert rules["agent_h"]["dispatch_helper_is_attention_lock"] is True
@@ -183,6 +183,9 @@ def test_rules_json_matches_working_states_and_10minute():
     ]
     assert rules["agent_h"]["apply_both_fee_ceilings_on_every_trade"] is True
     assert rules["agent_h"]["bod_nlv_unavailable_means_no_new_entry"] is True
+    assert rules["agent_h"]["flat_no_fills_cash_equals_total_value_is_bod"] is True
+    assert rules["agent_h"]["do_not_use_midday_total_value_after_fill_or_leftover"] is True
+    assert rules["agent_h"]["bod_card_helper"] == "pipeline.h_dispatch.bod_card"
     assert rules["priority_does_not_authorize_agent_h_equity"] is True
     assert rules["agent_h"]["session_start_required_for_new_entry"] == [
         "et_trading_date",
@@ -275,8 +278,9 @@ def test_agent_h_prompt_locks_schema_and_live_safety():
     from pathlib import Path
 
     prompt = (Path(__file__).resolve().parents[2] / "playbooks" / "agent_h_autonomous.PROMPT.md").read_text()
-    assert "2026-09-06.10" in prompt
+    assert "2026-09-08.1" in prompt
     for retired in (
+        "2026-09-06.10",
         "2026-09-06.9",
         "2026-09-06.8",
         "2026-09-06.7",
@@ -304,6 +308,8 @@ def test_agent_h_prompt_locks_schema_and_live_safety():
     assert "print_card" in prompt
     assert "SCAN ONLY text below the fence is **unread**" in prompt
     assert "from pipeline.h_dispatch import leftover_card" in prompt
+    assert "from pipeline.h_dispatch import bod_card" in prompt
+    assert "flat_no_fills_cash_equals_total_value" in prompt
     assert "Before any take-profit `place_option_order`, run leftover_card" in prompt
     assert "Renewal uses the same fetch / `--ff-only` or rebase / remote re-read / push / verify sequence as acquire" in prompt
     assert "emergency_ref_id_unavailable" in prompt

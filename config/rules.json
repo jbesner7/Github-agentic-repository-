@@ -123,8 +123,8 @@
     "proposal_ttl": "until_next_loop"
   },
   "agent_h": {
-    "schema_version": "2026-09-06.10",
-    "prompt_expected_schema_version": "2026-09-06.10",
+    "schema_version": "2026-09-08.1",
+    "prompt_expected_schema_version": "2026-09-08.1",
     "numeric_thresholds_are_schema_invariants": true,
     "rules_prompt_mismatch_means_place_nothing": true,
     "invariants_module": "pipeline/h_invariants.py",
@@ -334,6 +334,9 @@
     "session_start_do_not_overwrite_same_day": true,
     "prefer_broker_beginning_of_day_nlv": true,
     "first_fire_nlv_is_not_session_start": true,
+    "bod_card_helper": "pipeline.h_dispatch.bod_card",
+    "flat_no_fills_cash_equals_total_value_is_bod": true,
+    "do_not_use_midday_total_value_after_fill_or_leftover": true,
     "bod_nlv_unavailable_means_no_new_entry": true,
     "session_nlv_unavailable_means_exits_only": true,
     "max_planned_loss_pct_of_current_nlv": 0.005,
