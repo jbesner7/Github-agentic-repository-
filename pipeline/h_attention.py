@@ -145,9 +145,8 @@ def place_authority(
     )
     if not allowed:
         return False, reason
-    if is_emergency_kind(kind):
-        if not helper_available:
-            return False, "emergency_ref_id_unavailable"
-        if not orders_complete:
-            return False, "orders_incomplete"
+    if is_emergency_kind(kind) and not helper_available:
+        return False, "emergency_ref_id_unavailable"
+    if not orders_complete:
+        return False, "orders_incomplete"
     return may_place_option_order(lease, kind=kind, git_status=git_status)

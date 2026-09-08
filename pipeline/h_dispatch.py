@@ -135,25 +135,62 @@ def may_place(
     )
 
 
+def _extract_order_rows(payload: Any) -> list[dict[str, Any]] | None:
+    """List of order dicts, or None when the payload is not usable occupancy."""
+    if payload is None:
+        return []
+    if isinstance(payload, list):
+        if all(item is None or isinstance(item, dict) for item in payload):
+            return [item for item in payload if isinstance(item, dict)]
+        return None
+    if not isinstance(payload, dict):
+        return None
+    for key in ("orders", "results", "items"):
+        nested = payload.get(key)
+        if isinstance(nested, list):
+            return _extract_order_rows(nested)
+    data = payload.get("data")
+    if isinstance(data, (dict, list)):
+        nested = _extract_order_rows(data)
+        if nested is not None:
+            return nested
+    if any(key in payload for key in ("id", "option_id", "legs", "state", "side")):
+        return [payload]
+    return None
+
+
+def coerce_option_orders(
+    option_orders: list[dict[str, Any]] | str | dict[str, Any] | None,
+) -> tuple[list[dict[str, Any]] | None, bool]:
+    """Parse leftover occupancy. Unknown or invalid JSON is incomplete, not empty."""
+    payload: Any = option_orders
+    if isinstance(payload, str):
+        try:
+            payload = json.loads(payload)
+        except (TypeError, ValueError, json.JSONDecodeError):
+            return None, False
+    rows = _extract_order_rows(payload)
+    if rows is None:
+        return None, False
+    return rows, True
+
+
 def leftover_card(
     *,
     option_id: str,
     position_quantity: int,
-    option_orders: list[dict[str, Any]] | str | None,
+    option_orders: list[dict[str, Any]] | str | dict[str, Any] | None,
     session_date_et: str,
     orders_complete: bool = True,
 ) -> dict[str, Any]:
     """Broker occupancy. H does not subtract fills itself."""
-    rows = option_orders
-    if isinstance(rows, str):
-        loaded = json.loads(rows)
-        rows = loaded if isinstance(loaded, list) else []
+    rows, parsed = coerce_option_orders(option_orders)
     plan = leftover_close_plan(
         option_id=option_id,
         position_quantity=position_quantity,
-        option_orders=rows,
+        option_orders=rows or [],
         session_date_et=session_date_et,
-        orders_complete=orders_complete,
+        orders_complete=bool(orders_complete and parsed),
     )
     print(
         "\n".join(

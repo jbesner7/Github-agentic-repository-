@@ -189,8 +189,8 @@ Lease git sequence (acquire, renew, release, journal-only, and immediately befor
 - Never force-push or overwrite a conflicting lease.
 - A run that failed to acquire the lease must not clear or modify the lease.
 - Only the run whose `run_id` matches the remote lease may renew or release it.
-- If the run could exceed 12 minutes, renew the lease before it has fewer than 3 minutes remaining. Renewal uses the same sequence. Retry **once** if this `run_id` still matches. Failed renew → **no new entry**. Leftover emergency may still place if no other holder. New-entry recovery after a fill: **reacquire** first. Other holder → journal `lease_held_after_fill`, place nothing. Git down → emergency-protect from broker state.
-- Release (end of a run that did acquire): same sequence / confirm `run_id` / expire or delete / push. Retry once. Do not place extra new entries if cleanup fails.
+- If the run could exceed 12 minutes, renew the lease before it has fewer than 3 minutes remaining. Renewal uses the same fetch / `--ff-only` or rebase / remote re-read / push / verify sequence as acquire. Write a new `expires_et` of now+12 minutes on this run’s lease, then commit, normal push, fetch, and verify the remote fields. Retry **once** if this `run_id` still matches. Failed renew → **no new entry**. Leftover emergency may still place if no other holder. New-entry recovery after a fill: **reacquire** first. Other holder → journal `lease_held_after_fill`, place nothing. Git down → emergency-protect from broker state.
+- Release (end of a run that did acquire): same fetch / `--ff-only` or rebase / confirm `run_id` / expire or delete / push. Retry once. Do not place extra new entries if cleanup fails.
 
 **A4.5 Account, recovery tools, files, then exposure.**
 - Select the Agentic account ending **2907** first. Do not scan or inspect positions before the account is identified.
@@ -364,7 +364,7 @@ Fetch (scan mode only; waterfall; do not prefetch): daily `interval=day` `bounds
   5. The one-replacement limit does not apply to `protection_failed` or mandatory liquidation. Repeat every 15 seconds until flat or order entry closes.
   6. Journal `protection_failed`. Do not open anything else this run. Journal `critical_liquidation_failed` if still open near 16:00.
 
-**8. Exits / protection** (manage_exposure and leftover after a scan fill; 09:30+ RTH). Take-profit is allowed on manage fires when no other holder exists.
+**8. Exits / protection** (manage_exposure and leftover after a scan fill; 09:30+ RTH). Take-profit is allowed on manage fires when no other holder exists. Before any take-profit `place_option_order`, run leftover_card. `skip` / `monitor` → **do not place**. `place` / `reuse` → use that `ref_id` (retry, not a second closer).
 - **09:30–09:44:59:** if the position lacks a valid working GFD stop, do not place a new stop. Immediate controlled sell-to-close limit at the live bid. Monitor until confirmed flat.
 - **09:45+ missing stop:** place the §7 GFD stop from average fill (or cost from `get_option_positions`) if a new stop-market is accepted. Do not attempt GTC. Flatten by the deadline. Do not also rest a live TP.
 - Take-profit:

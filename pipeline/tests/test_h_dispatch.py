@@ -1,3 +1,5 @@
+import json
+
 from pipeline.h_attention import after_classify, in_scope_sections
 from pipeline.h_budget import MANAGE, OUTSIDE_RTH, SCAN
 from pipeline.h_dispatch import (
@@ -73,6 +75,20 @@ def test_may_place_matches_attention_table():
         git_status="outage",
     )[0] is False
     assert may_place(kind="entry", owned=False, expired=True, other_holder=False)[0] is False
+    assert may_place(
+        kind="take_profit",
+        owned=False,
+        expired=True,
+        other_holder=False,
+        orders_complete=False,
+    ) == (False, "orders_incomplete")
+    assert may_place(
+        kind="entry",
+        owned=True,
+        expired=False,
+        other_holder=False,
+        orders_complete=False,
+    ) == (False, "orders_incomplete")
 
 
 def test_leftover_card_uses_closer():
@@ -91,3 +107,39 @@ def test_leftover_card_uses_closer():
         orders_complete=False,
     )
     assert blocked["action"] == "skip"
+    covering = {
+        "option_id": "opt-a",
+        "state": "queued",
+        "side": "sell",
+        "position_effect": "close",
+        "quantity": 1,
+        "filled_quantity": 0,
+    }
+    wrapped = leftover_card(
+        option_id="opt-a",
+        position_quantity=1,
+        option_orders=json.dumps({"data": {"orders": [covering]}}),
+        session_date_et="2026-09-08",
+    )
+    assert wrapped["action"] == "monitor"
+    single = leftover_card(
+        option_id="opt-a",
+        position_quantity=1,
+        option_orders=json.dumps(covering),
+        session_date_et="2026-09-08",
+    )
+    assert single["action"] == "monitor"
+    unknown = leftover_card(
+        option_id="opt-a",
+        position_quantity=1,
+        option_orders=json.dumps({"next": "cursor"}),
+        session_date_et="2026-09-08",
+    )
+    assert unknown["action"] == "skip"
+    broken = leftover_card(
+        option_id="opt-a",
+        position_quantity=1,
+        option_orders="{not-json",
+        session_date_et="2026-09-08",
+    )
+    assert broken["action"] == "skip"

@@ -66,6 +66,14 @@ def test_place_authority_schema_and_helper_and_incomplete_orders():
         False,
         "orders_incomplete",
     )
+    assert place_authority(kind="take_profit", lease=EXPIRED, orders_complete=False) == (
+        False,
+        "orders_incomplete",
+    )
+    assert place_authority(kind="entry", lease=OWNED, orders_complete=False) == (
+        False,
+        "orders_incomplete",
+    )
     ok, reason = place_authority(kind="flatten", lease=EXPIRED, git_status="ok")
     assert ok is True and reason == "emergency_protection_without_owned_lease"
     assert place_authority(kind="flatten", lease=OTHER)[0] is False

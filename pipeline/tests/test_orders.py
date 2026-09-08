@@ -304,6 +304,8 @@ def test_agent_h_prompt_locks_schema_and_live_safety():
     assert "print_card" in prompt
     assert "SCAN ONLY text below the fence is **unread**" in prompt
     assert "from pipeline.h_dispatch import leftover_card" in prompt
+    assert "Before any take-profit `place_option_order`, run leftover_card" in prompt
+    assert "Renewal uses the same fetch / `--ff-only` or rebase / remote re-read / push / verify sequence as acquire" in prompt
     assert "emergency_ref_id_unavailable" in prompt
     assert "Emergency kinds may place without an owned lease if no other unexpired holder exists." in prompt
     assert "generation` is the count of cancelled/rejected/failed/voided" in prompt
