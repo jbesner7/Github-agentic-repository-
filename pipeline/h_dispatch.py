@@ -8,7 +8,7 @@ attention → gates in working memory. After clock and exposure, it runs
 from __future__ import annotations
 
 import json
-from typing import Any
+from typing import Any, Mapping
 
 from pipeline.h_attention import (
     after_classify,
@@ -221,18 +221,112 @@ def coerce_portfolio(portfolio: dict[str, Any] | str | None) -> dict[str, Any] |
     return None
 
 
+_FILL_QTY_KEYS = ("filled_quantity", "processed_quantity", "cumulative_quantity")
+_FILL_STATES = frozenset({"filled", "partially_filled"})
+_ORDER_DATE_KEYS = (
+    "created_at",
+    "updated_at",
+    "last_transaction_at",
+    "filled_at",
+    "executed_at",
+    "timestamp",
+)
+
+
+def _order_day(row: Mapping[str, Any]) -> str:
+    for key in _ORDER_DATE_KEYS:
+        text = str(row.get(key) or "").strip()
+        if len(text) >= 10 and text[4] == "-" and text[7] == "-":
+            return text[:10]
+    return ""
+
+
+def _fill_qty(row: Mapping[str, Any]) -> float:
+    for key in _FILL_QTY_KEYS:
+        raw = row.get(key)
+        if raw in (None, ""):
+            continue
+        try:
+            qty = float(str(raw).replace(",", ""))
+        except (TypeError, ValueError):
+            continue
+        if qty > 0:
+            return qty
+    return 0.0
+
+
+def _row_has_fill(row: Mapping[str, Any]) -> bool:
+    if _fill_qty(row) > 0:
+        return True
+    state = str(row.get("state") or row.get("status") or "").strip().lower()
+    return state in _FILL_STATES
+
+
+def session_has_fills(payload: Any, session_date_et: str) -> tuple[bool | None, str]:
+    """True if this payload has a same-day fill. None if the payload is unusable."""
+    if payload is None:
+        return None, "orders_missing"
+    day = (session_date_et or "").strip()
+    if not day:
+        return None, "session_date_missing"
+    rows, parsed = coerce_option_orders(payload)
+    if not parsed or rows is None:
+        return None, "orders_unparseable"
+    for row in rows:
+        if not _row_has_fill(row):
+            continue
+        stamped = _order_day(row)
+        if not stamped or stamped == day:
+            return True, "fill_present"
+    return False, "no_fills"
+
+
+def resolve_fills_today(
+    *,
+    option_orders: Any,
+    equity_orders: Any,
+    session_date_et: str,
+    orders_complete: bool = True,
+) -> tuple[bool | None, str]:
+    """Fills from broker option + equity orders. Incomplete payloads are not 'no fills'."""
+    if not orders_complete:
+        return None, "orders_incomplete"
+    if not (session_date_et or "").strip():
+        return None, "session_date_missing"
+    option_has, option_reason = session_has_fills(option_orders, session_date_et)
+    if option_has is None:
+        return None, option_reason
+    equity_has, equity_reason = session_has_fills(equity_orders, session_date_et)
+    if equity_has is None:
+        return None, equity_reason
+    if option_has or equity_has:
+        return True, "fill_present"
+    return False, "no_fills"
+
+
 def bod_card(
     *,
     portfolio: dict[str, Any] | str | None,
     leftover: bool,
-    fills_today: bool,
+    option_orders: list[dict[str, Any]] | str | dict[str, Any] | None,
+    equity_orders: list[dict[str, Any]] | str | dict[str, Any] | None,
+    session_date_et: str,
+    orders_complete: bool = True,
 ) -> dict[str, Any]:
     """Session-start NLV. H does not treat midday total_value as BOD after a fill."""
     parsed = coerce_portfolio(portfolio)
+    fills_today, _fill_reason = resolve_fills_today(
+        option_orders=option_orders,
+        equity_orders=equity_orders,
+        session_date_et=session_date_et,
+        orders_complete=orders_complete,
+    )
+    # Incomplete or missing order pages block the cash==total fallback only.
+    # A broker BOD field is still usable.
     amount, field, reason = resolve_bod_nlv(
         parsed,
         leftover=bool(leftover),
-        fills_today=bool(fills_today),
+        fills_today=True if fills_today is None else bool(fills_today),
     )
     if parsed is None and portfolio not in (None, "", {}, []):
         amount, field, reason = None, None, "bod_nlv_unavailable"

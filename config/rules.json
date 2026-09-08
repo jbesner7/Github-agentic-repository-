@@ -335,6 +335,7 @@
     "prefer_broker_beginning_of_day_nlv": true,
     "first_fire_nlv_is_not_session_start": true,
     "bod_card_helper": "pipeline.h_dispatch.bod_card",
+    "bod_card_derives_fills_from_broker_orders": true,
     "flat_no_fills_cash_equals_total_value_is_bod": true,
     "do_not_use_midday_total_value_after_fill_or_leftover": true,
     "bod_nlv_unavailable_means_no_new_entry": true,

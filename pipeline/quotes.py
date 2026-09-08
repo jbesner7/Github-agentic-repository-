@@ -156,6 +156,7 @@ def resolve_bod_nlv(
     """BOD for a new entry. Broker field first; else flat cash==total_value with no fills.
 
     Midday `total_value` after a fill or leftover is not session-start NLV.
+    `fills_today` must come from broker option and equity orders, not a model boolean.
     """
     amount, field = extract_bod_nlv(portfolio)
     if amount is not None and field:

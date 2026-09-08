@@ -184,6 +184,7 @@ def test_rules_json_matches_working_states_and_10minute():
     assert rules["agent_h"]["apply_both_fee_ceilings_on_every_trade"] is True
     assert rules["agent_h"]["bod_nlv_unavailable_means_no_new_entry"] is True
     assert rules["agent_h"]["flat_no_fills_cash_equals_total_value_is_bod"] is True
+    assert rules["agent_h"]["bod_card_derives_fills_from_broker_orders"] is True
     assert rules["agent_h"]["do_not_use_midday_total_value_after_fill_or_leftover"] is True
     assert rules["agent_h"]["bod_card_helper"] == "pipeline.h_dispatch.bod_card"
     assert rules["priority_does_not_authorize_agent_h_equity"] is True
@@ -310,6 +311,12 @@ def test_agent_h_prompt_locks_schema_and_live_safety():
     assert "from pipeline.h_dispatch import leftover_card" in prompt
     assert "from pipeline.h_dispatch import bod_card" in prompt
     assert "flat_no_fills_cash_equals_total_value" in prompt
+    assert (
+        "bod_card(portfolio=<dict_or_json>, leftover=<True|False>, option_orders=<list_or_json>, equity_orders=<list_or_json>, session_date_et='<YYYY-MM-DD>', orders_complete=True)"
+        in prompt
+    )
+    assert "fills_today=<True|False>" not in prompt
+    assert "Do not pass a `fills_today` boolean" in prompt
     assert "Before any take-profit `place_option_order`, run leftover_card" in prompt
     assert "Renewal uses the same fetch / `--ff-only` or rebase / remote re-read / push / verify sequence as acquire" in prompt
     assert "emergency_ref_id_unavailable" in prompt

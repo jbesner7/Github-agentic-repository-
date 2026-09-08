@@ -9,6 +9,7 @@ from pipeline.h_dispatch import (
     format_card,
     leftover_card,
     may_place,
+    resolve_fills_today,
 )
 
 
@@ -155,26 +156,150 @@ def test_bod_card_accepts_live_mcp_flat_cash_when_no_fills():
             "buying_power": {"buying_power": "1500.0000"},
         }
     }
-    ok = bod_card(portfolio=payload, leftover=False, fills_today=False)
+    empty = {"data": {"orders": []}}
+    session = "2026-09-08"
+    ok = bod_card(
+        portfolio=payload,
+        leftover=False,
+        option_orders=empty,
+        equity_orders=[],
+        session_date_et=session,
+    )
     assert ok["reason"] == "ok"
     assert ok["bod_nlv"] == 1500.0
     assert ok["bod_nlv_field"] == "flat_no_fills_cash_equals_total_value"
-    after_fill = bod_card(portfolio=payload, leftover=False, fills_today=True)
-    assert after_fill["reason"] == "bod_nlv_unavailable"
-    leftover = bod_card(portfolio=payload, leftover=True, fills_today=False)
+    leftover = bod_card(
+        portfolio=payload,
+        leftover=True,
+        option_orders=[],
+        equity_orders=[],
+        session_date_et=session,
+    )
     assert leftover["reason"] == "bod_nlv_unavailable"
     mismatch = bod_card(
         portfolio={"cash": "1500", "total_value": "1512"},
         leftover=False,
-        fills_today=False,
+        option_orders=[],
+        equity_orders=[],
+        session_date_et=session,
     )
     assert mismatch["reason"] == "bod_nlv_unavailable"
     broker = bod_card(
         portfolio={"data": {"start_of_day_equity": "1490.00", "total_value": "1512"}},
         leftover=False,
-        fills_today=True,
+        option_orders=[],
+        equity_orders=[],
+        session_date_et=session,
+        orders_complete=False,
     )
     assert broker["bod_nlv"] == 1490.0
     assert broker["bod_nlv_field"] == "start_of_day_equity"
-    broken = bod_card(portfolio="{not-json", leftover=False, fills_today=False)
+    broken = bod_card(
+        portfolio="{not-json",
+        leftover=False,
+        option_orders=[],
+        equity_orders=[],
+        session_date_et=session,
+    )
     assert broken["reason"] == "bod_nlv_unavailable"
+
+
+def test_bod_card_derives_fills_from_broker_orders():
+    payload = {"cash": "1540", "total_value": "1540", "pending_deposits": "0"}
+    session = "2026-09-08"
+    filled_option = {
+        "id": "opt-fill",
+        "state": "filled",
+        "filled_quantity": 1,
+        "created_at": "2026-09-08T14:22:00Z",
+    }
+    winner = bod_card(
+        portfolio=payload,
+        leftover=False,
+        option_orders=json.dumps({"data": {"orders": [filled_option]}}),
+        equity_orders=[],
+        session_date_et=session,
+    )
+    assert winner["reason"] == "bod_nlv_unavailable"
+    equity_fill = {
+        "id": "eq-fill",
+        "state": "filled",
+        "processed_quantity": "1",
+        "created_at": "2026-09-08T15:01:00Z",
+    }
+    shares = bod_card(
+        portfolio=payload,
+        leftover=False,
+        option_orders=[],
+        equity_orders=[equity_fill],
+        session_date_et=session,
+    )
+    assert shares["reason"] == "bod_nlv_unavailable"
+    cancelled = {
+        "id": "opt-cxl",
+        "state": "cancelled",
+        "filled_quantity": 0,
+        "created_at": "2026-09-08T14:00:00Z",
+    }
+    no_fill = bod_card(
+        portfolio=payload,
+        leftover=False,
+        option_orders=[cancelled],
+        equity_orders=[],
+        session_date_et=session,
+    )
+    assert no_fill["reason"] == "ok"
+    yesterday = {
+        "id": "opt-old",
+        "state": "filled",
+        "filled_quantity": 1,
+        "created_at": "2026-09-07T20:00:00Z",
+    }
+    prior = bod_card(
+        portfolio=payload,
+        leftover=False,
+        option_orders=[yesterday],
+        equity_orders=[],
+        session_date_et=session,
+    )
+    assert prior["reason"] == "ok"
+    incomplete = bod_card(
+        portfolio=payload,
+        leftover=False,
+        option_orders=[],
+        equity_orders=[],
+        session_date_et=session,
+        orders_complete=False,
+    )
+    assert incomplete["reason"] == "bod_nlv_unavailable"
+    missing = bod_card(
+        portfolio=payload,
+        leftover=False,
+        option_orders=None,
+        equity_orders=[],
+        session_date_et=session,
+    )
+    assert missing["reason"] == "bod_nlv_unavailable"
+    unknown = bod_card(
+        portfolio=payload,
+        leftover=False,
+        option_orders=json.dumps({"next": "cursor"}),
+        equity_orders=[],
+        session_date_et=session,
+    )
+    assert unknown["reason"] == "bod_nlv_unavailable"
+    broker_after_fill = bod_card(
+        portfolio={"start_of_day_equity": "1500.00", "total_value": "1540"},
+        leftover=False,
+        option_orders=[filled_option],
+        equity_orders=[],
+        session_date_et=session,
+    )
+    assert broker_after_fill["bod_nlv"] == 1500.0
+    assert broker_after_fill["bod_nlv_field"] == "start_of_day_equity"
+    fills, reason = resolve_fills_today(
+        option_orders=[filled_option],
+        equity_orders=[],
+        session_date_et=session,
+    )
+    assert fills is True and reason == "fill_present"
